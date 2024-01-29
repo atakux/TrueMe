@@ -52,7 +52,10 @@ const LoginScreen = () => {
         <Text style={styles.trueMeTitle}>{"TrueMe"}</Text>
       </View>
 
-      {/* Login fields */}
+      {/* Login fields 
+            TODO: require fields to be not empty, if empty show error
+            TODO: retrieve data from database
+      */}
       <View style={styles.loginContainer}>
         <Text style={styles.loginTitle}>{"Log in"}</Text>
 
@@ -99,7 +102,7 @@ const LoginScreen = () => {
 
       {/* Don't have an account? */}
       <View style={{ alignItems: "center", marginTop: 50 }}>
-        <Text style={styles.textButton}>Don't have an account yet?</Text>
+        <Text style={styles.textButtonInfo}>Don't have an account yet?</Text>
 
         {/* Navigate to sign up page for user to sign up */}
         <TouchableOpacity
@@ -202,7 +205,15 @@ const styles = StyleSheet.create({
     fontFamily: "Inter-Regular",
     color: "#212121",
     textAlign: "center",
-  },
+    textDecorationLine: "underline",
+  }, // End of textButton
+
+  textButtonInfo: {
+    fontSize: 16,
+    fontFamily: "Inter-Regular",
+    color: "#212121",
+    textAlign: "center",
+  }, // End of textButtonInfo
 
   buttons: {
     width: 159,
