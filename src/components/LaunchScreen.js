@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, SafeAreaView, View, Text, Button, TouchableOpacity, Image } from 'react-native';
 
+
 import { useNavigation } from '@react-navigation/native';
 
 import * as Font from 'expo-font';
@@ -38,7 +39,7 @@ const LaunchScreen = () => {
     <SafeAreaView style={styles.container}>
 
         {/* Top flowers */}
-        <Image source={require('../../assets/images/top_flowers.png')} style={{marginTop: -53, marginLeft: 150, width: 245, height: 138}} />
+        <Image source={require('../../assets/images/top_flowers.png')} style={{ marginLeft: 150, width: 245, height: 138}} />
 
         {/* Title and Affirmation Text */}
         <View style={{alignItems: 'center', marginTop: 50 }}>
@@ -55,9 +56,7 @@ const LaunchScreen = () => {
 
         </View>
 
-        {/* Login and Sign up buttons
-            TODO: Add login and sign up functionality
-        */}
+        {/* Login and Sign up buttons */}
         <View style={{alignItems: 'center', marginTop: 50}}>
             
             <TouchableOpacity
@@ -76,7 +75,7 @@ const LaunchScreen = () => {
             <View style={{ height: 50 }} /> 
 
 
-            {/* TODO: Sign Up button will take you to sign up screen. */}
+            {/* Sign Up button will take you to sign up screen. */}
             <TouchableOpacity
                 style={styles.buttons}
                 onPress={() => {
@@ -92,7 +91,7 @@ const LaunchScreen = () => {
         </View>
 
         {/* Bottom flowers */}
-        <Image source={require('../../assets/images/bottom_flowers.png')} style={{marginTop: 60, width: 285, height: 178}} />
+        <Image source={require('../../assets/images/bottom_flowers.png')} style={{marginTop: 60, marginBottom: 50, width: 285, height: 178}} />
       
     </SafeAreaView>
   );
@@ -104,7 +103,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 5,
     backgroundColor: "#D4CCDD",
-    width: "100%"
+    width: "100%",
   }, // End of container
 
   trueMeTitle: {
