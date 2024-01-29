@@ -16,8 +16,7 @@ import * as Font from "expo-font";
 
 import { loadFonts } from '../utils/FontLoader'; 
 import { FIREBASE_AUTH } from "../../firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { firestore } from "firebase/firestore";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 const SignupScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
@@ -55,7 +54,11 @@ const SignupScreen = () => {
       );
       const user = userCredential.user;
 
-      console.log("Registered with:", user);
+      await updateProfile(user, {
+          displayName: username,
+      })
+
+      console.log("Registered with:", user.displayName);
       setLoading(false);
 
       navigation.navigate("HomeScreen");

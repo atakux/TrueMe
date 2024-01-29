@@ -15,7 +15,8 @@ import { useNavigation } from '@react-navigation/native';
 import * as Font from "expo-font";
 
 import { loadFonts } from '../utils/FontLoader'; 
-import { FIREBASE_AUTH, FIRESTORE_DB } from "../../firebase";
+import { FIREBASE_AUTH } from "../../firebase";
+import { signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 const LoginScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
@@ -43,15 +44,19 @@ const LoginScreen = () => {
   const handleLogIn = async () => {
     setLoading(true);
     try {
-      const userCredential = await auth.signInWithEmailAndPassword(
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
         email,
         password
       );
       const user = userCredential.user;
 
-      console.log("Signed in with:", user);
+      console.log("Signed in with:", user.displayName);
+      
       setLoading(false);
+
       navigation.navigate("HomeScreen");
+
     } catch (error) {
       console.log(error);
       setLoading(false);
