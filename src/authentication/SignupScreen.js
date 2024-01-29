@@ -107,7 +107,6 @@ const SignupScreen = () => {
           style={styles.input}
           placeholder="Password"
           autoCapitalize="none"
-          keyboardType="password"
           value={password}
           secureTextEntry={true}
           onChangeText={setPassword} // update password
@@ -118,7 +117,6 @@ const SignupScreen = () => {
           style={styles.input}
           placeholder="Confirm Password"
           autoCapitalize="none"
-          keyboardType="password"
           value={confirmPassword}
           secureTextEntry={true}
           onChangeText={setConfPassword} // update confirm password
