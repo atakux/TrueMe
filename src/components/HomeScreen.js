@@ -6,13 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import * as Font from 'expo-font';
 
-// Load fonts
-const LoadFonts = async () => {
-  await Font.loadAsync({
-    'Spirax-Regular': require('../../assets/fonts/Spirax-Regular.ttf'),
-    'Sofia-Sans': require('../../assets/fonts/Sofia-Sans.ttf'),
-  });
-};
+import { loadFonts } from '../utils/FontLoader'; 
 
 
 const HomeScreen = () => {
@@ -21,7 +15,7 @@ const HomeScreen = () => {
 
   useEffect(() => {
     const loadAsyncData = async () => {
-      await LoadFonts();
+      await loadFonts();
       setFontLoaded(true);
     };
 
