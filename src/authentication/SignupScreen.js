@@ -15,10 +15,15 @@ import { useNavigation } from '@react-navigation/native';
 import * as Font from "expo-font";
 
 import { loadFonts } from '../utils/FontLoader'; 
+import { FIREBASE_AUTH } from "../../firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { firestore } from "firebase/firestore";
 
 const SignupScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
+  const auth = FIREBASE_AUTH;
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -38,6 +43,28 @@ const SignupScreen = () => {
     // Font is still loading, you can return a loading indicator or null
     return null;
   }
+
+  const handleSignUp = async () => {
+    setLoading(true);
+    try {
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      const user = userCredential.user;
+
+      console.log("Registered with:", user);
+      setLoading(false);
+
+      navigation.navigate("HomeScreen");
+
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -61,8 +88,9 @@ const SignupScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="Username"
+          autoCapitalize="none"
           value={username}
-          onChangeText={setUsername}
+          onChangeText={setUsername} // update username
         />
 
         {/* Email input */}
@@ -71,25 +99,29 @@ const SignupScreen = () => {
           placeholder="Email"
           keyboardType="email-address"
           value={email}
-          onChangeText={(text) => setEmail(text.toLowerCase())}
+          onChangeText={(text) => setEmail(text.toLowerCase())} // update email
         />
 
         {/* Password input */}
         <TextInput
           style={styles.input}
           placeholder="Password"
+          autoCapitalize="none"
+          keyboardType="password"
           value={password}
           secureTextEntry={true}
-          onChangeText={setPassword}
+          onChangeText={setPassword} // update password
         />
 
         {/* Confirm password input */}
         <TextInput
           style={styles.input}
           placeholder="Confirm Password"
+          autoCapitalize="none"
+          keyboardType="password"
           value={confirmPassword}
           secureTextEntry={true}
-          onChangeText={setPassword}
+          onChangeText={setConfPassword} // update confirm password
         />
 
         {/* Login button */}
@@ -107,7 +139,7 @@ const SignupScreen = () => {
 
                 // TODO: store user data to Firebase 
                 //       navigate to home screen after storing to database
-                navigation.navigate('HomeScreen');
+                handleSignUp();
             } else {
                 // TODO: Add error
                 console.log("Passwords do not match!");

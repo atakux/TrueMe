@@ -15,10 +15,13 @@ import { useNavigation } from '@react-navigation/native';
 import * as Font from "expo-font";
 
 import { loadFonts } from '../utils/FontLoader'; 
+import { FIREBASE_AUTH, FIRESTORE_DB } from "../../firebase";
 
 const LoginScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
+  const auth = FIREBASE_AUTH;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,6 +39,24 @@ const LoginScreen = () => {
     // Font is still loading, you can return a loading indicator or null
     return null;
   }
+
+  const handleLogIn = async () => {
+    setLoading(true);
+    try {
+      const userCredential = await auth.signInWithEmailAndPassword(
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      console.log("Signed in with:", user);
+      setLoading(false);
+      navigation.navigate("HomeScreen");
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.mainContainer}>

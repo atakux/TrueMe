@@ -15,7 +15,6 @@ const Stack = createStackNavigator();
 
 export default function App() {
   return (
-
     <NavigationContainer style={styles.container}>
       <Stack.Navigator>
         <Stack.Screen name="LaunchScreen" component={LaunchScreen} options={{headerShown: false}}/>
