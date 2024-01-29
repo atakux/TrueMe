@@ -39,7 +39,7 @@ const LaunchScreen = () => {
     <SafeAreaView style={styles.container}>
 
         {/* Top flowers */}
-        <Image source={require('../../assets/images/top_flowers.png')} style={{ marginLeft: 150, width: 245, height: 138}} />
+        <Image source={require('../../assets/images/top_flowers.png')} style={styles.topFlowers} />
 
         {/* Title and Affirmation Text */}
         <View style={{alignItems: 'center', marginTop: 50 }}>
@@ -100,6 +100,23 @@ const LaunchScreen = () => {
 // Styles
 
 const styles = StyleSheet.create({
+  topFlowers: {
+    ...Platform.select({
+        ios: {
+            marginLeft: 150, 
+            width: 245, 
+            height: 138,
+            marginTop: -52,
+        },
+
+        android: {
+            marginLeft: 150, 
+            width: 245, 
+            height: 138
+        }
+    })    
+  },
+
   container: {
     flex: 5,
     backgroundColor: "#D4CCDD",

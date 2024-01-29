@@ -81,13 +81,16 @@ const LoginScreen = () => {
         <TouchableOpacity
           style={styles.buttons}
           onPress={() => {
-            // TODO: Add login functionality
             console.log(
               "Login button pressed with email:",
               email,
               "and password:",
               password
             );
+
+            // TODO: retrieve user data from Firebase 
+            //       navigate to home screen if their inputted login info matches database info
+            navigation.navigate('HomeScreen');
           }}
         >
           <Text style={styles.buttonText}>{"Log in"}</Text>
@@ -100,11 +103,11 @@ const LoginScreen = () => {
 
         {/* Navigate to sign up page for user to sign up */}
         <TouchableOpacity
-            style={styles.touchableOpacityButton}
+            style={styles.textButton}
             onPress={() => {
                 navigation.navigate('SignupScreen');
             }}>
-            <Text style={styles.buttonText}>Sign up!</Text>
+            <Text style={styles.textButton}>Sign up!</Text>
         </TouchableOpacity>
     </View>
     </SafeAreaView>

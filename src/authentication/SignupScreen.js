@@ -102,20 +102,23 @@ const LoginScreen = () => {
           onPress={() => {
             
             if (password === confirmPassword) {
-                // TODO: Send user to home screen 
                 console.log(
                     "Signup button pressed with email:",
                     email,
                     "and password:",
                     password
                 );
+
+                // TODO: store user data to Firebase 
+                //       navigate to home screen after storing to database
+                navigation.navigate('HomeScreen');
             } else {
                 // TODO: Add error
                 console.log("Passwords do not match!");
             }
           }}
         >
-          <Text style={styles.buttonText}>{"Log in"}</Text>
+          <Text style={styles.buttonText}>{"Sign up"}</Text>
         </TouchableOpacity>
       </View>
 
@@ -125,11 +128,11 @@ const LoginScreen = () => {
 
         {/* Navigate to sign up page for user to sign up */}
         <TouchableOpacity
-            style={styles.touchableOpacityButton}
+            style={styles.textButton}
             onPress={() => {
                 navigation.navigate('LoginScreen');
             }}>
-            <Text style={styles.buttonText}>Log in!</Text>
+            <Text style={styles.textButton}>Log in!</Text>
         </TouchableOpacity>
 
     </View>
