@@ -110,9 +110,9 @@ const styles = StyleSheet.create({
         },
 
         android: {
-            marginLeft: 150, 
+            marginLeft: 120, 
             width: 245, 
-            height: 138
+            height: 138,
         }
     })    
   },
