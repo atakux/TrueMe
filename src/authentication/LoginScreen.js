@@ -156,12 +156,7 @@ const LoginScreen = () => {
         <TouchableOpacity
           style={styles.buttons}
           onPress={() => {
-            console.log(
-              "Login button pressed with email:",
-              email,
-              "and password:",
-              password
-            );
+            console.log("DEBUG: Login button pressed with email:", email);
 
             // retrieves user data from Firebase 
             //   => navigates to home screen if their inputted login info matches database info
@@ -207,7 +202,7 @@ const styles = StyleSheet.create({
   loginContainer: {
     backgroundColor: "#EDEEF3",
     width: 328,
-    height: 424,
+    height: 415,
     borderRadius: 25,
     borderWidth: 2,
     borderColor: "rgba(0, 0, 0, 0.19)",
@@ -270,6 +265,7 @@ const styles = StyleSheet.create({
     fontFamily: "Sofia-Sans",
     color: "#535353",
     textAlign: "center",
+    marginBottom: 10,
   }, // End of loginTitle
 
   errorMessage: {
@@ -277,8 +273,7 @@ const styles = StyleSheet.create({
     fontFamily: "Sofia-Sans",
     color: "red",
     textAlign: "center",
-    marginTop: 8,
-    marginBottom: 12,
+    marginBottom: 10,
   }, // End of errorMessage
 
   textButton: {

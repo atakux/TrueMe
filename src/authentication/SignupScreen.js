@@ -324,8 +324,7 @@ const styles = StyleSheet.create({
     fontFamily: "Sofia-Sans",
     color: "red",
     textAlign: "center",
-    marginTop: 8,
-    marginBottom: 12,
+    marginBottom: 10,
   }, // End of errorMessage
 
   signupTitle: {
@@ -333,6 +332,7 @@ const styles = StyleSheet.create({
     fontFamily: "Sofia-Sans",
     color: "#535353",
     textAlign: "center",
+    marginBottom: 10,
   }, // End of signupTitle
 
   textButton: {
