@@ -55,6 +55,7 @@ const LoginScreen = () => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email.toLowerCase())) {
         setErrors((prevErrors) => [...prevErrors, "Please enter a valid email"]);
+        setLoading(false);
         return;
       }
 
@@ -86,10 +87,13 @@ const LoginScreen = () => {
       // If user does not exist, add error message
       if (error.code === "auth/invalid-credential") {
         setErrors((prevErrors) => [...prevErrors, "Incorrect email or password"]);
+        setLoading(false);
       } else if (error.code === "auth/too-many-requests") {
         setErrors((prevErrors) => [...prevErrors, "Too many log in attempts, please try again later"]);
+        setLoading(false);
       } else {
         setErrors((prevErrors) => [...prevErrors, "An error signing in occurred"]);
+        setLoading(false);
         console.log("A general error occurred during sign in: ", error);
       }
     }
