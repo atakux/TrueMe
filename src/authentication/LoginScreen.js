@@ -89,7 +89,7 @@ const LoginScreen = () => {
 
       {/* Login fields 
             TODO: require fields to be not empty, if empty show error
-            TODO: retrieve data from database
+            TODO: show error message if login fails
       */}
       <View style={styles.loginContainer}>
         <Text style={styles.loginTitle}>{"Log in"}</Text>
@@ -102,6 +102,7 @@ const LoginScreen = () => {
           style={styles.input}
           placeholder="Email"
           keyboardType="email-address"
+          autoCapitalize="none"
           value={email}
           onChangeText={(text) => setEmail(text.toLowerCase())}
         />
@@ -126,9 +127,9 @@ const LoginScreen = () => {
               password
             );
 
-            // TODO: retrieve user data from Firebase 
-            //       navigate to home screen if their inputted login info matches database info
-            navigation.navigate('HomeScreen');
+            // retrieves user data from Firebase 
+            //   => navigates to home screen if their inputted login info matches database info
+            handleLogIn();
           }}
         >
           <Text style={styles.buttonText}>{"Log in"}</Text>

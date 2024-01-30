@@ -93,9 +93,11 @@ const SignupScreen = () => {
         <Text style={styles.trueMeTitle}>{"TrueMe"}</Text>
       </View>
 
-      {/* Login fields 
+      {/* Sign up fields 
             TODO: require fields to be not empty, if empty show error
-            TODO: store data into database
+            TODO: show error if passwords dont match
+            TODO: show error if email is not valid
+            TODO: show error if account already exists
       */}
       <View style={styles.signupContainer}>
         <Text style={styles.signupTitle}>{"Sign up"}</Text>
@@ -117,6 +119,7 @@ const SignupScreen = () => {
           style={styles.input}
           placeholder="Email"
           keyboardType="email-address"
+          autoCapitalize="none"
           value={email}
           onChangeText={(text) => setEmail(text.toLowerCase())} // update email
         />
@@ -141,7 +144,7 @@ const SignupScreen = () => {
           onChangeText={setConfPassword} // update confirm password
         />
 
-        {/* Login button */}
+        {/* Sign up button */}
         <TouchableOpacity
           style={styles.buttons}
           onPress={() => {
@@ -154,8 +157,8 @@ const SignupScreen = () => {
                     password
                 );
 
-                // TODO: store user data to Firebase 
-                //       navigate to home screen after storing to database
+                // store user data to Firebase 
+                //   => navigate to home screen after storing to database
                 handleSignUp();
             } else {
                 // TODO: Add error
@@ -167,11 +170,11 @@ const SignupScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Don't have an account? */}
+      {/* Have an account? */}
       <View style={{ alignItems: "center", marginTop: 20 }}>
         <Text style={styles.textButtonInfo}>Already have an account?</Text>
 
-        {/* Navigate to sign up page for user to sign up */}
+        {/* Navigate to login page for user to login */}
         <TouchableOpacity
             style={styles.textButton}
             onPress={() => {
