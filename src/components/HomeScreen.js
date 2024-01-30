@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, Button, TouchableOpacity, Image } from 'react-native';
-
+import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
+import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
 import * as Font from 'expo-font';
-
 import { loadFonts } from '../utils/FontLoader'; 
-
+import { useAuth } from '../utils/AuthContext';
 
 const HomeScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
+  const user = useAuth();
 
   useEffect(() => {
     const loadAsyncData = async () => {
@@ -22,20 +22,19 @@ const HomeScreen = () => {
     loadAsyncData();
   }, []);
 
-  if (!fontLoaded) {
-    // Font is still loading, you can return a loading indicator or null
+  if (!fontLoaded || !user) {
+    // Font is still loading or user not logged in, you can return a loading indicator or null
     return null;
   }
 
   return (
-    // Actual Home Screen
     <SafeAreaView style={styles.container}>
+      <View style={{ alignItems: 'center', marginTop: 50 }}>
+        <Text style={styles.mainText}>Welcome, {user.displayName}</Text>
+      </View>
 
-        
-
+      {/* Your other components and UI elements go here */}
     </SafeAreaView>
-
-
   );
 };
 

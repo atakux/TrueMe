@@ -15,10 +15,14 @@ import { useNavigation } from '@react-navigation/native';
 import * as Font from "expo-font";
 
 import { loadFonts } from '../utils/FontLoader'; 
+import { FIREBASE_AUTH } from "../../firebase";
+import { signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 const LoginScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
+  const auth = FIREBASE_AUTH;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,6 +40,44 @@ const LoginScreen = () => {
     // Font is still loading, you can return a loading indicator or null
     return null;
   }
+
+  const handleLogIn = async () => {
+    setLoading(true);
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      console.log("Signed in with:", user.displayName);
+
+      setLoading(false);
+
+      navigation.navigate("HomeScreen");
+
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+
+    // Should keep user logged into account
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, async (authUser) => {
+          if (authUser) {
+            setUser(authUser);
+            // Save user information to local storage for the most recent session
+            await AsyncStorage.setItem('recentSessionUser', JSON.stringify(authUser));
+          } else {
+            setUser(null);
+          }
+        });
+    
+        // Cleanup the observer when the component unmounts
+        return () => unsubscribe();
+    }, []);
+  };
 
   return (
     <SafeAreaView style={styles.mainContainer}>

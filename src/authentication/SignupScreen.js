@@ -15,10 +15,14 @@ import { useNavigation } from '@react-navigation/native';
 import * as Font from "expo-font";
 
 import { loadFonts } from '../utils/FontLoader'; 
+import { FIREBASE_AUTH } from "../../firebase";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 const SignupScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
+  const auth = FIREBASE_AUTH;
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -38,6 +42,48 @@ const SignupScreen = () => {
     // Font is still loading, you can return a loading indicator or null
     return null;
   }
+
+  const handleSignUp = async () => {
+    setLoading(true);
+    try {
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      const user = userCredential.user;
+
+      await updateProfile(user, {
+          displayName: username,
+      })
+
+      console.log("Registered with:", user.displayName);
+      setLoading(false);
+
+      navigation.navigate("HomeScreen");
+
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+
+    // Should keep user logged into account
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, async (authUser) => {
+          if (authUser) {
+            setUser(authUser);
+            // Save user information to local storage for the most recent session
+            await AsyncStorage.setItem('recentSessionUser', JSON.stringify(authUser));
+          } else {
+            setUser(null);
+          }
+        });
+    
+        // Cleanup the observer when the component unmounts
+        return () => unsubscribe();
+    }, []);
+  };
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -61,8 +107,9 @@ const SignupScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="Username"
+          autoCapitalize="none"
           value={username}
-          onChangeText={setUsername}
+          onChangeText={setUsername} // update username
         />
 
         {/* Email input */}
@@ -71,25 +118,27 @@ const SignupScreen = () => {
           placeholder="Email"
           keyboardType="email-address"
           value={email}
-          onChangeText={(text) => setEmail(text.toLowerCase())}
+          onChangeText={(text) => setEmail(text.toLowerCase())} // update email
         />
 
         {/* Password input */}
         <TextInput
           style={styles.input}
           placeholder="Password"
+          autoCapitalize="none"
           value={password}
           secureTextEntry={true}
-          onChangeText={setPassword}
+          onChangeText={setPassword} // update password
         />
 
         {/* Confirm password input */}
         <TextInput
           style={styles.input}
           placeholder="Confirm Password"
+          autoCapitalize="none"
           value={confirmPassword}
           secureTextEntry={true}
-          onChangeText={setPassword}
+          onChangeText={setConfPassword} // update confirm password
         />
 
         {/* Login button */}
@@ -107,7 +156,7 @@ const SignupScreen = () => {
 
                 // TODO: store user data to Firebase 
                 //       navigate to home screen after storing to database
-                navigation.navigate('HomeScreen');
+                handleSignUp();
             } else {
                 // TODO: Add error
                 console.log("Passwords do not match!");
