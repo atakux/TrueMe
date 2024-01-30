@@ -204,8 +204,8 @@ const SignupScreen = () => {
                 //   => navigate to home screen after storing to database
                 handleSignUp();
             } else {
-                // TODO: Add error
-                console.log("Passwords do not match!");
+                setErrors((prevErrors) => ["Passwords do not match"]);
+                console.log("DEBUG: Passwords do not match");
             }
           }}
         >
