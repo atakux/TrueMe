@@ -67,6 +67,22 @@ const SignupScreen = () => {
       console.log(error);
       setLoading(false);
     }
+
+    // Should keep user logged into account
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, async (authUser) => {
+          if (authUser) {
+            setUser(authUser);
+            // Save user information to local storage for the most recent session
+            await AsyncStorage.setItem('recentSessionUser', JSON.stringify(authUser));
+          } else {
+            setUser(null);
+          }
+        });
+    
+        // Cleanup the observer when the component unmounts
+        return () => unsubscribe();
+    }, []);
   };
 
   return (
