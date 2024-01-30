@@ -27,6 +27,8 @@ const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const [errors, setErrors] = useState([]);
+
   useEffect(() => {
     const loadAsyncData = async () => {
       await loadFonts();
@@ -44,6 +46,24 @@ const LoginScreen = () => {
   const handleLogIn = async () => {
     setLoading(true);
     try {
+
+      // Reset all error messages
+      setErrors([]);
+      
+      // Validate user input
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.toLowerCase())) {
+        setErrors((prevErrors) => [...prevErrors, "Please enter a valid email"]);
+        return;
+      }
+
+      if (password === "") {
+        setErrors((prevErrors) => [...prevErrors, "Please enter a password"]);
+        setLoading(false);
+        return;
+      }
+
+      // Sign in
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -51,7 +71,7 @@ const LoginScreen = () => {
       );
       const user = userCredential.user;
 
-      console.log("Signed in with:", user.displayName);
+      console.log("DEBUG: Signed in with:", user.displayName);
 
       setLoading(false);
 
@@ -60,6 +80,17 @@ const LoginScreen = () => {
     } catch (error) {
       console.log(error);
       setLoading(false);
+
+      // Handle specific errors
+      // If user does not exist, add error message
+      if (error.code === "auth/invalid-credential") {
+        setErrors((prevErrors) => [...prevErrors, "Incorrect email or password"]);
+      } else if (error.code === "auth/too-many-requests") {
+        setErrors((prevErrors) => [...prevErrors, "Too many log in attempts, please try again later"]);
+      } else {
+        setErrors((prevErrors) => [...prevErrors, "An error signing in occurred"]);
+        console.log("A general error occurred during sign in: ", error);
+      }
     }
 
     // Should keep user logged into account
@@ -94,8 +125,13 @@ const LoginScreen = () => {
       <View style={styles.loginContainer}>
         <Text style={styles.loginTitle}>{"Log in"}</Text>
 
-        {/* Spacer */}
-        <View style={{ height: 30 }} />
+        {/* Error Message */}
+        {errors.map((error, index) => (
+            <Text key={index} style={styles.errorMessage}>
+                {" ▸ " + error}
+            </Text>
+        ))}
+
 
         {/* Email input */}
         <TextInput
@@ -236,6 +272,15 @@ const styles = StyleSheet.create({
     textAlign: "center",
   }, // End of loginTitle
 
+  errorMessage: {
+    fontSize: 16,
+    fontFamily: "Sofia-Sans",
+    color: "red",
+    textAlign: "center",
+    marginTop: 8,
+    marginBottom: 12,
+  }, // End of errorMessage
+
   textButton: {
     fontSize: 16,
     fontFamily: "Inter-Regular",
@@ -265,9 +310,9 @@ const styles = StyleSheet.create({
   }, // End of buttons
 
   buttonText: {
-    fontSize: 20,
+    fontSize: 28,
     fontFamily: "Sofia-Sans",
-    color: "#212121",
+    color: "#64BBA1",
     textAlign: "center",
   }, // End of buttonText
 });

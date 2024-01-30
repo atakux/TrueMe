@@ -29,6 +29,8 @@ const SignupScreen = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfPassword] = useState("");
 
+  const [errors, setErrors] = useState([]);
+
   useEffect(() => {
     const loadAsyncData = async () => {
       await loadFonts();
@@ -43,10 +45,44 @@ const SignupScreen = () => {
     return null;
   }
 
+  // Handles main sign up logic: sends data to Firebase
   const handleSignUp = async () => {
     setLoading(true);
+
+    // Reset all error messages
+    setErrors([]);
+
     try {
 
+      // Validate user input
+      if (username === "") {
+        setErrors((prevErrors) => [...prevErrors, "Please enter a username"]);
+        setLoading(false);
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.toLowerCase())) {
+        setErrors((prevErrors) => [...prevErrors, "Please enter a valid email"]);
+        return;
+      }
+
+      else if (password.length < 6) {
+        setErrors((prevErrors) => [...prevErrors, "Password must be at least 6 characters long"]);
+        return;
+      }
+      if (confirmPassword === "") {
+        setErrors((prevErrors) => [...prevErrors, "Please confirm your password"]);
+        return;
+      }
+      if (confirmPassword !== password) {
+        setErrors((prevErrors) => [...prevErrors, "Passwords do not match"]);
+         return;
+      }
+
+      // Continue with SignUp logic
+
+      // Create a user in Firebase 
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -54,21 +90,33 @@ const SignupScreen = () => {
       );
       const user = userCredential.user;
 
+      // Update user profile to include username
       await updateProfile(user, {
           displayName: username,
       })
 
-      console.log("Registered with:", user.displayName);
+      // Debug
+      console.log("DEBUG: Registered with:", user.displayName);
       setLoading(false);
 
+      // Navigate to HomeScreen
       navigation.navigate("HomeScreen");
 
     } catch (error) {
-      console.log(error);
+      // Debug
+      console.log("DEBUG:", error);
       setLoading(false);
+
+      // Handle specific errors
+      if (error.code === "auth/email-already-in-use") {
+        setErrors((prevErrors) => [...prevErrors, "Email already in use"]);
+      } else {
+        setErrors((prevErrors) => [...prevErrors, "An unknown error occurred"]);
+        console.log("General Error during sign up:", error)
+      }
     }
 
-    // Should keep user logged into account
+    // Should keep user logged into account Unsure if this is needed
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, async (authUser) => {
           if (authUser) {
@@ -94,16 +142,18 @@ const SignupScreen = () => {
       </View>
 
       {/* Sign up fields 
-            TODO: require fields to be not empty, if empty show error
-            TODO: show error if passwords dont match
-            TODO: show error if email is not valid
-            TODO: show error if account already exists
+           => Displays error messages dynamically
       */}
       <View style={styles.signupContainer}>
         <Text style={styles.signupTitle}>{"Sign up"}</Text>
 
-        {/* Spacer */}
-        <View style={{ height: 15 }} />
+        {/* Error Message */}
+        {errors.map((error, index) => (
+            <Text key={index} style={styles.errorMessage}>
+                {" ▸ " + error}
+            </Text>
+        ))}
+
 
         {/* Username input */}
         <TextInput
@@ -198,8 +248,8 @@ const styles = StyleSheet.create({
 
   signupContainer: {
     backgroundColor: "#EDEEF3",
-    width: 328,
-    height: 570,
+    width: 355,
+    height: 575,
     borderRadius: 25,
     borderWidth: 2,
     borderColor: "rgba(0, 0, 0, 0.19)",
@@ -213,7 +263,7 @@ const styles = StyleSheet.create({
 
   input: {
     width: 289,
-    height: 90,
+    height: 85,
     backgroundColor: "#FFFFFF",
     borderRadius: 14,
     alignSelf: "center",
@@ -269,6 +319,15 @@ const styles = StyleSheet.create({
     textAlign: "center",
   }, // End of mainText
 
+  errorMessage: {
+    fontSize: 16,
+    fontFamily: "Sofia-Sans",
+    color: "red",
+    textAlign: "center",
+    marginTop: 8,
+    marginBottom: 12,
+  }, // End of errorMessage
+
   signupTitle: {
     fontSize: 30,
     fontFamily: "Sofia-Sans",
@@ -305,9 +364,9 @@ const styles = StyleSheet.create({
   }, // End of buttons
 
   buttonText: {
-    fontSize: 20,
+    fontSize: 28,
     fontFamily: "Sofia-Sans",
-    color: "#212121",
+    color: "#64BBA1",
     textAlign: "center",
   }, // End of buttonText
 });
