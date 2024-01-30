@@ -8,6 +8,7 @@ import {
   Button,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from "react-native";
 
 import { useNavigation } from '@react-navigation/native';
@@ -64,20 +65,24 @@ const SignupScreen = () => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email.toLowerCase())) {
         setErrors((prevErrors) => [...prevErrors, "Please enter a valid email"]);
+        setLoading(false);
         return;
       }
 
       else if (password.length < 6) {
         setErrors((prevErrors) => [...prevErrors, "Password must be at least 6 characters long"]);
+        setLoading(false);
         return;
       }
       if (confirmPassword === "") {
         setErrors((prevErrors) => [...prevErrors, "Please confirm your password"]);
+        setLoading(false);
         return;
       }
       if (confirmPassword !== password) {
         setErrors((prevErrors) => [...prevErrors, "Passwords do not match"]);
-         return;
+        setLoading(false);
+        return;
       }
 
       // Continue with SignUp logic
@@ -110,8 +115,10 @@ const SignupScreen = () => {
       // Handle specific errors
       if (error.code === "auth/email-already-in-use") {
         setErrors((prevErrors) => [...prevErrors, "Email already in use"]);
+        setLoading(false);
       } else {
         setErrors((prevErrors) => [...prevErrors, "An unknown error occurred"]);
+        setLoading(false);
         console.log("General Error during sign up:", error)
       }
     }
@@ -195,22 +202,27 @@ const SignupScreen = () => {
         />
 
         {/* Sign up button */}
-        <TouchableOpacity
-          style={styles.buttons}
-          onPress={() => {
-            
-            if (password === confirmPassword) {
-                // store user data to Firebase 
-                //   => navigate to home screen after storing to database
-                handleSignUp();
-            } else {
-                setErrors((prevErrors) => ["Passwords do not match"]);
-                console.log("DEBUG: Passwords do not match");
-            }
-          }}
-        >
-          <Text style={styles.buttonText}>{"Sign up"}</Text>
-        </TouchableOpacity>
+        {/* Loading indicator */}
+        { loading ? <ActivityIndicator size="large" color="#329376" style={{ marginTop: 20, alignSelf: "center" }} /> 
+        : <> 
+            <TouchableOpacity
+            style={styles.buttons}
+            onPress={() => {
+                
+                if (password === confirmPassword) {
+                    // store user data to Firebase 
+                    //   => navigate to home screen after storing to database
+                    handleSignUp();
+                } else {
+                    setErrors((prevErrors) => ["Passwords do not match"]);
+                    setLoading(false);
+                    console.log("DEBUG: Passwords do not match");
+                }
+            }}
+            >
+            <Text style={styles.buttonText}>{"Sign up"}</Text>
+            </TouchableOpacity>
+        </>}
       </View>
 
       {/* Have an account? */}

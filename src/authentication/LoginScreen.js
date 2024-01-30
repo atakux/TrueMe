@@ -8,6 +8,7 @@ import {
   Button,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from "react-native";
 
 import { useNavigation } from '@react-navigation/native';
@@ -153,18 +154,22 @@ const LoginScreen = () => {
         />
 
         {/* Login button */}
-        <TouchableOpacity
-          style={styles.buttons}
-          onPress={() => {
-            console.log("DEBUG: Login button pressed with email:", email);
+        {/* Loading indicator */}
+        { loading ? <ActivityIndicator size="large" color="#329376" style={{ marginTop: 20, alignSelf: "center" }} /> 
+        : <> 
+            <TouchableOpacity
+            style={styles.buttons}
+            onPress={() => {
+                console.log("DEBUG: Login button pressed with email:", email);
 
-            // retrieves user data from Firebase 
-            //   => navigates to home screen if their inputted login info matches database info
-            handleLogIn();
-          }}
-        >
-          <Text style={styles.buttonText}>{"Log in"}</Text>
-        </TouchableOpacity>
+                // retrieves user data from Firebase 
+                //   => navigates to home screen if their inputted login info matches database info
+                handleLogIn();
+            }}
+            >
+            <Text style={styles.buttonText}>{"Log in"}</Text>
+            </TouchableOpacity>
+        </>}
       </View>
 
       {/* Don't have an account? */}
