@@ -150,13 +150,6 @@ const SignupScreen = () => {
           onPress={() => {
             
             if (password === confirmPassword) {
-                console.log(
-                    "Signup button pressed with email:",
-                    email,
-                    "and password:",
-                    password
-                );
-
                 // store user data to Firebase 
                 //   => navigate to home screen after storing to database
                 handleSignUp();
