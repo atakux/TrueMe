@@ -8,7 +8,7 @@ import * as Font from 'expo-font';
 import { loadFonts } from '../utils/FontLoader'; 
 import { useAuth } from '../utils/AuthContext';
 
-const HomeScreen = () => {
+const ShopScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
   const user = useAuth();
@@ -30,9 +30,9 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={{ alignItems: 'center', marginTop: 50 }}>
-        <Text style={styles.mainText}>Welcome, {user.displayName}</Text>
+        <Text style={styles.mainText}>Shop</Text>
       </View>
-       
+        
       {/* Your other components and UI elements go here */}
     </SafeAreaView>
   );
@@ -74,5 +74,5 @@ const styles = StyleSheet.create({
   
   });
 
-export default HomeScreen;
+export default ShopScreen;
 
