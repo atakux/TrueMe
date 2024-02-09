@@ -47,21 +47,54 @@ function TabBar() {
 
 const styles = StyleSheet.create({
     tabBar: {
-        position: 'absolute',
-        alignSelf: 'center',
+        ...Platform.select({
+            ios: {
+                position: 'absolute',
+                alignSelf: 'center',
 
-        backgroundColor: 'white',
-        borderRadius: 33,
-        borderTopWidth: 0,
-        elevation: 5,
-        padding: 30,
-        
-        marginHorizontal: 10,
-        marginBottom: 40,
+                backgroundColor: 'white',
+                borderRadius: 33,
+                borderTopWidth: 0,
+                elevation: 5,
+                padding: 30,
 
-        shadowColor: 'black',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+
+                marginHorizontal: 10,
+                marginBottom: 40,
+
+                shadowColor: 'black',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.25,
+            },
+
+            android: {
+                position: 'absolute',
+                alignSelf: 'center',
+
+                backgroundColor: 'white',
+                borderRadius: 33,
+                borderTopWidth: 0,
+                elevation: 5,
+                
+                height: 88,
+
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+
+                marginHorizontal: 10,
+                marginBottom: 40,
+
+                shadowColor: 'black',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.25,
+            }
+
+            
+        })
     }, // End of tabBar
 });
 
