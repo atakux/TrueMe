@@ -4,7 +4,6 @@ import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity } from 'react-na
 import { useNavigation } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
-import * as Font from 'expo-font';
 import { loadFonts } from '../utils/FontLoader'; 
 import { useAuth } from '../utils/AuthContext';
 
