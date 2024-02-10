@@ -13,8 +13,6 @@ import {
 
 import { useNavigation } from '@react-navigation/native';
 
-import * as Font from "expo-font";
-
 import { loadFonts } from '../utils/FontLoader'; 
 import { FIREBASE_AUTH } from "../../firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
@@ -122,22 +120,6 @@ const SignupScreen = () => {
         console.log("General Error during sign up:", error)
       }
     }
-
-    // Should keep user logged into account Unsure if this is needed
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, async (authUser) => {
-          if (authUser) {
-            setUser(authUser);
-            // Save user information to local storage for the most recent session
-            await AsyncStorage.setItem('recentSessionUser', JSON.stringify(authUser));
-          } else {
-            setUser(null);
-          }
-        });
-    
-        // Cleanup the observer when the component unmounts
-        return () => unsubscribe();
-    }, []);
   };
 
   return (

@@ -29,12 +29,10 @@ function TabBar() {
             },
 
             headerShown: false,
-            tabBarStyle: {...styles.tabBar}
-        })}
+            tabBarStyle: {...styles.tabBar},
+            tabBarShowLabel: false,
 
-        tabBarOptions={{
-            showLabel: false,
-        }}  
+        })}
       >
         {/* Screens that tabs navigate to */}
         <Tab.Screen name="Home" component={HomeScreen} options={{headerShown: false}} />
@@ -63,7 +61,7 @@ const styles = StyleSheet.create({
                 alignItems: 'center',
 
                 marginHorizontal: 10,
-                marginBottom: 40,
+                marginBottom: 30,
 
                 shadowColor: 'black',
                 shadowOffset: { width: 0, height: 4 },
@@ -86,7 +84,7 @@ const styles = StyleSheet.create({
                 alignItems: 'center',
 
                 marginHorizontal: 10,
-                marginBottom: 40,
+                marginBottom: 30,
 
                 shadowColor: 'black',
                 shadowOffset: { width: 0, height: 4 },
