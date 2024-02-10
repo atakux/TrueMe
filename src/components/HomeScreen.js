@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, Image, ScrollView, Platform, TouchableOpacity } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
@@ -28,11 +28,35 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{ alignItems: 'center', marginTop: 50 }}>
-        <Text style={styles.mainText}>Welcome, {user.displayName}</Text>
-      </View>
-       
-      {/* Your other components and UI elements go here */}
+      <ScrollView style={styles.scrollView} contentContainerStyle={{ flexGrow: 1 }}>
+          {/* Top Container */}
+          <View style={styles.topContainer}>
+            <Text style={styles.topContainerText}>Hello {user.displayName}!</Text>
+          <Image source={require('../../assets/images/home_top_image.png')} style={{alignSelf: "center"}}/>
+          </View>
+
+          {/* Skin Diagnostic Container */}
+          <View style={styles.skinResultContainer}>
+            {/* Container Title */}
+            <View style={styles.textContainer}>
+              <Text style={styles.mainText}>Skin Diagnostic Results</Text>
+              <Text style={styles.textStyle}>Start your journey to healthy skin here!</Text>
+            </View>
+            
+            {/* Camera Button */}
+            <TouchableOpacity>
+              <Image source={require('../../assets/icons/large_camera.png')} style={styles.cameraButton}/>
+              <Text style={styles.cameraButtonText}>Click to scan your face</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Daily Routines Container */}
+          {/* TODO: Add a carousel type of selecter for daily routines */}
+          <View style={styles.dailyRoutinesContainer}>
+            <Text style={styles.mainText}>Daily Routines</Text>
+          </View>
+
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -41,17 +65,161 @@ const HomeScreen = () => {
 
 const styles = StyleSheet.create({
     container: {
-      flex: 5,
+      flex: 1,
       backgroundColor: "#FAFAFA",
       width: "100%",
+      flexGrow: 1
     }, // End of container
+
+    scrollView: {
+      flex: 1,
+    },
+
+    topContainer: {
+      ...Platform.select({
+        ios: {
+          backgroundColor: "#D0F2DA",
+          width: 348,
+          height: 219,
+          borderRadius: 35,
+          shadowColor: "black",
+          shadowOffset: {
+            width: 0,
+            height: 3,
+          },
+          shadowOpacity: 0.25,
+          elevation: 5,
+          alignSelf: "center",
+          padding: 20,
+        },
+
+        android: {
+          backgroundColor: "#D0F2DA",
+          width: 330,
+          height: 219,
+          borderRadius: 35,
+
+          elevation: 5,
+          marginTop: 40,
+          alignSelf: "center",
+          padding: 20,
+
+          shadowColor: 'black',
+          shadowOffset: { width: 0, height: 3, },
+          shadowOpacity: 0.25,
+        }
+
+      })
+
+    }, // End of topContainer
+
+    topContainerText: {
+      fontSize: 32,
+      fontFamily: 'Sofia-Sans',
+      color: '#64BBA1',
+      textAlign: "center",
+      marginBottom: 7,
+    }, // End of topContainerText
+
+    skinResultContainer: {
+      ...Platform.select({
+        ios: {
+          backgroundColor: "#FFFFFF",
+          width: 348,
+          height: 320,
+          borderRadius: 35,
+          shadowColor: "black",
+          shadowOffset: {
+            width: 0,
+            height: 3,
+          },
+          shadowOpacity: 0.25,
+          elevation: 5,
+          alignSelf: "center",
+          padding: 20,
+
+          marginTop: 30,
+          marginBottom: 10
+        },
+
+        android: {
+          backgroundColor: "#FFFFFF",
+          width: 330,
+          height: 300,
+          borderRadius: 35,
+
+          elevation: 5,
+          marginTop: 30,
+          marginBottom: 10,
+          alignSelf: "center",
+          padding: 20,
+
+          shadowColor: 'black',
+          shadowOffset: { width: 0, height: 3, },
+          shadowOpacity: 0.25,
+        }
+      })
+    }, // End of skinResultContainer
+
+    dailyRoutinesContainer: {
+      ...Platform.select({
+        ios: {
+          backgroundColor: "#FFFFFF",
+          width: 348,
+          height: 100,
+          borderRadius: 35,
+          shadowColor: "black",
+          shadowOffset: {
+            width: 0,
+            height: 3,
+          },
+          shadowOpacity: 0.25,
+          elevation: 5,
+          alignSelf: "center",
+          padding: 20,
+
+          marginTop: 10
+        },
+
+        android: {
+          backgroundColor: "#FFFFFF",
+          width: 330,
+          height: 100,
+          borderRadius: 35,
+
+          elevation: 5,
+          marginTop: 10,
+          alignSelf: "center",
+          padding: 20,
+
+          shadowColor: 'black',
+          shadowOffset: { width: 0, height: 3, },
+          shadowOpacity: 0.25,
+
+        }
+
+      })
+
+    }, // End of dailyRoutinesContainer
+
+    textContainer: {
+      marginBottom: 30
+    },
   
     mainText: {
       fontSize: 24,
       fontFamily: 'Sofia-Sans',
       color: '#000000',
-      textAlign: "center",
+      textAlign: "left",
+      marginBottom: 10
     }, // End of mainText
+
+    textStyle: {
+      fontSize: 16,
+      fontFamily: 'Sofia-Sans',
+      color: '#000000',
+      textAlign: "center",
+    }, // End of textStyle
   
     buttons: {
       width: 159,
@@ -62,7 +230,16 @@ const styles = StyleSheet.create({
       borderColor: '#7FB876',
       justifyContent: 'center',
       alignItems: 'center',
+      alignSelf: "center",
     }, // End of buttons
+
+    cameraButton: {
+      overflow: 'hidden',
+      borderColor: '#64BBA1',
+      borderWidth: 2,
+      borderRadius: 100,
+      alignSelf: "center",
+    }, // End of cameraButton
   
     buttonText: {
       fontSize: 32,
@@ -70,6 +247,14 @@ const styles = StyleSheet.create({
       color: '#64BBA1',
       textAlign: "center",
     }, // End of buttonText
+
+    cameraButtonText: {
+      fontSize: 16,
+      fontFamily: 'Sofia-Sans',
+      color: '#64BBA1',
+      textAlign: "center",
+      marginTop: 10
+    }, // End of cameraButtonText
   
   });
 
