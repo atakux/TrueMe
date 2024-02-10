@@ -14,7 +14,7 @@
 		96905EF65AED1B983A6B3ABC /* libPods-TrueMe.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-TrueMe.a */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		59942A55379A444A8CDBE2A5 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3FEB4A98E4D97B332D34D /* noop-file.swift */; };
+		2BDE6C00D3D943688D2D93C0 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DB9F6CD5A0149079CDC9E93 /* noop-file.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,8 +31,8 @@
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-TrueMe/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		48A3FEB4A98E4D97B332D34D /* noop-file.swift */ = {isa = PBXFileReference; name = "noop-file.swift"; path = "TrueMe/noop-file.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
-		7311B924B21D4E9C83B4A3DB /* TrueMe-Bridging-Header.h */ = {isa = PBXFileReference; name = "TrueMe-Bridging-Header.h"; path = "TrueMe/TrueMe-Bridging-Header.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		7DB9F6CD5A0149079CDC9E93 /* noop-file.swift */ = {isa = PBXFileReference; name = "noop-file.swift"; path = "TrueMe/noop-file.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		D4B4C9C405624E1AA2C0D581 /* TrueMe-Bridging-Header.h */ = {isa = PBXFileReference; name = "TrueMe-Bridging-Header.h"; path = "TrueMe/TrueMe-Bridging-Header.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,8 +57,8 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				48A3FEB4A98E4D97B332D34D /* noop-file.swift */,
-				7311B924B21D4E9C83B4A3DB /* TrueMe-Bridging-Header.h */,
+				7DB9F6CD5A0149079CDC9E93 /* noop-file.swift */,
+				D4B4C9C405624E1AA2C0D581 /* TrueMe-Bridging-Header.h */,
 			);
 			name = TrueMe;
 			sourceTree = "<group>";
@@ -199,7 +199,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				F0E4CFAE401A4C4C89137F31 /* TrueMe-Bridging-Header.h in Resources */,
+				3822FAEE49C34AE6BF01AF14 /* TrueMe-Bridging-Header.h in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -293,7 +293,7 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */,
-				59942A55379A444A8CDBE2A5 /* noop-file.swift in Sources */,
+				2BDE6C00D3D943688D2D93C0 /* noop-file.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
