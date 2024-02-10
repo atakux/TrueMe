@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
                 alignItems: 'center',
 
                 marginHorizontal: 10,
-                marginBottom: 30,
+                marginBottom: 15,
 
                 shadowColor: 'black',
                 shadowOffset: { width: 0, height: 4 },
