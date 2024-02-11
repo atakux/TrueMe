@@ -26,6 +26,10 @@ const HomeScreen = () => {
     return null;
   }
 
+  const handleCameraClick = () => {
+    console.log("DEBUG: Camera clicked");
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={{ flexGrow: 1 }}>
@@ -44,7 +48,7 @@ const HomeScreen = () => {
             </View>
             
             {/* Camera Button */}
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleCameraClick}>
               <Image source={require('../../assets/icons/large_camera.png')} style={styles.cameraButton}/>
               <Text style={styles.cameraButtonText}>Click to scan your face</Text>
             </TouchableOpacity>
