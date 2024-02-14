@@ -4,8 +4,8 @@ import { StyleSheet, SafeAreaView, View, Text, Image, ScrollView, Platform, Touc
 import { useNavigation } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
-import { loadFonts } from '../utils/FontLoader'; 
-import { useAuth } from '../utils/AuthContext';
+import { loadFonts } from '../../utils/FontLoader'; 
+import { useAuth } from '../../utils/AuthContext';
 
 const HomeScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
@@ -36,7 +36,7 @@ const HomeScreen = () => {
           {/* Top Container */}
           <View style={styles.topContainer}>
             <Text style={styles.topContainerText}>Hello {user.displayName}!</Text>
-          <Image source={require('../../assets/images/home_top_image.png')} style={{alignSelf: "center"}}/>
+          <Image source={require('../../../assets/images/home_top_image.png')} style={{alignSelf: "center"}}/>
           </View>
 
           {/* Skin Diagnostic Container */}
@@ -49,7 +49,7 @@ const HomeScreen = () => {
             
             {/* Camera Button */}
             <TouchableOpacity onPress={handleCameraClick}>
-              <Image source={require('../../assets/icons/large_camera.png')} style={styles.cameraButton}/>
+              <Image source={require('../../../assets/icons/large_camera.png')} style={styles.cameraButton}/>
               <Text style={styles.cameraButtonText}>Click to scan your face</Text>
             </TouchableOpacity>
           </View>

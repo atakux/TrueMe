@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AuthProvider } from './src/utils/AuthContext';
 
-import LaunchScreen from './src/components/LaunchScreen';
+import LaunchScreen from './src/authentication/LaunchScreen';
 import LoginScreen from './src/authentication/LoginScreen';
 import SignupScreen from './src/authentication/SignupScreen';
 import TabBar from './src/utils/TabBar';

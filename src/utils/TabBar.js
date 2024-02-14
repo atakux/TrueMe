@@ -2,10 +2,10 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, StyleSheet } from 'react-native';
 
-import HomeScreen from '../components/HomeScreen'; 
-import ShopScreen from '../components/ShopScreen'; 
-import DiscoverScreen from '../components/DiscoverScreen';
-import ProfileScreen from '../components/ProfileScreen';
+import HomeScreen from '../components/MainScreens/HomeScreen'; 
+import ShopScreen from '../components/MainScreens/ShopScreen'; 
+import DiscoverScreen from '../components/MainScreens/DiscoverScreen';
+import ProfileScreen from '../components/MainScreens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 

@@ -4,8 +4,8 @@ import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity } from 'react-na
 import { useNavigation } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
-import { loadFonts } from '../utils/FontLoader'; 
-import { useAuth } from '../utils/AuthContext';
+import { loadFonts } from '../../utils/FontLoader'; 
+import { useAuth } from '../../utils/AuthContext';
 
 const ShopScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);

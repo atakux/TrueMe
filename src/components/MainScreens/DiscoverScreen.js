@@ -4,11 +4,11 @@ import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity } from 'react-na
 import { useNavigation } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
-import { loadFonts } from '../utils/FontLoader'; 
-import { useAuth } from '../utils/AuthContext';
+import { loadFonts } from '../../utils/FontLoader'; 
+import { useAuth } from '../../utils/AuthContext';
 
 
-const ProfileScreen = () => {
+const DiscoverScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
   const user = useAuth();
@@ -30,10 +30,9 @@ const ProfileScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={{ alignItems: 'center', marginTop: 50 }}>
-        <Text style={styles.mainText}>Profile</Text>
+        <Text style={styles.mainText}>Discover</Text>
       </View>
-      
-       
+
       {/* Your other components and UI elements go here */}
     </SafeAreaView>
   );
@@ -75,5 +74,5 @@ const styles = StyleSheet.create({
   
   });
 
-export default ProfileScreen;
+export default DiscoverScreen;
 
