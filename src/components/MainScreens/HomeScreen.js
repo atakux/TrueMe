@@ -4,6 +4,8 @@ import { StyleSheet, SafeAreaView, View, Text, Image, ScrollView, Platform, Touc
 import { useNavigation } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
+import Carousel from 'react-native-snap-carousel';
+
 import { loadFonts } from '../../utils/FontLoader'; 
 import { useAuth } from '../../utils/AuthContext';
 
@@ -30,6 +32,21 @@ const HomeScreen = () => {
     console.log("DEBUG: Camera clicked");
   }
 
+  // Define list of daily routines
+  const dailyRoutines = [
+    { id: 1, title: 'Daily Routine' },
+    { id: 2, title: 'Add Routine' },
+  ];
+
+  // Render item for carousel
+  const renderRoutineItem = ({ item }) => {
+    return (
+      <View style={styles.dailyRoutinesContainer}>
+        <Text style={styles.mainText}>{item.title}</Text>
+      </View>
+    );
+  };  
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={{ flexGrow: 1 }}>
@@ -55,10 +72,29 @@ const HomeScreen = () => {
           </View>
 
           {/* Daily Routines Container */}
-          {/* TODO: Add a carousel type of selecter for daily routines */}
-          <View style={styles.dailyRoutinesContainer}>
-            <Text style={styles.mainText}>Daily Routines</Text>
-          </View>
+          <Carousel
+            // data and rendering
+            data={dailyRoutines}
+            renderItem={renderRoutineItem}
+
+            sliderWidth={Platform.OS === 'ios' ? 300 : 300}
+            sliderHeight={Platform.OS === 'ios' ? 100 : 30} // Add sliderHeight for vertical carousel
+            
+            itemWidth={Platform.OS === 'ios' ? 300 : 330}
+            itemHeight={Platform.OS === 'ios' ? 150 : 90} // Add itemHeight for vertical carousel
+          
+            inactiveSlideOpacity={0}
+            inactiveSlideScale={0}
+
+            layout="stack"
+            layoutCardOffset={Platform.OS === 'ios' ? 3 : 0}
+            
+            vertical={true}
+            loop={true}
+            windowSize={1}
+
+            />
+          
 
       </ScrollView>
     </SafeAreaView>
@@ -259,6 +295,26 @@ const styles = StyleSheet.create({
       textAlign: "center",
       marginTop: 10
     }, // End of cameraButtonText
+
+    dailyRoutineItem: {
+      backgroundColor: '#FFFFFF',
+      borderRadius: 35,
+      padding: 20,
+      marginBottom: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: 'black',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.25,
+      elevation: 5,
+    },
+  
+    dailyRoutineText: {
+      fontSize: 18,
+      fontFamily: 'Sofia-Sans',
+      color: '#000000',
+      textAlign: 'center',
+    },
   
   });
 
