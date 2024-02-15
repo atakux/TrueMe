@@ -5,6 +5,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import { useNavigation } from '@react-navigation/native';
 
+import Carousel from 'react-native-snap-carousel';
+
 import { loadFonts } from '../../utils/FontLoader'; 
 import { useAuth } from '../../utils/AuthContext';
 import { fetchDailyRoutines } from '../../utils/FirestoreDataService'; 
