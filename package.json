@@ -15,7 +15,6 @@
     "@react-navigation/bottom-tabs": "^6.5.12",
     "@react-navigation/native": "^6.1.10",
     "@react-navigation/stack": "^6.3.20",
-    "deprecated-react-native-prop-types": "^5.0.0",
     "expo": "^49.0.22",
     "expo-font": "~11.4.0",
     "expo-splash-screen": "~0.20.5",
