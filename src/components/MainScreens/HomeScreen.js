@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, SafeAreaView, View, Text, Image, ScrollView, Platform, TouchableOpacity } from 'react-native';
+import Swiper from 'react-native-deck-swiper';
 
 import { useNavigation } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
-import Carousel from 'react-native-snap-carousel';
-
 import { loadFonts } from '../../utils/FontLoader'; 
 import { useAuth } from '../../utils/AuthContext';
+
+
 
 const HomeScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
@@ -34,8 +35,14 @@ const HomeScreen = () => {
 
   // Define list of daily routines
   const dailyRoutines = [
-    { id: 1, title: 'Daily Routine' },
-    { id: 2, title: 'Add Routine' },
+    { 
+      id: 1, 
+      title: 'Daily Routine' 
+    },
+    { 
+      id: 2, 
+      title: 'Add Routine' 
+    },
   ];
 
   // Render item for carousel
@@ -49,7 +56,7 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView style={styles.scrollView}>
           {/* Top Container */}
           <View style={styles.topContainer}>
             <Text style={styles.topContainerText}>Hello {user.displayName}!</Text>
@@ -72,31 +79,36 @@ const HomeScreen = () => {
           </View>
 
           {/* Daily Routines Container */}
-          <Carousel
-            // data and rendering
-            data={dailyRoutines}
-            renderItem={renderRoutineItem}
+          <View style={{ alignItems: 'center', marginTop: 5 }}>
+            <Swiper
+              cards={dailyRoutines}
+              renderCard={(item) => (
+                <View style={styles.dailyRoutinesContainer}>
+                  <Text style={styles.mainText}>{item.title}</Text>
+                </View>
+              )}
+              keyExtractor={item => item.id.toString()}
+              
+              stackSize={2} 
+              stackSeparation={0} 
+              stackScale={3}
+              
+              infinite={true} // Whether to allow infinite scrolling
+              backgroundColor="transparent" // Background color of the stack
+              animateOverlayLabelsOpacity 
+              animateCardOpacity
 
-            sliderWidth={Platform.OS === 'ios' ? 300 : 300}
-            sliderHeight={Platform.OS === 'ios' ? 100 : 30} // Add sliderHeight for vertical carousel
-            
-            itemWidth={Platform.OS === 'ios' ? 300 : 330}
-            itemHeight={Platform.OS === 'ios' ? 150 : 90} // Add itemHeight for vertical carousel
-          
-            inactiveSlideOpacity={0}
-            inactiveSlideScale={0}
-
-            layout="stack"
-            layoutCardOffset={Platform.OS === 'ios' ? 3 : 0}
-            
-            vertical={true}
-            loop={true}
-            windowSize={1}
-
+              cardHorizontalMargin={0} 
+              cardVerticalMargin={0}
+              
+              disableTopSwipe={false} 
+              disableBottomSwipe={true} // Disable swiping top card down
             />
-          
+          </View>
 
       </ScrollView>
+
+
     </SafeAreaView>
   );
 };
@@ -113,6 +125,10 @@ const styles = StyleSheet.create({
 
     scrollView: {
       flex: 1,
+      marginBottom: 20,
+      height: "100%",
+      nestedScrollEnabled: true,
+      flexGrow: 1
     },
 
     topContainer: {
@@ -319,4 +335,3 @@ const styles = StyleSheet.create({
   });
 
 export default HomeScreen;
-
