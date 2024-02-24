@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, Image, ScrollView, Platform, TouchableOpacity } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, Image, Platform, TouchableOpacity } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
+import { ScrollView } from 'react-native-gesture-handler';
 
 import { useNavigation } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
@@ -79,11 +80,11 @@ const HomeScreen = () => {
           </View>
 
           {/* Daily Routines Container */}
-          <View style={{ alignItems: 'center', marginTop: 5 }}>
+          <View style={styles.dailyRoutinesContainer}>
             <Swiper
               cards={dailyRoutines}
               renderCard={(item) => (
-                <View style={styles.dailyRoutinesContainer}>
+                <View style={styles.dailyRoutinesCards}>
                   <Text style={styles.mainText}>{item.title}</Text>
                 </View>
               )}
@@ -94,7 +95,6 @@ const HomeScreen = () => {
               stackScale={3}
               
               infinite={true} // Whether to allow infinite scrolling
-              backgroundColor="transparent" // Background color of the stack
               animateOverlayLabelsOpacity 
               animateCardOpacity
 
@@ -103,6 +103,11 @@ const HomeScreen = () => {
               
               disableTopSwipe={false} 
               disableBottomSwipe={true} // Disable swiping top card down
+
+              useViewOverflow={Platform.OS === 'ios' ? true : false} 
+
+              // DEBUG
+              onSwiped={(cardIndex) => console.log("DEBUG: Swiped Card:", cardIndex)}
             />
           </View>
 
@@ -120,7 +125,17 @@ const styles = StyleSheet.create({
       flex: 1,
       backgroundColor: "#FAFAFA",
       width: "100%",
-      flexGrow: 1
+      flexGrow: 1,
+
+      ...Platform.select({
+        ios: {
+          useViewOverflow: true
+        },
+        android: {
+          useViewOverflow: false,
+          nestedScrollEnabled: true 
+        }
+      })
     }, // End of container
 
     scrollView: {
@@ -128,7 +143,17 @@ const styles = StyleSheet.create({
       marginBottom: 20,
       height: "100%",
       nestedScrollEnabled: true,
-      flexGrow: 1
+      flexGrow: 1,
+      
+      ...Platform.select({
+        ios: {
+          useViewOverflow: true
+        },
+        android: {
+          useViewOverflow: false,
+          nestedScrollEnabled: true 
+        }
+      })
     },
 
     topContainer: {
@@ -194,8 +219,8 @@ const styles = StyleSheet.create({
           alignSelf: "center",
           padding: 20,
 
-          marginTop: 30,
-          marginBottom: 10
+          marginTop: 20,
+          marginBottom: 0
         },
 
         android: {
@@ -218,23 +243,42 @@ const styles = StyleSheet.create({
     }, // End of skinResultContainer
 
     dailyRoutinesContainer: {
+      flex: 1, 
+      flexGrow: 1, 
+      marginTop: 10,
+
+      ...Platform.select({
+        ios: {
+          marginBottom: 10
+        },
+
+        android: {
+          marginBottom: 150
+        }
+
+      })
+    },
+
+    dailyRoutinesCards: {
       ...Platform.select({
         ios: {
           backgroundColor: "#FFFFFF",
           width: 348,
-          height: 100,
+          height: 90,
           borderRadius: 35,
+          
+          elevation: 5,
+          marginTop: 10,
+          alignSelf: "center",
+          padding: 20,
+          
           shadowColor: "black",
           shadowOffset: {
             width: 0,
             height: 3,
           },
           shadowOpacity: 0.25,
-          elevation: 5,
-          alignSelf: "center",
-          padding: 20,
 
-          marginTop: 10
         },
 
         android: {
@@ -249,7 +293,10 @@ const styles = StyleSheet.create({
           padding: 20,
 
           shadowColor: 'black',
-          shadowOffset: { width: 0, height: 3, },
+          shadowOffset: { 
+            width: 0, 
+            height: 3, 
+          },
           shadowOpacity: 0.25,
 
         }
