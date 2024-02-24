@@ -4,8 +4,7 @@ import Swiper from 'react-native-deck-swiper';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { useNavigation } from '@react-navigation/native';
-
-import Carousel from 'react-native-snap-carousel';
+import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
 import { loadFonts } from '../../utils/FontLoader'; 
 import { useAuth } from '../../utils/AuthContext';
