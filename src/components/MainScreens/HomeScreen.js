@@ -45,15 +45,10 @@ const HomeScreen = () => {
       title: 'Add Routine' 
     },
   ];
-
-  // Render item for carousel
-  const renderRoutineItem = ({ item }) => {
-    return (
-      <View style={styles.dailyRoutinesContainer}>
-        <Text style={styles.mainText}>{item.title}</Text>
-      </View>
-    );
-  };  
+  
+  const handleRoutineClick = (routineName) => {
+    console.log(`DEBUG: ${routineName} clicked`);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -85,7 +80,9 @@ const HomeScreen = () => {
               cards={dailyRoutines}
               renderCard={(item) => (
                 <View style={styles.dailyRoutinesCards}>
-                  <Text style={styles.mainText}>{item.title}</Text>
+                  <TouchableOpacity onPress={() => handleRoutineClick(item.title)}>
+                    <Text style={styles.mainText}>{item.title}</Text>
+                  </TouchableOpacity>
                 </View>
               )}
               keyExtractor={item => item.id.toString()}
@@ -253,11 +250,12 @@ const styles = StyleSheet.create({
         },
 
         android: {
+          // Need for android to function properly
           marginBottom: 150
         }
 
       })
-    },
+    }, // End of dailyRoutinesContainer
 
     dailyRoutinesCards: {
       ...Platform.select({
@@ -303,11 +301,11 @@ const styles = StyleSheet.create({
 
       })
 
-    }, // End of dailyRoutinesContainer
+    }, // End of dailyRoutinesCards
 
     textContainer: {
       marginBottom: 30
-    },
+    }, // End of textContainer
   
     mainText: {
       fontSize: 24,
@@ -370,14 +368,14 @@ const styles = StyleSheet.create({
       shadowOffset: { width: 0, height: 3 },
       shadowOpacity: 0.25,
       elevation: 5,
-    },
+    }, // End of dailyRoutineItem
   
     dailyRoutineText: {
       fontSize: 18,
       fontFamily: 'Sofia-Sans',
       color: '#000000',
       textAlign: 'center',
-    },
+    }, // End of dailyRoutineText
   
   });
 
