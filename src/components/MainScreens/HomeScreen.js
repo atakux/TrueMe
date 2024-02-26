@@ -104,7 +104,7 @@ const HomeScreen = () => {
               useViewOverflow={Platform.OS === 'ios' ? true : false} 
 
               // DEBUG
-              onSwiped={(cardIndex) => console.log("DEBUG: Swiped Card:", cardIndex)}
+              onSwiped={(cardIndex) => console.log("DEBUG: Swiped", dailyRoutines[cardIndex].title, "card")}
             />
           </View>
 
