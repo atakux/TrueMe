@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, Image, Platform, TouchableOpacity } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, Image, Platform, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -8,43 +8,52 @@ import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
 import { loadFonts } from '../../utils/FontLoader'; 
 import { useAuth } from '../../utils/AuthContext';
-
-
+import { fetchDailyRoutines } from '../../utils/FirestoreDataService'; 
 
 const HomeScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
+  const [dailyRoutines, setDailyRoutines] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
   const user = useAuth();
 
   useEffect(() => {
+    const fetchRoutines = async () => {
+      try {
+        const routines = await fetchDailyRoutines(user.uid);
+        setDailyRoutines(routines);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching daily routines:", error);
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchRoutines();
+    };
+
     const loadAsyncData = async () => {
       await loadFonts();
       setFontLoaded(true);
     };
 
     loadAsyncData();
-  }, []);
+  }, [user]);
 
-  if (!fontLoaded || !user) {
+  if (!user) {
     // Font is still loading or user not logged in, you can return a loading indicator or null
     return null;
+  };
+
+  if (!fontLoaded || loading) {
+    // Font is still loading or routines are being fetched, you can return a loading indicator or null
+    return <ActivityIndicator size="large" color="#0000ff" />;
   }
 
   const handleCameraClick = () => {
     console.log("DEBUG: Camera clicked");
-  }
-
-  // Define list of daily routines
-  const dailyRoutines = [
-    { 
-      id: 1, 
-      title: 'Daily Routine' 
-    },
-    { 
-      id: 2, 
-      title: 'Add Routine' 
-    },
-  ];
+  };
   
   const handleRoutineClick = (routineName) => {
     console.log(`DEBUG: ${routineName} clicked`);
@@ -78,15 +87,14 @@ const HomeScreen = () => {
           <View style={styles.dailyRoutinesContainer}>
             <Swiper
               cards={dailyRoutines}
-              renderCard={(item) => (
+              renderCard={(item, index) => (
                 <View style={styles.dailyRoutinesCards}>
                   <TouchableOpacity onPress={() => handleRoutineClick(item.title)}>
                     <Text style={styles.mainText}>{item.title}</Text>
                   </TouchableOpacity>
                 </View>
               )}
-              keyExtractor={item => item.id.toString()}
-              
+
               stackSize={2} 
               stackSeparation={0} 
               stackScale={3}
