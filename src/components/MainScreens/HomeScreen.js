@@ -108,10 +108,11 @@ const HomeScreen = () => {
               cardHorizontalMargin={0} 
               cardVerticalMargin={0}
               
+              // If there is only 1 card disable swiping
               disableTopSwipe={dailyRoutines.length === 1 ? true : false} 
               disableLeftSwipe={dailyRoutines.length === 1 ? true : false}
               disableRightSwipe={dailyRoutines.length === 1 ? true : false}
-              disableBottomSwipe={dailyRoutines.length === 1 ? false : true} // Disable swiping top card down
+              disableBottomSwipe={dailyRoutines.length === 1 ? true : false}
 
               useViewOverflow={Platform.OS === 'ios' ? true : false} 
 
