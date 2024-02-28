@@ -23,6 +23,7 @@ const HomeScreen = () => {
         const routines = await fetchDailyRoutines(user.uid);
         setDailyRoutines(routines);
         setLoading(false);
+        console.log("DEBUG: Fetched daily routines:", routines);
       } catch (error) {
         console.error("Error fetching daily routines:", error);
         setLoading(false);
@@ -87,27 +88,30 @@ const HomeScreen = () => {
           <View style={styles.dailyRoutinesContainer}>
             <Swiper
               cards={dailyRoutines}
-              renderCard={(item, index) => (
-                <View style={styles.dailyRoutinesCards}>
+              renderCard={(item) => (
+                <View key={`card_${item.id}`} style={styles.dailyRoutinesCards}>
                   <TouchableOpacity onPress={() => handleRoutineClick(item.title)}>
                     <Text style={styles.mainText}>{item.title}</Text>
                   </TouchableOpacity>
                 </View>
               )}
+              keyExtractor={(item) => `${item.id}`}
 
               stackSize={2} 
               stackSeparation={0} 
               stackScale={3}
               
-              infinite={true} // Whether to allow infinite scrolling
+               // Whether to allow infinite scrolling
               animateOverlayLabelsOpacity 
               animateCardOpacity
 
               cardHorizontalMargin={0} 
               cardVerticalMargin={0}
               
-              disableTopSwipe={false} 
-              disableBottomSwipe={true} // Disable swiping top card down
+              disableTopSwipe={dailyRoutines.length === 1 ? true : false} 
+              disableLeftSwipe={dailyRoutines.length === 1 ? true : false}
+              disableRightSwipe={dailyRoutines.length === 1 ? true : false}
+              disableBottomSwipe={dailyRoutines.length === 1 ? false : true} // Disable swiping top card down
 
               useViewOverflow={Platform.OS === 'ios' ? true : false} 
 
