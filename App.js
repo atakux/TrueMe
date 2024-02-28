@@ -8,6 +8,7 @@ import { AuthProvider } from './src/utils/AuthContext';
 import LaunchScreen from './src/authentication/LaunchScreen';
 import LoginScreen from './src/authentication/LoginScreen';
 import SignupScreen from './src/authentication/SignupScreen';
+import AddRoutine from './src/components/RoutinesScreens/AddRoutine';
 import TabBar from './src/utils/TabBar';
 
 const Stack = createStackNavigator();
@@ -23,6 +24,7 @@ export default function App() {
           <Stack.Screen name="LoginScreen" component={LoginScreen} options={{headerShown: false}}/>
           <Stack.Screen name="SignupScreen" component={SignupScreen} options={{headerShown: false}}/>
           <Stack.Screen name="HomeScreen" component={TabBar} options={{headerShown: false}}/>
+          <Stack.Screen name="AddRoutine" component={AddRoutine} options={{headerShown: false}}/>
         </Stack.Navigator>
       </NavigationContainer>
       <StatusBar style="auto" />

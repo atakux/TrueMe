@@ -9,6 +9,7 @@ import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 import { loadFonts } from '../../utils/FontLoader'; 
 import { useAuth } from '../../utils/AuthContext';
 import { fetchDailyRoutines } from '../../utils/FirestoreDataService'; 
+import { RoutineProvider } from '../../utils/RoutineContext';
 
 const HomeScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
@@ -57,74 +58,88 @@ const HomeScreen = () => {
   };
   
   const handleRoutineClick = (routineName) => {
-    console.log(`DEBUG: ${routineName} clicked`);
+    if (routineName === `Add Routine !`) {
+      navigation.navigate('AddRoutine', { updateDailyRoutines });
+  
+    } else {
+      console.log(`DEBUG: ${routineName} clicked`);
+    }
   };
+  
+  const updateDailyRoutines = (newRoutine) => {
+    setDailyRoutines([...dailyRoutines, newRoutine]);
+  };
+  
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-          {/* Top Container */}
-          <View style={styles.topContainer}>
-            <Text style={styles.topContainerText}>Hello {user.displayName}!</Text>
-          <Image source={require('../../../assets/images/home_top_image.png')} style={{alignSelf: "center"}}/>
-          </View>
-
-          {/* Skin Diagnostic Container */}
-          <View style={styles.skinResultContainer}>
-            {/* Container Title */}
-            <View style={styles.textContainer}>
-              <Text style={styles.mainText}>Skin Diagnostic Results</Text>
-              <Text style={styles.textStyle}>Start your journey to healthy skin here!</Text>
+    <RoutineProvider updateDailyRoutines={updateDailyRoutines}>
+      <SafeAreaView style={styles.container}>
+        <ScrollView style={styles.scrollView}>
+            {/* Top Container */}
+            <View style={styles.topContainer}>
+              <Text style={styles.topContainerText}>Hello {user.displayName}!</Text>
+            <Image source={require('../../../assets/images/home_top_image.png')} style={{alignSelf: "center"}}/>
             </View>
-            
-            {/* Camera Button */}
-            <TouchableOpacity onPress={handleCameraClick}>
-              <Image source={require('../../../assets/icons/large_camera.png')} style={styles.cameraButton}/>
-              <Text style={styles.cameraButtonText}>Click to scan your face</Text>
-            </TouchableOpacity>
-          </View>
 
-          {/* Daily Routines Container */}
-          <View style={styles.dailyRoutinesContainer}>
-            <Swiper
-              cards={dailyRoutines}
-              renderCard={(item) => (
-                <View key={`card_${item.id}`} style={styles.dailyRoutinesCards}>
-                  <TouchableOpacity onPress={() => handleRoutineClick(item.title)}>
-                    <Text style={styles.mainText}>{item.title}</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-              keyExtractor={(item) => `${item.id}`}
-
-              stackSize={2} 
-              stackSeparation={0} 
-              stackScale={3}
+            {/* Skin Diagnostic Container */}
+            <View style={styles.skinResultContainer}>
+              {/* Container Title */}
+              <View style={styles.textContainer}>
+                <Text style={styles.mainText}>Skin Diagnostic Results</Text>
+                <Text style={styles.textStyle}>Start your journey to healthy skin here!</Text>
+              </View>
               
-               // Whether to allow infinite scrolling
-              animateOverlayLabelsOpacity 
-              animateCardOpacity
+              {/* Camera Button */}
+              <TouchableOpacity onPress={handleCameraClick}>
+                <Image source={require('../../../assets/icons/large_camera.png')} style={styles.cameraButton}/>
+                <Text style={styles.cameraButtonText}>Click to scan your face</Text>
+              </TouchableOpacity>
+            </View>
 
-              cardHorizontalMargin={0} 
-              cardVerticalMargin={0}
-              
-              // If there is only 1 card disable swiping
-              disableTopSwipe={dailyRoutines.length === 1 ? true : false} 
-              disableLeftSwipe={dailyRoutines.length === 1 ? true : false}
-              disableRightSwipe={dailyRoutines.length === 1 ? true : false}
-              disableBottomSwipe={dailyRoutines.length === 1 ? true : false}
+            {/* Daily Routines Container */}
+            <View style={styles.dailyRoutinesContainer}>
+              <Swiper
+                cards={dailyRoutines}
+                renderCard={(item) => (
+                  <View key={item.id} style={styles.dailyRoutinesCards}>
+                    <TouchableOpacity onPress={() => handleRoutineClick(item.title)}>
+                      <Text style={styles.mainText}>{item.title}</Text>
+                      <Text style={styles.mainText}>{item.id}</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+                keyExtractor={(item) => `${item.id}`}
 
-              useViewOverflow={Platform.OS === 'ios' ? true : false} 
+                stackSize={2} 
+                stackSeparation={0} 
+                stackScale={3}
+                infinite={dailyRoutines.length === 1 ? false : true}
+                
+                // Whether to allow infinite scrolling
+                animateOverlayLabelsOpacity 
+                animateCardOpacity
 
-              // DEBUG
-              onSwiped={(cardIndex) => console.log("DEBUG: Swiped", dailyRoutines[cardIndex].title, "card")}
-            />
-          </View>
+                cardHorizontalMargin={0} 
+                cardVerticalMargin={0}
+                
+                // If there is only 1 card disable swiping
+                disableTopSwipe={dailyRoutines.length === 1 ? true : false} 
+                disableLeftSwipe={dailyRoutines.length === 1 ? true : false}
+                disableRightSwipe={dailyRoutines.length === 1 ? true : false}
+                disableBottomSwipe={true}
 
-      </ScrollView>
+                useViewOverflow={Platform.OS === 'ios' ? true : false} 
+
+                // DEBUG
+                onSwiped={(cardIndex) => console.log("DEBUG: Swiped", dailyRoutines[cardIndex].title, "card")}
+              />
+            </View>
+
+        </ScrollView>
 
 
-    </SafeAreaView>
+      </SafeAreaView>
+    </RoutineProvider>
   );
 };
 
