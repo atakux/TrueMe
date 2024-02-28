@@ -12,9 +12,10 @@ import {
 } from "react-native";
 
 import { useNavigation } from '@react-navigation/native';
+import { doc, setDoc, collection, addDoc } from "firebase/firestore";
 
 import { loadFonts } from '../utils/FontLoader'; 
-import { FIREBASE_AUTH } from "../../firebase";
+import { FIREBASE_AUTH, FIRESTORE_DB } from "../../firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 const SignupScreen = () => {
@@ -96,7 +97,18 @@ const SignupScreen = () => {
       // Update user profile to include username
       await updateProfile(user, {
           displayName: username,
-      })
+      });
+
+      await setDoc(doc(FIRESTORE_DB, "users", user.uid), {
+        id: user.uid,
+        username: username,
+        email: email,
+      });
+
+      const routineRef = collection(FIRESTORE_DB, "users", user.uid, "routines");
+      await addDoc(routineRef, {
+        title: "Add Routine",
+      });
 
       // Debug
       console.log("DEBUG: Registered with:", user.displayName);
