@@ -62,7 +62,7 @@ const HomeScreen = () => {
   // Handle routine click, if Add Routine is clicked, navigate to AddRoutine screen
   const handleRoutineClick = (routineName) => {
     if (routineName === `Add Routine`) {
-      navigation.navigate('AddRoutine', { updateDailyRoutines });
+      navigation.navigate('AddRoutine', { updateDailyRoutines, navigation });
   
     } else {
       console.log(`DEBUG: ${routineName} clicked`);

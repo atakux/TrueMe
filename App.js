@@ -40,3 +40,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+
+// Ignore warning about unserializable values. 
+/* if needed for state persistence or deep link, have to remove warning and fix: 
+      HomeScreen.js, AddRoutine.js, RoutineContext.js
+      
+      https://reactnavigation.org/docs/troubleshooting/
+    
+    probably have to do navigation.setOptions() in some of the screens
+*/
+const originalWarn = console.warn;
+
+console.warn = (...args) => {
+  const [firstArg] = args;
+  if (typeof firstArg === 'string' && firstArg.startsWith('Non-serializable values')) {
+    // Suppress the warning
+    return;
+  }
+  // For other warnings, call the original console.warn()
+  originalWarn.apply(console, args);
+};
+
+import { LogBox } from 'react-native';
+
+LogBox.ignoreLogs([
+  'Non-serializable values were found in the navigation state',
+]);
