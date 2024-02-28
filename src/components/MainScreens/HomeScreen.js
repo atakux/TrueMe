@@ -11,6 +11,8 @@ import { useAuth } from '../../utils/AuthContext';
 import { fetchDailyRoutines } from '../../utils/FirestoreDataService'; 
 import { RoutineProvider } from '../../utils/RoutineContext';
 
+import { Routine } from '../../components/RoutinesScreens/Routine';
+
 const HomeScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const [dailyRoutines, setDailyRoutines] = useState([]);
@@ -66,6 +68,7 @@ const HomeScreen = () => {
   
     } else {
       console.log(`DEBUG: ${routineName} clicked`);
+      navigation.navigate('Routine', { routineName });
     }
   };
   
