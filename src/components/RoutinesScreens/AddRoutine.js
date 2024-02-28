@@ -10,26 +10,25 @@ import { useRoutineContext } from '../../utils/RoutineContext';
 const AddRoutine = ({ route }) => {
     const navigation = useNavigation();
     const [routineTitle, setRoutineTitle] = useState('');
-    const user = useAuth(); // Assuming you have a custom hook to get the authenticated user
+    const user = useAuth(); 
     const { updateDailyRoutines } = route.params;
 
     const handleAddRoutine = async () => {
       try {
-        // Add routine to user's collection in Firestore
+        // Add routine to user's routines collection in Firestore
         const routinesDocRef = collection(FIRESTORE_DB, 'users', user.uid, 'routines');
         const docRef = await addDoc(routinesDocRef, {
           title: routineTitle,
         });
-        // Call the update function passed from HomeScreen
+        // Call the update function passed from HomeScreen to update dynamically
         updateDailyRoutines({ id: docRef.id, title: routineTitle });
 
-        console.log('DEBUG: Routine', docRef.id, 'added successfully');
+        console.log('DEBUG: Routine', routineTitle, 'added successfully');
 
         // Navigate back to HomeScreen
         navigation.goBack();
       } catch (error) {
         console.error('DEBUG: Error adding routine: ', error);
-        // Handle error
       }
     };
   

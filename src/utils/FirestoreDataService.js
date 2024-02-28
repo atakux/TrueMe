@@ -3,6 +3,7 @@ import { collection, getDocs } from "firebase/firestore";
 
 const fetchDailyRoutines = async (uid) => {
   try {
+    // Fetch daily routines from user based on their uid
     const routineRef = collection(FIRESTORE_DB, "users", uid, "routines");
     const snapshot = await getDocs(routineRef);
     const routines = [];
@@ -16,7 +17,7 @@ const fetchDailyRoutines = async (uid) => {
 
     return routines;
   } catch (error) {
-    console.error("Error fetching daily routines:", error);
+    console.error("DEBUG: Error fetching daily routines:", error);
     throw error;
   }
 };

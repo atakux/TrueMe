@@ -19,6 +19,7 @@ const HomeScreen = () => {
   const user = useAuth();
 
   useEffect(() => {
+    // Fetch Daily Routines
     const fetchRoutines = async () => {
       try {
         const routines = await fetchDailyRoutines(user.uid);
@@ -26,7 +27,7 @@ const HomeScreen = () => {
         setLoading(false);
         console.log("DEBUG: Fetched daily routines:", routines);
       } catch (error) {
-        console.error("Error fetching daily routines:", error);
+        console.error("DEBUG: Error fetching daily routines:", error);
         setLoading(false);
       }
     };
@@ -35,6 +36,7 @@ const HomeScreen = () => {
       fetchRoutines();
     };
 
+    // Load fonts
     const loadAsyncData = async () => {
       await loadFonts();
       setFontLoaded(true);
@@ -44,7 +46,7 @@ const HomeScreen = () => {
   }, [user]);
 
   if (!user) {
-    // Font is still loading or user not logged in, you can return a loading indicator or null
+    // User not logged in
     return null;
   };
 
@@ -57,8 +59,9 @@ const HomeScreen = () => {
     console.log("DEBUG: Camera clicked");
   };
   
+  // Handle routine click, if Add Routine is clicked, navigate to AddRoutine screen
   const handleRoutineClick = (routineName) => {
-    if (routineName === `Add Routine !`) {
+    if (routineName === `Add Routine`) {
       navigation.navigate('AddRoutine', { updateDailyRoutines });
   
     } else {
@@ -66,6 +69,7 @@ const HomeScreen = () => {
     }
   };
   
+  // Update daily routines
   const updateDailyRoutines = (newRoutine) => {
     setDailyRoutines([...dailyRoutines, newRoutine]);
   };
@@ -98,13 +102,13 @@ const HomeScreen = () => {
 
             {/* Daily Routines Container */}
             <View style={styles.dailyRoutinesContainer}>
+              {/* Daily Routines Cards */}
               <Swiper
                 cards={dailyRoutines}
                 renderCard={(item) => (
                   <View key={item.id} style={styles.dailyRoutinesCards}>
                     <TouchableOpacity onPress={() => handleRoutineClick(item.title)}>
                       <Text style={styles.mainText}>{item.title}</Text>
-                      <Text style={styles.mainText}>{item.id}</Text>
                     </TouchableOpacity>
                   </View>
                 )}
