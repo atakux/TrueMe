@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
 import { FIRESTORE_DB } from '../../../firebase'; 
@@ -7,6 +7,8 @@ import { useAuth } from '../../utils/AuthContext';
 import { useRoutineContext } from '../../utils/RoutineContext';
 import { loadFonts } from '../../utils/FontLoader';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const screenWidth = Dimensions.get('window').width;
 
 const AddRoutine = ({ route }) => {
     const navigation = useNavigation();
@@ -138,7 +140,7 @@ const AddRoutine = ({ route }) => {
     }, // End of buttonContainer    
 
     inputName: {
-        width: 350,
+        width: screenWidth - 40,
         height: 70,
         backgroundColor: "#FFFFFF",
         borderRadius: 14,
