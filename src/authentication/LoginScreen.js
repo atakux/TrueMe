@@ -105,10 +105,7 @@ const LoginScreen = () => {
         <Text style={styles.trueMeTitle}>{"TrueMe"}</Text>
       </View>
 
-      {/* Login fields 
-            TODO: require fields to be not empty, if empty show error
-            TODO: show error message if login fails
-      */}
+      {/* Login fields */}
       <View style={styles.loginContainer}>
         <Text style={styles.loginTitle}>{"Log in"}</Text>
 
@@ -170,7 +167,7 @@ const LoginScreen = () => {
             }}>
             <Text style={styles.textButton}>Sign up!</Text>
         </TouchableOpacity>
-    </View>
+      </View>
     </SafeAreaView>
   );
 };
