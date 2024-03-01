@@ -12,6 +12,7 @@ const fetchDailyRoutines = async (uid) => {
       routines.push({
         id: doc.id,
         title: doc.data().title,
+        days: doc.data().days,
       });
     });
 

@@ -76,6 +76,13 @@ const HomeScreen = () => {
   const updateDailyRoutines = (newRoutine) => {
     setDailyRoutines([...dailyRoutines, newRoutine]);
   };
+
+  // Get the current day
+  const currentDay = new Date().getDay();
+
+  // Filter daily routines based on the current day or if it's undefined
+  const filteredRoutines = dailyRoutines.filter(routine => routine.days === undefined || routine.days.includes(currentDay));
+
   
 
   return (
@@ -107,7 +114,7 @@ const HomeScreen = () => {
             <View style={styles.dailyRoutinesContainer}>
               {/* Daily Routines Cards */}
               <Swiper
-                cards={dailyRoutines}
+                cards={filteredRoutines}
                 renderCard={(item) => (
                   <View key={item.id} style={styles.dailyRoutinesCards}>
                     <TouchableOpacity onPress={() => handleRoutineClick(item.title)}>
@@ -130,9 +137,9 @@ const HomeScreen = () => {
                 cardVerticalMargin={0}
                 
                 // If there is only 1 card disable swiping
-                disableTopSwipe={dailyRoutines.length === 1 ? true : false} 
-                disableLeftSwipe={dailyRoutines.length === 1 ? true : false}
-                disableRightSwipe={dailyRoutines.length === 1 ? true : false}
+                disableTopSwipe={filteredRoutines.length === 1 ? true : false} 
+                disableLeftSwipe={filteredRoutines.length === 1 ? true : false}
+                disableRightSwipe={filteredRoutines.length === 1 ? true : false}
                 disableBottomSwipe={true}
 
                 useViewOverflow={Platform.OS === 'ios' ? true : false} 

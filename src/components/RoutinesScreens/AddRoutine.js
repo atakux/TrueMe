@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, Dimensions, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import { FIRESTORE_DB } from '../../../firebase'; 
 import { useAuth } from '../../utils/AuthContext';
 import { useRoutineContext } from '../../utils/RoutineContext';
@@ -13,9 +13,11 @@ const screenWidth = Dimensions.get('window').width;
 const AddRoutine = ({ route }) => {
     const navigation = useNavigation();
     const [routineName, setRoutineName] = useState('');
+    const [selectedDays, setSelectedDays] = useState([]);
     const user = useAuth(); 
     const { updateDailyRoutines } = route.params;
     const [errors, setErrors] = useState([]);
+    const [selectedDaysCount, setSelectedDaysCount] = useState(0); // State to keep track of selected days count
 
     // Load fonts
     useEffect(() => {
@@ -24,6 +26,11 @@ const AddRoutine = ({ route }) => {
       };
       loadAsyncData();
     }, []);
+
+    useEffect(() => {
+      // Update selected days count whenever selectedDays changes
+      setSelectedDaysCount(selectedDays.length);
+    }, [selectedDays]);
 
     // Add routine 
     const handleAddRoutine = async () => {
@@ -34,15 +41,20 @@ const AddRoutine = ({ route }) => {
           console.log('DEBUG: Routine title cannot be empty');
           setErrors((prevErrors) => [...prevErrors, 'Please enter a routine name']);
           return;
+        } else if (selectedDaysCount === 0) {
+          console.log('DEBUG: Cant be 0 days selected');
+          setErrors((prevErrors) => [...prevErrors, 'Please select at least one day for your routine']);
+          return;
         }
 
         // Add routine to user's routines collection in Firestore
         const routinesDocRef = collection(FIRESTORE_DB, 'users', user.uid, 'routines');
         const docRef = await addDoc(routinesDocRef, {
           title: routineName,
+          days: selectedDays,
         });
         // Call the update function passed from HomeScreen to update dynamically
-        updateDailyRoutines({ id: docRef.id, title: routineName });
+        updateDailyRoutines({ id: docRef.id, title: routineName, days: selectedDays });
 
         console.log('DEBUG: Routine', routineName, 'added successfully');
 
@@ -51,11 +63,16 @@ const AddRoutine = ({ route }) => {
       } catch (error) {
         console.error('DEBUG: Error adding routine: ', error);
       }
+    }; // End handleAddRoutine
+
+    const handleAddStep = () => {
+      console.log('DEBUG: Add Step button clicked');
     };
   
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.container}>
+            {/* Close Button */}
             <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
               <Image source={require('../../../assets/icons/close.png')} style={styles.closeButtonImage} />
             </TouchableOpacity>
@@ -70,6 +87,7 @@ const AddRoutine = ({ route }) => {
                 ))}
             
             <View style={styles.contentContainer}>
+                {/* Routine name user must enter */}
                 <Text style={styles.inputLabel}>Name</Text>
 
                 <TextInput
@@ -78,10 +96,42 @@ const AddRoutine = ({ route }) => {
                     value={routineName}
                     onChangeText={setRoutineName}
                 />
-            </View>
 
+                {/* Days of the week user can select for their routine */}
+                <Text style={styles.inputLabel}>Days</Text>
+
+                <View style={styles.daysContainer}>
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
+                    <TouchableOpacity 
+                      key={index} 
+                      style={[styles.dayButton, selectedDays.includes(index) && styles.selectedDayButton]}
+                      onPress={() => {
+                        if (selectedDays.includes(index)) {
+                          setSelectedDays(selectedDays.filter(item => item !== index));
+                        } else {
+                          setSelectedDays([...selectedDays, index]);
+                        }
+                      }}>
+                      <Text style={styles.dayText}>{day}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View> 
+                
+                {/* Display selected days count */}
+                <Text style={styles.selectedDaysCount}>Selected {selectedDaysCount} days</Text>
+
+                {/* Steps user can add to their routine */}
+                <Text style={styles.inputLabel}>Steps</Text>
+
+                <TouchableOpacity style={styles.buttons} onPress={handleAddStep}>
+                    <Image source={require('../../../assets/icons/plus.png')}/>
+                </TouchableOpacity>
+            </View>
+            
+
+            {/* Add Routine Button */}
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.buttons} onPress={handleAddRoutine}>
+                <TouchableOpacity style={styles.addRoutineButton} onPress={handleAddRoutine}>
                     <Text style={styles.buttonText}>Add Routine</Text>
                 </TouchableOpacity>
             </View>
@@ -141,13 +191,13 @@ const AddRoutine = ({ route }) => {
 
     inputName: {
         width: screenWidth - 40,
-        height: 70,
+        height: 60,
         backgroundColor: "#FFFFFF",
-        borderRadius: 14,
+        borderRadius: 20,
         alignSelf: "center",
-        marginBottom: 20,
+        marginBottom: 40,
         fontFamily: "Sofia-Sans",
-        fontSize: 24,
+        fontSize: 23,
         padding: 20,
         // Style depending on iOS vs Android
         ...Platform.select({
@@ -155,12 +205,10 @@ const AddRoutine = ({ route }) => {
             shadowColor: "rgba(0, 0, 0, 0.25)",
             shadowOffset: {
               width: 2,
-              height: 4,
-              
+              height: 4,    
             },
             shadowOpacity: 0.25,
             shadowRadius: 4,
-    
           },
           android: {
             elevation: 5,
@@ -172,7 +220,8 @@ const AddRoutine = ({ route }) => {
         fontSize: 24,
         fontFamily: "Sofia-Sans",
         color: "#535353",
-        marginBottom: 10,
+        marginBottom: 15,
+        marginTop: 5,
         textAlign: "left",
     }, // End of inputLabel
 
@@ -187,7 +236,26 @@ const AddRoutine = ({ route }) => {
         marginLeft: 15,
     }, // End of errorMessage
 
+    dayText: {
+        fontSize: 16,
+        fontFamily: "Sofia-Sans",
+        color: "#356553",
+    },
+
     buttons: {
+        width: screenWidth - 40,
+        height: 45,
+        backgroundColor: "#D0F2DA",
+        borderRadius: 100,
+        justifyContent: "center",
+        alignItems: "center",
+        alignSelf: "center",
+        marginTop: 2,
+        marginBottom: 5,
+        opacity: 0.85,
+    }, // End of buttons
+
+    addRoutineButton: {
         width: "85%",
         height: 60,
         backgroundColor: "#D0F2DA",
@@ -197,7 +265,7 @@ const AddRoutine = ({ route }) => {
         alignSelf: "center",
         marginTop: 2,
         marginBottom: 5,
-      }, // End of buttons
+      }, // End of addRoutinebutton
     
       buttonText: {
         fontSize: 28,
@@ -205,6 +273,32 @@ const AddRoutine = ({ route }) => {
         color: "#64BBA1",
         textAlign: "center",
       }, // End of buttonText
+
+    daysContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 10,
+    },
+
+    dayButton: {
+      borderWidth: 1,
+      borderColor: '#ccc',
+      padding: 10,
+      borderRadius: 5,
+    },
+
+    selectedDayButton: {
+      backgroundColor: '#64BBA1',
+    },
+
+    selectedDaysCount: {
+      fontSize: 16,
+      fontFamily: "Sofia-Sans",
+      color: "#535353",
+      textAlign: "right",
+      marginBottom: 20,
+      marginRight: 2,
+    },
   });
 
 export default AddRoutine;
