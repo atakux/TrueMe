@@ -52,6 +52,10 @@ const AddRoutine = ({ route }) => {
           console.log('DEBUG: Cant be 0 days selected');
           setErrors((prevErrors) => [...prevErrors, 'Please select at least one day for your routine']);
           return;
+        } else if (steps.length === 0) {
+          console.log('DEBUG: Steps cannot be empty');
+          setErrors((prevErrors) => [...prevErrors, 'Please add at least one step']);
+          return;
         }
 
         // Add routine to user's routines collection in Firestore
@@ -72,6 +76,15 @@ const AddRoutine = ({ route }) => {
         console.error('DEBUG: Error adding routine: ', error);
       }
     }; // End handleAddRoutine
+
+    const generateStepsHeaderText = () => {
+      const stepCount = steps.length;
+      if (stepCount === 0) {
+        return "Steps";
+      } else {
+        return `${stepCount} steps`;
+      }
+    };
 
     const handleClickStep = (step) => {
       setSelectedStep(step);
@@ -172,7 +185,7 @@ const AddRoutine = ({ route }) => {
                 <Text style={styles.tinyText}>Selected {selectedDaysCount} days</Text>
 
                 {/* Steps user can add to their routine */}
-                <Text style={styles.inputLabel}>Steps</Text>
+                <Text style={styles.inputLabel}>{generateStepsHeaderText()}</Text>
 
                 <TouchableOpacity style={styles.buttons} onPress={toggleModal}>
                     <Image source={require('../../../assets/icons/plus.png')}/>
@@ -240,7 +253,7 @@ const AddRoutine = ({ route }) => {
                   transparent={true}
                   visible={selectedStep !== null}
                   onRequestClose={() => setSelectedStep(null)}>
-                    
+
                   <TouchableOpacity
                     style={styles.modalContainer}
                     activeOpacity={1}
