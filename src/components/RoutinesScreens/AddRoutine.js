@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, Dimensions, Platform, Modal } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, Dimensions, Platform, Modal, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { collection, addDoc } from 'firebase/firestore';
 import { FIRESTORE_DB } from '../../../firebase'; 
@@ -19,8 +19,10 @@ const AddRoutine = ({ route }) => {
     const [stepName, setStepName] = useState('');
     const [selectedStep, setSelectedStep] = useState(null); // State to keep track of selected step
     const user = useAuth(); 
+    
     const { updateDailyRoutines } = route.params;
     const [errors, setErrors] = useState([]);
+    const [stepErrors, setStepErrors] = useState([]);
     const [selectedDaysCount, setSelectedDaysCount] = useState(0); // State to keep track of selected days count
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -76,9 +78,17 @@ const AddRoutine = ({ route }) => {
     };
 
     const handleAddStep = (stepName) => {
-      setSteps([...steps, stepName]);
-      setModalVisible(false);
-      setStepName(''); // Reset stepName after adding step
+      if (!stepName.trim()) {
+        console.log('DEBUG: Step name cannot be empty');
+        setStepErrors((prevErrors) => [...prevErrors, 'Please enter a step name']);
+        return;
+      } else {
+        setStepErrors([]);
+
+        setSteps([...steps, stepName]);
+        setModalVisible(false);
+        setStepName(''); // Reset stepName after adding step
+      }
     };
     
     const handleEditStep = () => {
@@ -125,7 +135,7 @@ const AddRoutine = ({ route }) => {
                     <Text key={index} style={styles.errorMessage}>
                         {" ▸ " + error}
                     </Text>
-                ))}
+            ))}
             
             <View style={styles.contentContainer}>
                 {/* Routine name user must enter */}
@@ -159,7 +169,7 @@ const AddRoutine = ({ route }) => {
                 </View> 
                 
                 {/* Display selected days count */}
-                <Text style={styles.selectedDaysCount}>Selected {selectedDaysCount} days</Text>
+                <Text style={styles.tinyText}>Selected {selectedDaysCount} days</Text>
 
                 {/* Steps user can add to their routine */}
                 <Text style={styles.inputLabel}>Steps</Text>
@@ -167,6 +177,9 @@ const AddRoutine = ({ route }) => {
                 <TouchableOpacity style={styles.buttons} onPress={toggleModal}>
                     <Image source={require('../../../assets/icons/plus.png')}/>
                 </TouchableOpacity>
+
+                <Text style={styles.tinyText}>Press and hold to reorder</Text>
+
                 <Modal
                   animationType="slide"
                   transparent={true}
@@ -174,21 +187,30 @@ const AddRoutine = ({ route }) => {
                   onRequestClose={() => {
                     setModalVisible(!modalVisible);
                   }}>
-                    
-                  <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                      <TextInput
-                        style={styles.modalInput}
-                        placeholder="Enter step name"
-                        onChangeText={setStepName}
-                      />
+                  
+                  <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+                    <View style={styles.modalContainer}>
+                      <View style={styles.modalContent}>
+                        <TextInput
+                          style={styles.modalInput}
+                          placeholder="Enter step name"
+                          onChangeText={setStepName}
+                        />
 
-                      <TouchableOpacity onPress={() => handleAddStep(stepName)}>
-                        <Text style={styles.addStepButton}>Add Step</Text>
-                      </TouchableOpacity>
+                        {/* Error Message */}
+                        {stepErrors.map((error, index) => (
+                                <Text key={index} style={styles.errorMessage}>
+                                    {"▸ " + error}
+                                </Text>
+                        ))}
 
+                        <TouchableOpacity onPress={() => handleAddStep(stepName)}>
+                          <Text style={styles.addStepButton}>Add Step</Text>
+                        </TouchableOpacity>
+
+                      </View>
                     </View>
-                  </View>
+                  </TouchableWithoutFeedback>
                 </Modal>
 
                 {/* Display added steps */}
@@ -212,32 +234,37 @@ const AddRoutine = ({ route }) => {
 
 
                 {/* Modal for editing/deleting selected step */}
+                {/* Modal for editing/deleting selected step */}
                 <Modal
                   animationType="slide"
                   transparent={true}
                   visible={selectedStep !== null}
                   onRequestClose={() => setSelectedStep(null)}>
                     
-                  <View style={styles.modalContainer}>
+                  <TouchableOpacity
+                    style={styles.modalContainer}
+                    activeOpacity={1}
+                    onPress={() => setSelectedStep(null)}
+                    >
+                    
                     <View style={styles.modalContent}>
-                    <TextInput
-                      style={styles.modalInput}
-                      placeholder={selectedStep}
-                      onChangeText={text => setStepName(text)}
-                    />
-                        <TouchableOpacity onPress={() => handleEditStep(stepName)}>
-                          <Text style={styles.editStepButton}>Save Changes</Text>
-                        </TouchableOpacity>
+                      <TextInput
+                        style={styles.modalInput}
+                        placeholder={selectedStep}
+                        onChangeText={text => setStepName(text)}
+                      />
+                      <TouchableOpacity onPress={() => handleEditStep(stepName)}>
+                        <Text style={styles.editStepButton}>Save Changes</Text>
+                      </TouchableOpacity>
 
-                        <TouchableOpacity onPress={handleDeleteStep}>
-                          <Text style={styles.deleteStepButton}>Delete Step</Text>
-                        </TouchableOpacity>
-
-                        
+                      <TouchableOpacity onPress={handleDeleteStep}>
+                        <Text style={styles.deleteStepButton}>Delete Step</Text>
+                      </TouchableOpacity>
                     </View>
-
-                  </View>
+                    
+                  </TouchableOpacity>
                 </Modal>
+
             </View>
             
 
@@ -354,6 +381,15 @@ const AddRoutine = ({ route }) => {
         color: "#356553",
     },
 
+    tinyText: {
+      fontSize: 16,
+      fontFamily: "Sofia-Sans",
+      color: "#535353",
+      textAlign: "right",
+      marginBottom: 13,
+      marginRight: 2,
+    },
+
     // Buttons
     buttons: {
         width: screenWidth - 40,
@@ -414,15 +450,6 @@ const AddRoutine = ({ route }) => {
       backgroundColor: '#64BBA1',
     },
 
-    selectedDaysCount: {
-      fontSize: 16,
-      fontFamily: "Sofia-Sans",
-      color: "#535353",
-      textAlign: "right",
-      marginBottom: 13,
-      marginRight: 2,
-    },
-
     // Modal
     modalContainer: {
       flex: 1,
@@ -440,9 +467,6 @@ const AddRoutine = ({ route }) => {
     },
 
     modalInput: {
-      height: 50,
-      width: screenWidth - 180,
-      
       borderColor: 'gray',
       borderWidth: 1,
       borderRadius: 5,
@@ -451,7 +475,21 @@ const AddRoutine = ({ route }) => {
       paddingHorizontal: 10,
       
       fontFamily: "Sofia-Sans",
-      fontSize: 20,
+
+      ...Platform.select({
+        ios: {
+          height: 50,
+          width: screenWidth - 180,
+          fontSize: 20,
+        },
+
+        android: {
+          height: 50,
+          width: screenWidth - 150,
+          marginVertical: 10,
+          fontSize: 18,
+        },
+      }),
     },
     
     // Steps
