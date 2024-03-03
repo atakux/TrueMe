@@ -114,7 +114,6 @@ const HomeScreen = () => {
                   <View key={item.id} style={styles.dailyRoutinesCards}>
                     <TouchableOpacity onPress={() => handleRoutineClick(item)}>
                       <Text style={styles.mainText}>{item.title}</Text>
-                      <Text style={styles.textStyle}>{item.steps}</Text>
                     </TouchableOpacity>
                   </View>
                 )}
