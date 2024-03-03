@@ -7,6 +7,7 @@ import { useAuth } from '../../utils/AuthContext';
 import { useRoutineContext } from '../../utils/RoutineContext';
 import { loadFonts } from '../../utils/FontLoader';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import DraggableFlatList from 'react-native-draggable-flatlist';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -70,32 +71,39 @@ const AddRoutine = ({ route }) => {
       }
     }; // End handleAddRoutine
 
-    const handleAddStep = (stepName) => {
-      setSteps([...steps, stepName]);
-      setModalVisible(false);
-    };
-
     const handleClickStep = (step) => {
       setSelectedStep(step);
     };
 
-    const handleEditStep = () => {
-      const updatedSteps = steps.map(step => {
-        if (step === selectedStep) {
-          return stepName;
-        }
-        return step;
-      });
-      setSteps(updatedSteps);
-      setModalVisible(false); // Close the modal after editing
-      setSelectedStep(null);
+    const handleAddStep = (stepName) => {
+      setSteps([...steps, stepName]);
+      setModalVisible(false);
+      setStepName(''); // Reset stepName after adding step
     };
     
-
+    const handleEditStep = () => {
+      if (!stepName.trim()) {
+        // If step name is empty, set it to the previous value
+        setStepName(selectedStep);
+      } else {
+        const updatedSteps = steps.map(step => {
+          if (step === selectedStep) {
+            return stepName;
+          }
+          return step;
+        });
+        setSteps(updatedSteps);
+      }
+      setModalVisible(false); // Close the modal after editing
+      setSelectedStep(null);
+      setStepName(''); // Reset stepName after editing
+    };
+    
     const handleDeleteStep = () => {
       const updatedSteps = steps.filter(step => step !== selectedStep);
       setSteps(updatedSteps);
       setSelectedStep(null);
+      setStepName(''); // Reset stepName after deleting step
     };
 
     const toggleModal = () => {
@@ -184,11 +192,24 @@ const AddRoutine = ({ route }) => {
                 </Modal>
 
                 {/* Display added steps */}
-                {steps.map((step, index) => (
-                  <TouchableOpacity key={index} style={styles.stepContainer} onPress={() => handleClickStep(step)}>
-                      <Text style={styles.stepText}>{step}</Text>
-                  </TouchableOpacity>
-                ))}
+                <DraggableFlatList
+                  data={steps}
+                  renderItem={({ item, index, drag, isActive }) => (
+                    <TouchableOpacity
+                      style={[
+                        styles.stepContainer,
+                        isActive && { backgroundColor: 'rgba(0, 0, 0, 0.1)' }, // Optional: Highlight the active item while dragging
+                      ]}
+                      onLongPress={drag}
+                      onPress={() => handleClickStep(item)}
+                    >
+                      <Text style={styles.stepText}>{item}</Text>
+                    </TouchableOpacity>
+                  )}
+                  keyExtractor={(item, index) => `step-${index}`}
+                  onDragEnd={({ data }) => setSteps(data)} // Update steps state after reordering
+                />
+
 
                 {/* Modal for editing/deleting selected step */}
                 <Modal
@@ -201,11 +222,9 @@ const AddRoutine = ({ route }) => {
                     <View style={styles.modalContent}>
                     <TextInput
                       style={styles.modalInput}
-                      placeholder={stepName}
-                      onChangeText={text => setStepName(text)} // Use a callback to properly update the state
+                      placeholder={selectedStep}
+                      onChangeText={text => setStepName(text)}
                     />
-
-
                         <TouchableOpacity onPress={() => handleEditStep(stepName)}>
                           <Text style={styles.editStepButton}>Save Changes</Text>
                         </TouchableOpacity>
@@ -213,6 +232,8 @@ const AddRoutine = ({ route }) => {
                         <TouchableOpacity onPress={handleDeleteStep}>
                           <Text style={styles.deleteStepButton}>Delete Step</Text>
                         </TouchableOpacity>
+
+                        
                     </View>
 
                   </View>
@@ -282,7 +303,7 @@ const AddRoutine = ({ route }) => {
 
     inputName: {
         width: screenWidth - 40,
-        height: 60,
+        height: 65,
         backgroundColor: "#FFFFFF",
         borderRadius: 20,
         alignSelf: "center",
