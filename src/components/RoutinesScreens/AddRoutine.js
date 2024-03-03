@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, Dimensions, Platform } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, Dimensions, Platform, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { collection, addDoc } from 'firebase/firestore';
 import { FIRESTORE_DB } from '../../../firebase'; 
@@ -14,10 +14,13 @@ const AddRoutine = ({ route }) => {
     const navigation = useNavigation();
     const [routineName, setRoutineName] = useState('');
     const [selectedDays, setSelectedDays] = useState([]);
+    const [steps, setSteps] = useState([]);
+    const [stepName, setStepName] = useState('');
     const user = useAuth(); 
     const { updateDailyRoutines } = route.params;
     const [errors, setErrors] = useState([]);
     const [selectedDaysCount, setSelectedDaysCount] = useState(0); // State to keep track of selected days count
+    const [modalVisible, setModalVisible] = useState(false);
 
     // Load fonts
     useEffect(() => {
@@ -52,6 +55,7 @@ const AddRoutine = ({ route }) => {
         const docRef = await addDoc(routinesDocRef, {
           title: routineName,
           days: selectedDays,
+          steps: steps,
         });
         // Call the update function passed from HomeScreen to update dynamically
         updateDailyRoutines({ id: docRef.id, title: routineName, days: selectedDays });
@@ -65,10 +69,19 @@ const AddRoutine = ({ route }) => {
       }
     }; // End handleAddRoutine
 
-    const handleAddStep = () => {
-      console.log('DEBUG: Add Step button clicked');
+    const handleAddStep = (stepName) => {
+      setSteps([...steps, stepName]);
+      setModalVisible(false);
     };
-  
+
+    const handdleClickStep = (stepName) => {
+      console.log("DEBUG:", stepName);
+    };
+
+    const toggleModal = () => {
+      setModalVisible(!modalVisible);
+    };
+
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.container}>
@@ -123,9 +136,39 @@ const AddRoutine = ({ route }) => {
                 {/* Steps user can add to their routine */}
                 <Text style={styles.inputLabel}>Steps</Text>
 
-                <TouchableOpacity style={styles.buttons} onPress={handleAddStep}>
+                <TouchableOpacity style={styles.buttons} onPress={toggleModal}>
                     <Image source={require('../../../assets/icons/plus.png')}/>
                 </TouchableOpacity>
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={modalVisible}
+                  onRequestClose={() => {
+                    setModalVisible(!modalVisible);
+                  }}>
+                    
+                  <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                      <TextInput
+                        style={styles.modalInput}
+                        placeholder="Enter step name"
+                        onChangeText={setStepName}
+                      />
+
+                      <TouchableOpacity onPress={() => handleAddStep(stepName)}>
+                        <Text style={styles.addStepButton}>Add Step</Text>
+                      </TouchableOpacity>
+
+                    </View>
+                  </View>
+                </Modal>
+
+                {/* Display added steps */}
+                {steps.map((step, index) => (
+                  <TouchableOpacity key={index} style={styles.stepContainer} onPress={() => handdleClickStep(step)}>
+                      <Text style={styles.stepText}>{step}</Text>
+                  </TouchableOpacity>
+                ))}
             </View>
             
 
@@ -242,6 +285,7 @@ const AddRoutine = ({ route }) => {
         color: "#356553",
     },
 
+    // Buttons
     buttons: {
         width: screenWidth - 40,
         height: 45,
@@ -251,7 +295,7 @@ const AddRoutine = ({ route }) => {
         alignItems: "center",
         alignSelf: "center",
         marginTop: 2,
-        marginBottom: 5,
+        marginBottom: 10,
         opacity: 0.85,
     }, // End of buttons
 
@@ -267,13 +311,23 @@ const AddRoutine = ({ route }) => {
         marginBottom: 5,
       }, // End of addRoutinebutton
     
-      buttonText: {
-        fontSize: 28,
-        fontFamily: "Sofia-Sans",
-        color: "#64BBA1",
-        textAlign: "center",
-      }, // End of buttonText
+    buttonText: {
+      fontSize: 28,
+      fontFamily: "Sofia-Sans",
+      color: "#64BBA1",
+      textAlign: "center",
+    }, // End of buttonText
 
+    addStepButton: {
+      fontSize: 22,
+      fontFamily: "Sofia-Sans",
+      color: "#64BBA1",
+      textAlign: "center",
+      marginTop: 5,
+      
+    },
+
+    // Days
     daysContainer: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -296,8 +350,65 @@ const AddRoutine = ({ route }) => {
       fontFamily: "Sofia-Sans",
       color: "#535353",
       textAlign: "right",
-      marginBottom: 20,
+      marginBottom: 13,
       marginRight: 2,
+    },
+
+    // Modal
+    modalContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+
+    modalContent: {
+      backgroundColor: '#fff',
+      padding: 15,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+
+    modalInput: {
+      height: 50,
+      width: screenWidth - 180,
+      
+      borderColor: 'gray',
+      borderWidth: 1,
+      borderRadius: 5,
+      
+      margin: 5,
+      paddingHorizontal: 10,
+      
+      fontFamily: "Sofia-Sans",
+      fontSize: 20,
+    },
+    
+    // Steps
+    stepContainer: {
+      width: screenWidth - 60,
+      height: 40,
+
+      backgroundColor: "#FFFFFF",
+      
+      borderRadius: 5,
+      borderColor: "#64BBA1",
+      borderStyle: "solid",
+      borderWidth: 0.25,
+
+      flexDirection: 'row',
+      alignItems: 'center',
+      
+      marginTop: 5,
+      marginHorizontal: 10,
+    },
+
+    stepText: {
+        fontSize: 18,
+        fontFamily: "Sofia-Sans",
+        color: "#356553",
+        marginLeft: 15,
     },
   });
 
