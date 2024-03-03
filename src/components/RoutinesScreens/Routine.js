@@ -8,9 +8,18 @@ const Routine = ({ route }) => {
     const routineData = route.params.routine;
     const routineName = routineData.title;
     const routineDays = routineData.days;
+    const routineSteps = routineData.steps;
 
-    const [completionStatus, setCompletionStatus] = useState(Array(routineData.steps.length).fill(false));
+    console.log("DEBUG: Route: ", route);
+    console.log("DEBUG: Routine Data:", routineData);
+    console.log("DEBUG: Routine Steps:", routineSteps);
 
+
+    const [completionStatus, setCompletionStatus] = useState(routineSteps ? Array(routineSteps.length).fill(false) : []);
+
+    if (!routineData) {
+        return <Text>Loading...</Text>; // Or any other loading indicator
+    }
     // Array of day names
     const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -44,7 +53,7 @@ const Routine = ({ route }) => {
         return (
             <View>
                 <Text style={styles.mainText}>Steps:</Text>
-                {routineData.steps.map((step, index) => (
+                {routineSteps.map((step, index) => (
                     <View key={index} style={styles.checklistItem}>
                         <TouchableOpacity onPress={() => toggleCompletion(index)}>
                             <View style={styles.checkbox}>

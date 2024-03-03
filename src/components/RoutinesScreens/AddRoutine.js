@@ -39,7 +39,7 @@ const AddRoutine = ({ route }) => {
         setFontLoaded(true);
       };
       loadAsyncData();
-    }, [user]);
+    }, [user, updateDailyRoutines]);
 
     // Update selected days count whenever selectedDays changes
     useEffect(() => {
@@ -80,7 +80,7 @@ const AddRoutine = ({ route }) => {
         });
 
         // Call the update function passed from HomeScreen to update dynamically
-        updateDailyRoutines({ id: docRef.id, title: routineName, days: selectedDays });
+        updateDailyRoutines({ id: docRef.id, title: routineName, days: selectedDays, steps: steps });
 
         console.log('DEBUG: ', routineName, 'added successfully');
 

@@ -11,8 +11,6 @@ import { useAuth } from '../../utils/AuthContext';
 import { fetchDailyRoutines } from '../../utils/FirestoreDataService'; 
 import { RoutineProvider } from '../../utils/RoutineContext';
 
-import { Routine } from '../../components/RoutinesScreens/Routine';
-
 const HomeScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const [dailyRoutines, setDailyRoutines] = useState([]);
@@ -45,7 +43,7 @@ const HomeScreen = () => {
     };
 
     loadAsyncData();
-  }, [user]);
+  }, [user, updateDailyRoutines]);
 
   if (!user) {
     // User not logged in
@@ -116,6 +114,7 @@ const HomeScreen = () => {
                   <View key={item.id} style={styles.dailyRoutinesCards}>
                     <TouchableOpacity onPress={() => handleRoutineClick(item)}>
                       <Text style={styles.mainText}>{item.title}</Text>
+                      <Text style={styles.textStyle}>{item.steps}</Text>
                     </TouchableOpacity>
                   </View>
                 )}
