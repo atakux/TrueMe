@@ -16,6 +16,7 @@ const AddRoutine = ({ route }) => {
     const [selectedDays, setSelectedDays] = useState([]);
     const [steps, setSteps] = useState([]);
     const [stepName, setStepName] = useState('');
+    const [selectedStep, setSelectedStep] = useState(null); // State to keep track of selected step
     const user = useAuth(); 
     const { updateDailyRoutines } = route.params;
     const [errors, setErrors] = useState([]);
@@ -74,8 +75,27 @@ const AddRoutine = ({ route }) => {
       setModalVisible(false);
     };
 
-    const handdleClickStep = (stepName) => {
-      console.log("DEBUG:", stepName);
+    const handleClickStep = (step) => {
+      setSelectedStep(step);
+    };
+
+    const handleEditStep = () => {
+      const updatedSteps = steps.map(step => {
+        if (step === selectedStep) {
+          return stepName;
+        }
+        return step;
+      });
+      setSteps(updatedSteps);
+      setModalVisible(false); // Close the modal after editing
+      setSelectedStep(null);
+    };
+    
+
+    const handleDeleteStep = () => {
+      const updatedSteps = steps.filter(step => step !== selectedStep);
+      setSteps(updatedSteps);
+      setSelectedStep(null);
     };
 
     const toggleModal = () => {
@@ -165,10 +185,38 @@ const AddRoutine = ({ route }) => {
 
                 {/* Display added steps */}
                 {steps.map((step, index) => (
-                  <TouchableOpacity key={index} style={styles.stepContainer} onPress={() => handdleClickStep(step)}>
+                  <TouchableOpacity key={index} style={styles.stepContainer} onPress={() => handleClickStep(step)}>
                       <Text style={styles.stepText}>{step}</Text>
                   </TouchableOpacity>
                 ))}
+
+                {/* Modal for editing/deleting selected step */}
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={selectedStep !== null}
+                  onRequestClose={() => setSelectedStep(null)}>
+                    
+                  <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                    <TextInput
+                      style={styles.modalInput}
+                      placeholder={stepName}
+                      onChangeText={text => setStepName(text)} // Use a callback to properly update the state
+                    />
+
+
+                        <TouchableOpacity onPress={() => handleEditStep(stepName)}>
+                          <Text style={styles.editStepButton}>Save Changes</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={handleDeleteStep}>
+                          <Text style={styles.deleteStepButton}>Delete Step</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                  </View>
+                </Modal>
             </View>
             
 
@@ -410,6 +458,25 @@ const AddRoutine = ({ route }) => {
         color: "#356553",
         marginLeft: 15,
     },
+
+    editStepButton: {
+      fontSize: 18,
+      fontFamily: "Sofia-Sans",
+      color: "#64BBA1",
+      textAlign: "center",
+      marginTop: 10,
+      marginBottom: 5,
+    },
+    
+    deleteStepButton: {
+      fontSize: 18,
+      fontFamily: "Sofia-Sans",
+      color: "red",
+      textAlign: "center",
+      marginTop: 5,
+      marginBottom: 5,
+    },
+    
   });
 
 export default AddRoutine;
