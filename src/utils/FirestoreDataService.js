@@ -13,6 +13,7 @@ const fetchDailyRoutines = async (uid) => {
         id: doc.id,
         title: doc.data().title,
         days: doc.data().days,
+        steps: doc.data().steps,
       });
     });
 

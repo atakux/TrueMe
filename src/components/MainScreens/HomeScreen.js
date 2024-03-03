@@ -62,13 +62,12 @@ const HomeScreen = () => {
   };
   
   // Handle routine click, if Add Routine is clicked, navigate to AddRoutine screen
-  const handleRoutineClick = (routineName) => {
-    if (routineName === `Add Routine`) {
+  const handleRoutineClick = (routine) => {
+    if (routine.title === `Add Routine`) {
       navigation.navigate('AddRoutine', { updateDailyRoutines, navigation });
-  
     } else {
-      console.log(`DEBUG: ${routineName} clicked`);
-      navigation.navigate('Routine', { routineName });
+      console.log(`DEBUG: ${routine.title} clicked`);
+      navigation.navigate('Routine', { routine });
     }
   };
   
@@ -82,8 +81,6 @@ const HomeScreen = () => {
 
   // Filter daily routines based on the current day or if it's undefined
   const filteredRoutines = dailyRoutines.filter(routine => routine.days === undefined || routine.days.includes(currentDay));
-
-  
 
   return (
     <RoutineProvider updateDailyRoutines={updateDailyRoutines}>
@@ -117,7 +114,7 @@ const HomeScreen = () => {
                 cards={filteredRoutines}
                 renderCard={(item) => (
                   <View key={item.id} style={styles.dailyRoutinesCards}>
-                    <TouchableOpacity onPress={() => handleRoutineClick(item.title)}>
+                    <TouchableOpacity onPress={() => handleRoutineClick(item)}>
                       <Text style={styles.mainText}>{item.title}</Text>
                     </TouchableOpacity>
                   </View>
