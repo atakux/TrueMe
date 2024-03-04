@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { deleteRoutine } from '../../utils/FirestoreDataService';
+import { useAuth } from '../../utils/AuthContext';
 
 const Routine = ({ route }) => {
     const navigation = useNavigation();
+    const user = useAuth();
+
     const routineData = route.params.routine;
+    const routineId = routineData.id;
     const routineName = routineData.title;
     const routineDays = routineData.days;
     const routineSteps = routineData.steps;
 
     console.log("DEBUG: Route: ", route);
     console.log("DEBUG: Routine Data:", routineData);
-    console.log("DEBUG: Routine Steps:", routineSteps);
-
 
     const [completionStatus, setCompletionStatus] = useState(routineSteps ? Array(routineSteps.length).fill(false) : []);
 
@@ -78,8 +81,30 @@ const Routine = ({ route }) => {
         console.log('DEBUG: Edit Routine button pressed');
     };
 
+    // Function to handle routine deletion
     const handleDeleteRoutine = () => {
-        console.log('DEBUG: Delete Routine button pressed');
+        Alert.alert(
+            'Confirm Delete',
+            `Are you sure you want to delete the routine '${routineName}'?`,
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Delete',
+                    onPress: () => processDeleteRoutine(routineId),
+                    style: 'destructive',
+                },
+            ]
+        );
+    };
+
+    // Function to delete routine
+    const processDeleteRoutine = (routineId) => {
+        console.log(`DEBUG: Deleting routine '${routineName}'`);
+        deleteRoutine(user.uid, routineId);
+        navigation.navigate('Home', { deletedRoutineId: routineId });
     };
 
 

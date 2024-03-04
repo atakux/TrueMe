@@ -1,5 +1,5 @@
 import { FIRESTORE_DB } from "../../firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
 
 const fetchDailyRoutines = async (uid) => {
   try {
@@ -24,4 +24,15 @@ const fetchDailyRoutines = async (uid) => {
   }
 };
 
-export { fetchDailyRoutines };
+const deleteRoutine = async (userId, routineId) => {
+  try {
+      // Delete routine document from Firestore
+      await deleteDoc(doc(FIRESTORE_DB, "users", userId, "routines", routineId));
+      console.log(`DEBUG: Routine with ID ${routineId} deleted`);
+  } catch (error) {
+      console.error("DEBUG: Error deleting routine:", error);
+      throw error;
+  }
+};
+
+export { fetchDailyRoutines, deleteRoutine };

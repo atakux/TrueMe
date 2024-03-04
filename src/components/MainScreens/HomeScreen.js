@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, Image, Platform, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, Image, Platform, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
+
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
 import { loadFonts } from '../../utils/FontLoader'; 
@@ -11,7 +13,7 @@ import { useAuth } from '../../utils/AuthContext';
 import { fetchDailyRoutines } from '../../utils/FirestoreDataService'; 
 import { RoutineProvider } from '../../utils/RoutineContext';
 
-const HomeScreen = () => {
+const HomeScreen = ({ route }) => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const [dailyRoutines, setDailyRoutines] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +21,20 @@ const HomeScreen = () => {
   const user = useAuth();
 
   useEffect(() => {
-    // Fetch Daily Routines
+    // Load fonts
+    const loadAsyncData = async () => {
+      await loadFonts();
+      setFontLoaded(true);
+    };
+
+    loadAsyncData();
+  }, []);
+
+  const handleRoutineDeletion = (deletedRoutineId) => {
+    setDailyRoutines(prevRoutines => prevRoutines.filter(routine => routine.id !== deletedRoutineId));
+  };
+
+  useEffect(() => {
     const fetchRoutines = async () => {
       try {
         const routines = await fetchDailyRoutines(user.uid);
@@ -34,16 +49,18 @@ const HomeScreen = () => {
 
     if (user) {
       fetchRoutines();
-    };
+    }
 
-    // Load fonts
-    const loadAsyncData = async () => {
-      await loadFonts();
-      setFontLoaded(true);
-    };
-
-    loadAsyncData();
-  }, [user, updateDailyRoutines]);
+    // Set up listener for routine deletion
+    const unsubscribe = navigation.addListener('focus', () => {
+      const deletedRoutineId = route.params?.deletedRoutineId;
+      if (deletedRoutineId) {
+        handleRoutineDeletion(deletedRoutineId);
+      }
+    });
+    
+    return unsubscribe;
+  }, [user, navigation]);
 
   if (!user) {
     // User not logged in
@@ -53,7 +70,7 @@ const HomeScreen = () => {
   if (!fontLoaded || loading) {
     // Font is still loading or routines are being fetched, you can return a loading indicator or null
     return <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator}/>;
-  }
+  };
 
   const handleCameraClick = () => {
     console.log("DEBUG: Camera clicked");
