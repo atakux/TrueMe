@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, Dimensions, Platform, Modal, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, Dimensions, Platform, Modal, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { collection, addDoc } from 'firebase/firestore';
 import { FIRESTORE_DB } from '../../../firebase'; 
@@ -14,6 +14,7 @@ const AddRoutine = ({ route }) => {
     const navigation = useNavigation();
     const user = useAuth(); 
     const [fontLoaded, setFontLoaded] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     
     // Routines related consts
     const [routineName, setRoutineName] = useState('');
@@ -54,6 +55,7 @@ const AddRoutine = ({ route }) => {
     // Add routine 
     const handleAddRoutine = async () => {
       try {
+        setIsLoading(true);
         setErrors([]);
 
         // Validate inputs
@@ -89,6 +91,8 @@ const AddRoutine = ({ route }) => {
 
       } catch (error) {
         console.error('DEBUG: Error adding routine: ', error);
+      } finally {
+        setIsLoading(false);
       }
     }; // End handleAddRoutine
 
@@ -306,9 +310,13 @@ const AddRoutine = ({ route }) => {
             
             {/* Add Routine Button */}
             <View style={styles.buttonContainer}>
+              {isLoading ? (
+                <ActivityIndicator size="large" color="#64BBA1" />
+              ) : (
                 <TouchableOpacity style={styles.addRoutineButton} onPress={handleAddRoutine}>
-                    <Text style={styles.buttonText}>Add Routine</Text>
+                  <Text style={styles.buttonText}>Add Routine</Text>
                 </TouchableOpacity>
+              )}
             </View>
 
         </View>
