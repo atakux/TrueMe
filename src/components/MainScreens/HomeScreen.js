@@ -52,7 +52,7 @@ const HomeScreen = () => {
 
   if (!fontLoaded || loading) {
     // Font is still loading or routines are being fetched, you can return a loading indicator or null
-    return <ActivityIndicator size="large" color="#0000ff" />;
+    return <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator}/>;
   }
 
   const handleCameraClick = () => {
@@ -188,7 +188,11 @@ const styles = StyleSheet.create({
           nestedScrollEnabled: true 
         }
       })
-    },
+    }, // End of scrollView
+
+    loadingIndicator: {
+      marginTop: 300,
+    }, // End of loadingIndicator
 
     topContainer: {
       ...Platform.select({
