@@ -57,15 +57,17 @@ const deleteRoutine = async (userId, routineId) => {
 
 const updateRoutine = async (userId, routineId, updatedRoutine) => {
   try {
-      // Update routine document in Firestore
-      await updateDoc(doc(FIRESTORE_DB, "users", userId, "routines", routineId), 
-          {
-              title: updatedRoutine.title,
-              days: updatedRoutine.days,
-              steps: updatedRoutine.steps
-          }
-      );
-      console.log(`DEBUG: Routine with ID ${routineId} updated with data ${JSON.stringify(updatedRoutine)}`);
+    console.log("DEBUG: Updated routine: ", updatedRoutine);
+
+    const routinesDocRef = doc(FIRESTORE_DB, 'users', userId, 'routines', routineId);
+    // Update routine document in Firestore
+    await updateDoc(routinesDocRef, {
+      title: updatedRoutine.title,
+      days: updatedRoutine.days,
+      steps: updatedRoutine.steps
+    });
+
+    console.log(`DEBUG: Routine with ID ${routineId} updated with data ${JSON.stringify(updatedRoutine)}`);
   } catch (error) {
       console.error("DEBUG: Error updating routine:", error);
       throw error;

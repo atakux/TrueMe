@@ -72,7 +72,7 @@ const AddRoutine = ({ route }) => {
           setErrors((prevErrors) => [...prevErrors, 'Please add at least one step']);
           return;
         } 
-        
+
         routineData = {
           title: routineName,
           days: selectedDays,
@@ -96,6 +96,8 @@ const AddRoutine = ({ route }) => {
       const stepCount = steps.length;
       if (stepCount === 0) {
         return "Steps";
+      } else if (stepCount === 1) {
+        return `${stepCount} step`;
       } else {
         return `${stepCount} steps`;
       }
@@ -158,7 +160,7 @@ const AddRoutine = ({ route }) => {
         <View style={styles.container}>
             {/* Close Button */}
             <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-              <Image source={require('../../../assets/icons/close.png')} style={styles.closeButtonImage} />
+              <Image source={require('../../../assets/icons/close.png')}/>
             </TouchableOpacity>
 
             <Text style={styles.title}>Add a Routine</Text>

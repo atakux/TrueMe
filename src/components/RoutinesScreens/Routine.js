@@ -80,7 +80,7 @@ const Routine = ({ route }) => {
     };
 
     const handleEditRoutine = () => {
-        navigation.navigate('EditRoutine', { routineId });
+        navigation.navigate('EditRoutine', { routineData, refreshSwiper });
     };
 
     // Function to handle routine deletion, asks for confirmation
