@@ -33,7 +33,7 @@ const HomeScreen = () => {
     const fetchRoutines = async () => {
       try {
         const routines = await fetchDailyRoutines(user.uid);
-        setDailyRoutines(routines);
+        setDailyRoutines(routines.filter(routine => routine.days === undefined || routine.days.includes(currentDay) || routine.id !== undefined));
         setLoading(false);
         console.log("DEBUG: Fetched daily routines:", routines);
       } catch (error) {
@@ -80,9 +80,6 @@ const HomeScreen = () => {
   // Get the current day
   const currentDay = new Date().getDay();
 
-  // Filter daily routines based on the current day or if it's undefined
-  const filteredRoutines = dailyRoutines.filter(routine => routine.days === undefined || routine.days.includes(currentDay) || routine.id !== undefined);
-
   return (
     <RoutineProvider updateDailyRoutines={updateDailyRoutines}>
       <SafeAreaView style={styles.container}>
@@ -112,7 +109,7 @@ const HomeScreen = () => {
             <View style={styles.dailyRoutinesContainer}>
               {/* Daily Routines Cards */}
               <Swiper
-                cards={filteredRoutines}
+                cards={dailyRoutines}
                 renderCard={(item) => (
                   <View key={item.id} style={styles.dailyRoutinesCards}>
                     <TouchableOpacity onPress={() => handleRoutineClick(item)}>
@@ -135,9 +132,9 @@ const HomeScreen = () => {
                 cardVerticalMargin={0}
                 
                 // If there is only 1 card disable swiping
-                disableTopSwipe={filteredRoutines.length === 1 ? true : false} 
-                disableLeftSwipe={filteredRoutines.length === 1 ? true : false}
-                disableRightSwipe={filteredRoutines.length === 1 ? true : false}
+                disableTopSwipe={dailyRoutines.length === 1 ? true : false} 
+                disableLeftSwipe={dailyRoutines.length === 1 ? true : false}
+                disableRightSwipe={dailyRoutines.length === 1 ? true : false}
                 disableBottomSwipe={true}
 
                 useViewOverflow={Platform.OS === 'ios' ? true : false} 
