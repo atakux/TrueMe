@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, Dimensions, Platform, Modal, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, Dimensions, Platform, Modal, TouchableWithoutFeedback, ActivityIndicator, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../utils/AuthContext';
 import { loadFonts } from '../../utils/FontLoader';
@@ -9,6 +9,10 @@ import DraggableFlatList from 'react-native-draggable-flatlist';
 import { addRoutine } from '../../utils/FirestoreDataService';
 
 const screenWidth = Dimensions.get('window').width;
+
+const dismissKeyboard = () => {
+  Keyboard.dismiss();
+};
 
 const AddRoutine = ({ route }) => {
     const navigation = useNavigation();
@@ -156,168 +160,170 @@ const AddRoutine = ({ route }) => {
     };
 
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.container}>
-            {/* Close Button */}
-            <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-              <Image source={require('../../../assets/icons/close.png')}/>
-            </TouchableOpacity>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.container}>
+              {/* Close Button */}
+              <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
+                <Image source={require('../../../assets/icons/close.png')}/>
+              </TouchableOpacity>
 
-            <Text style={styles.title}>Add a Routine</Text>
+              <Text style={styles.title}>Add a Routine</Text>
 
-            {/* Error Message */}
-            {errors.map((error, index) => (
-                    <Text key={index} style={styles.errorMessage}>
-                        {" ▸ " + error}
-                    </Text>
-            ))}
-            
-            {/* Main content container for Add Routine screen */}
-            <View style={styles.contentContainer}>
+              {/* Error Message */}
+              {errors.map((error, index) => (
+                      <Text key={index} style={styles.errorMessage}>
+                          {" ▸ " + error}
+                      </Text>
+              ))}
+              
+              {/* Main content container for Add Routine screen */}
+              <View style={styles.contentContainer}>
 
-                {/* Routine name user must enter */}
-                <Text style={styles.inputLabel}>Name</Text>
+                  {/* Routine name user must enter */}
+                  <Text style={styles.inputLabel}>Name</Text>
 
-                <TextInput
-                    style={styles.inputName}
-                    placeholder="Daily Routine"
-                    value={routineName}
-                    onChangeText={setRoutineName}
-                />
+                  <TextInput
+                      style={styles.inputName}
+                      placeholder="Daily Routine"
+                      value={routineName}
+                      onChangeText={setRoutineName}
+                  />
 
-                {/* Days of the week user can select for their routine */}
-                <Text style={styles.inputLabel}>Days</Text>
+                  {/* Days of the week user can select for their routine */}
+                  <Text style={styles.inputLabel}>Days</Text>
 
-                <View style={styles.daysContainer}>
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
-                    <TouchableOpacity 
-                      key={index} 
-                      style={[styles.dayButton, selectedDays.includes(index) && styles.selectedDayButton]}
-                      onPress={() => {
-                        if (selectedDays.includes(index)) {
-                          setSelectedDays(selectedDays.filter(item => item !== index));
-                        } else {
-                          setSelectedDays([...selectedDays, index]);
-                        }
-                      }}>
-                      <Text style={styles.dayText}>{day}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View> 
-                
-                {/* Display selected days count */}
-                <Text style={styles.tinyText}>Selected {selectedDaysCount} days</Text>
-
-                {/* Steps user can add to their routine */}
-                <Text style={styles.inputLabel}>{generateStepsHeaderText()}</Text>
-
-                <TouchableOpacity style={styles.buttons} onPress={toggleModal}>
-                    <Image source={require('../../../assets/icons/plus.png')}/>
-                </TouchableOpacity>
-
-                {/* Directions for reordering steps */}
-                <Text style={styles.tinyText}>Press and hold to reorder</Text>
-
-                {/* Modal for adding steps */}
-                <Modal
-                  animationType="slide"
-                  transparent={true}
-                  visible={modalVisible}
-                  onRequestClose={() => {
-                    setModalVisible(!modalVisible);
-                  }}>
+                  <View style={styles.daysContainer}>
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
+                      <TouchableOpacity 
+                        key={index} 
+                        style={[styles.dayButton, selectedDays.includes(index) && styles.selectedDayButton]}
+                        onPress={() => {
+                          if (selectedDays.includes(index)) {
+                            setSelectedDays(selectedDays.filter(item => item !== index));
+                          } else {
+                            setSelectedDays([...selectedDays, index]);
+                          }
+                        }}>
+                        <Text style={styles.dayText}>{day}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View> 
                   
-                  <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-                    <View style={styles.modalContainer}>
+                  {/* Display selected days count */}
+                  <Text style={styles.tinyText}>Selected {selectedDaysCount} days</Text>
+
+                  {/* Steps user can add to their routine */}
+                  <Text style={styles.inputLabel}>{generateStepsHeaderText()}</Text>
+
+                  <TouchableOpacity style={styles.buttons} onPress={toggleModal}>
+                      <Image source={require('../../../assets/icons/plus.png')}/>
+                  </TouchableOpacity>
+
+                  {/* Directions for reordering steps */}
+                  <Text style={styles.tinyText}>Press and hold to reorder</Text>
+
+                  {/* Modal for adding steps */}
+                  <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => {
+                      setModalVisible(!modalVisible);
+                    }}>
+                    
+                    <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+                      <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                          <TextInput
+                            style={styles.modalInput}
+                            placeholder="Enter step name"
+                            onChangeText={setStepName}
+                          />
+
+                          {/* Error Message */}
+                          {stepErrors.map((error, index) => (
+                                  <Text key={index} style={styles.errorMessage}>
+                                      {"▸ " + error}
+                                  </Text>
+                          ))}
+
+                          <TouchableOpacity onPress={() => handleAddStep(stepName)}>
+                            <Text style={styles.addStepButton}>Add Step</Text>
+                          </TouchableOpacity>
+
+                        </View>
+                      </View>
+                    </TouchableWithoutFeedback>
+                  </Modal>
+
+                  {/* Display added steps */}
+                  <DraggableFlatList
+                    data={steps}
+                    renderItem={({ item, index, drag, isActive }) => (
+                      <TouchableOpacity
+                        style={[
+                          styles.stepContainer,
+                          isActive && { backgroundColor: 'rgba(0, 0, 0, 0.1)' }, // Optional: Highlight the active item while dragging
+                        ]}
+                        onLongPress={drag}
+                        onPress={() => handleClickStep(item)}
+                      >
+                        <Text style={styles.stepText}>{item}</Text>
+                      </TouchableOpacity>
+                    )}
+                    keyExtractor={(item, index) => `step-${index}`}
+                    onDragEnd={({ data }) => setSteps(data)} // Update steps state after reordering
+                  />
+
+                  {/* Modal for editing/deleting selected step */}
+                  <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={selectedStep !== null}
+                    onRequestClose={() => setSelectedStep(null)}>
+
+                    <TouchableOpacity
+                      style={styles.modalContainer}
+                      activeOpacity={1}
+                      onPress={() => setSelectedStep(null)}
+                      >
+                      
                       <View style={styles.modalContent}>
                         <TextInput
                           style={styles.modalInput}
-                          placeholder="Enter step name"
-                          onChangeText={setStepName}
+                          placeholder={selectedStep}
+                          onChangeText={text => setStepName(text)}
                         />
-
-                        {/* Error Message */}
-                        {stepErrors.map((error, index) => (
-                                <Text key={index} style={styles.errorMessage}>
-                                    {"▸ " + error}
-                                </Text>
-                        ))}
-
-                        <TouchableOpacity onPress={() => handleAddStep(stepName)}>
-                          <Text style={styles.addStepButton}>Add Step</Text>
+                        <TouchableOpacity onPress={() => handleEditStep(stepName)}>
+                          <Text style={styles.editStepButton}>Save Changes</Text>
                         </TouchableOpacity>
 
+                        <TouchableOpacity onPress={handleDeleteStep}>
+                          <Text style={styles.deleteStepButton}>Delete Step</Text>
+                        </TouchableOpacity>
                       </View>
-                    </View>
-                  </TouchableWithoutFeedback>
-                </Modal>
-
-                {/* Display added steps */}
-                <DraggableFlatList
-                  data={steps}
-                  renderItem={({ item, index, drag, isActive }) => (
-                    <TouchableOpacity
-                      style={[
-                        styles.stepContainer,
-                        isActive && { backgroundColor: 'rgba(0, 0, 0, 0.1)' }, // Optional: Highlight the active item while dragging
-                      ]}
-                      onLongPress={drag}
-                      onPress={() => handleClickStep(item)}
-                    >
-                      <Text style={styles.stepText}>{item}</Text>
+                      
                     </TouchableOpacity>
-                  )}
-                  keyExtractor={(item, index) => `step-${index}`}
-                  onDragEnd={({ data }) => setSteps(data)} // Update steps state after reordering
-                />
+                  </Modal>
 
-                {/* Modal for editing/deleting selected step */}
-                <Modal
-                  animationType="slide"
-                  transparent={true}
-                  visible={selectedStep !== null}
-                  onRequestClose={() => setSelectedStep(null)}>
-
-                  <TouchableOpacity
-                    style={styles.modalContainer}
-                    activeOpacity={1}
-                    onPress={() => setSelectedStep(null)}
-                    >
-                    
-                    <View style={styles.modalContent}>
-                      <TextInput
-                        style={styles.modalInput}
-                        placeholder={selectedStep}
-                        onChangeText={text => setStepName(text)}
-                      />
-                      <TouchableOpacity onPress={() => handleEditStep(stepName)}>
-                        <Text style={styles.editStepButton}>Save Changes</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity onPress={handleDeleteStep}>
-                        <Text style={styles.deleteStepButton}>Delete Step</Text>
-                      </TouchableOpacity>
-                    </View>
-                    
+              </View> 
+              {/* End of contentContainer */}
+              
+              {/* Add Routine Button */}
+              <View style={styles.buttonContainer}>
+                {isLoading ? (
+                  <ActivityIndicator size="large" color="#64BBA1" />
+                ) : (
+                  <TouchableOpacity style={styles.addRoutineButton} onPress={handleAddRoutine}>
+                    <Text style={styles.buttonText}>Add Routine</Text>
                   </TouchableOpacity>
-                </Modal>
+                )}
+              </View>
 
-            </View> 
-            {/* End of contentContainer */}
-            
-            {/* Add Routine Button */}
-            <View style={styles.buttonContainer}>
-              {isLoading ? (
-                <ActivityIndicator size="large" color="#64BBA1" />
-              ) : (
-                <TouchableOpacity style={styles.addRoutineButton} onPress={handleAddRoutine}>
-                  <Text style={styles.buttonText}>Add Routine</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-
-        </View>
-      </SafeAreaView>
+          </View>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
     );
   };
   
