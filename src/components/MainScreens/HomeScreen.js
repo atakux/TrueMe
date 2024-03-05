@@ -5,23 +5,21 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import { useNavigation } from '@react-navigation/native';
 
-import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
-
 import { loadFonts } from '../../utils/FontLoader'; 
 import { useAuth } from '../../utils/AuthContext';
 import { fetchDailyRoutines } from '../../utils/FirestoreDataService'; 
 import { RoutineProvider } from '../../utils/RoutineContext';
 
 const HomeScreen = () => {
+  const navigation = useNavigation();
+  const user = useAuth();
+  const currentDay = new Date().getDay();
+
   const [fontLoaded, setFontLoaded] = useState(false);
   const [dailyRoutines, setDailyRoutines] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigation = useNavigation();
-  const user = useAuth();
 
   useEffect(() => {
-    console.log("DEBUG: useEffect hook triggered");
-
     // Load fonts
     const loadAsyncData = async () => {
       await loadFonts();
@@ -30,6 +28,7 @@ const HomeScreen = () => {
 
     loadAsyncData();
 
+    // Fetch daily routines function
     const fetchRoutines = async () => {
       try {
         const routines = await fetchDailyRoutines(user.uid);
@@ -42,10 +41,12 @@ const HomeScreen = () => {
       }
     };
 
+    // Fetch daily routines only if user is logged in
     if (user) {
       fetchRoutines();
     }
 
+    // Refresh daily routines when navigation is focused
     const unsubscribe = navigation.addListener('focus', () => {
       fetchRoutines();
     });
@@ -68,7 +69,7 @@ const HomeScreen = () => {
     console.log("DEBUG: Camera clicked");
   };
   
-  // Define a function to refresh the Swiper component
+  // Function to refresh the Swiper component when a routine is deleted
   const refreshSwiper = async () => {
     try {
         setLoading(true);
@@ -88,18 +89,14 @@ const HomeScreen = () => {
         navigation.navigate('AddRoutine', { updateDailyRoutines, navigation });
     } else {
         console.log(`DEBUG: ${routine.title} clicked`);
-        navigation.navigate('Routine', { routine, refreshSwiper:refreshSwiper }); // Pass refreshSwiper here
+        navigation.navigate('Routine', { routine, refreshSwiper:refreshSwiper }); // Mainly for deleting routines
     }
   };
 
-  
   // Update daily routines
   const updateDailyRoutines = (newRoutine) => {
     setDailyRoutines([...dailyRoutines, newRoutine]);
   };
-
-  // Get the current day
-  const currentDay = new Date().getDay();
 
   return (
     <RoutineProvider updateDailyRoutines={updateDailyRoutines}>

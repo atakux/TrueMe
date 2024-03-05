@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { deleteRoutine } from '../../utils/FirestoreDataService';
@@ -23,7 +23,7 @@ const Routine = ({ route }) => {
     const [completionStatus, setCompletionStatus] = useState(routineSteps ? Array(routineSteps.length).fill(false) : []);
 
     if (!routineData) {
-        return <Text>Loading...</Text>; // Or any other loading indicator
+        return <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator}/>;
     }
     // Array of day names
     const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -36,7 +36,7 @@ const Routine = ({ route }) => {
     const offset = currentDayIndex > 0 ? currentDayIndex - 0 : 6;
 
     // Function to render each day
-    const renderDay = (dayIndex, dayNumber, date) => {
+    const renderDay = (dayIndex, dayNum, date) => {
         const dayName = dayNames[dayIndex];
         const isRoutineDay = routineDays.includes(dayIndex);
         const dayStyle = [styles.dayContainer];
@@ -45,7 +45,7 @@ const Routine = ({ route }) => {
         }
         return (
             <View key={dayName} style={styles.dayWrapper}>
-                <Text style={styles.dayDate}>{date}</Text>
+                <Text style={styles.dayDate}>{date}/{dayNum}</Text>
                 <TouchableOpacity style={dayStyle}>
                     <Text style={styles.dayText}>{dayName}</Text>
                 </TouchableOpacity>
@@ -53,7 +53,7 @@ const Routine = ({ route }) => {
         );
     };
 
-    // Render the checklist
+    // Render the checklist of steps
     const renderChecklist = () => {
         return (
             <View>
@@ -72,7 +72,7 @@ const Routine = ({ route }) => {
         );
     };
 
-    // Function to toggle completion status
+    // Function to toggle completion status of step
     const toggleCompletion = (index) => {
         const newStatus = [...completionStatus];
         newStatus[index] = !newStatus[index];
@@ -83,7 +83,7 @@ const Routine = ({ route }) => {
         console.log('DEBUG: Edit Routine button pressed');
     };
 
-    // Function to handle routine deletion
+    // Function to handle routine deletion, asks for confirmation
     const handleDeleteRoutine = () => {
         Alert.alert(
             'Confirm Delete',
@@ -109,7 +109,7 @@ const Routine = ({ route }) => {
             await deleteRoutine(user.uid, routineId);
             console.log(`DEBUG: Deleted routine '${routineName}'`);
             
-            // Call the refresh function passed from HomeScreen
+            // Call the refresh function passed from HomeScreen to refresh the Swiper component
             refreshSwiper();
             navigation.navigate('HomeScreen');
         } catch (error) {
@@ -134,11 +134,12 @@ const Routine = ({ route }) => {
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} >
                         {/* Render empty views to shift days to align the current day to the left */}
                         {[...Array(offset)].map((_, index) => <View key={index}/>)}
-                        {/* Render routine days */}
+                        
+                        {/* Render routine days that appear above each day of the week */}
                         {dayNames.map((_, index) => {
                             const nextDate = new Date();
                             nextDate.setDate(currentDate.getDate() + index);
-                            return renderDay((index + offset) % 7, nextDate.getDate(), `${nextDate.getMonth() + 1}/${nextDate.getDate()}`);
+                            return renderDay((index + offset) % 7, nextDate.getDate().toLocaleString('en-US', { minimumIntegerDigits: 2 }), (nextDate.getMonth() + 1).toLocaleString('en-US', { minimumIntegerDigits: 2 }));
                         })}
                     </ScrollView>
                 </View>
@@ -169,6 +170,10 @@ const styles = StyleSheet.create({
         backgroundColor: "#FAFAFA",
         width: "100%",
     }, // End of container
+
+    loadingIndicator: {
+        marginTop: 300,
+      }, // End of loadingIndicator  
 
     title: {
         fontSize: 32,
