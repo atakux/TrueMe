@@ -104,7 +104,7 @@ const Routine = ({ route }) => {
     const processDeleteRoutine = (routineId) => {
         console.log(`DEBUG: Deleting routine '${routineName}'`);
         deleteRoutine(user.uid, routineId);
-        navigation.navigate('Home', { deletedRoutineId: routineId });
+        navigation.navigate('HomeScreen', { deletedRoutineId: routineId });
     };
 
 
