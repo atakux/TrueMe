@@ -9,7 +9,9 @@ const Routine = ({ route }) => {
     const navigation = useNavigation();
     const user = useAuth();
 
-    const routineData = route.params.routine;
+    const { routine, refreshSwiper } = route.params;
+
+    const routineData = routine;
     const routineId = routineData.id;
     const routineName = routineData.title;
     const routineDays = routineData.days;
@@ -101,10 +103,18 @@ const Routine = ({ route }) => {
     };
 
     // Function to delete routine
-    const processDeleteRoutine = (routineId) => {
-        console.log(`DEBUG: Deleting routine '${routineName}'`);
-        deleteRoutine(user.uid, routineId);
-        navigation.navigate('HomeScreen', { deletedRoutineId: routineId });
+    const processDeleteRoutine = async (routineId) => {
+        try {
+            console.log(`DEBUG: Deleting routine '${routineName}'`);
+            await deleteRoutine(user.uid, routineId);
+            console.log(`DEBUG: Deleted routine '${routineName}'`);
+            
+            // Call the refresh function passed from HomeScreen
+            refreshSwiper();
+            navigation.navigate('HomeScreen');
+        } catch (error) {
+            console.error('Error deleting routine:', error);
+        }
     };
 
 

@@ -20,6 +20,8 @@ const HomeScreen = () => {
   const user = useAuth();
 
   useEffect(() => {
+    console.log("DEBUG: useEffect hook triggered");
+
     // Load fonts
     const loadAsyncData = async () => {
       await loadFonts();
@@ -27,9 +29,7 @@ const HomeScreen = () => {
     };
 
     loadAsyncData();
-  }, []);
 
-  useEffect(() => {
     const fetchRoutines = async () => {
       try {
         const routines = await fetchDailyRoutines(user.uid);
@@ -46,7 +46,13 @@ const HomeScreen = () => {
       fetchRoutines();
     }
 
-  }, [user, navigation]);
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchRoutines();
+    });
+
+    return unsubscribe;
+
+  }, [user, navigation, setDailyRoutines, fetchDailyRoutines]);
 
   if (!user) {
     // User not logged in
@@ -62,15 +68,30 @@ const HomeScreen = () => {
     console.log("DEBUG: Camera clicked");
   };
   
-  // Handle routine click, if Add Routine is clicked, navigate to AddRoutine screen
-  const handleRoutineClick = (routine) => {
-    if (routine.title === `Add Routine`) {
-      navigation.navigate('AddRoutine', { updateDailyRoutines, navigation });
-    } else {
-      console.log(`DEBUG: ${routine.title} clicked`);
-      navigation.navigate('Routine', { routine });
+  // Define a function to refresh the Swiper component
+  const refreshSwiper = async () => {
+    try {
+        setLoading(true);
+        const routines = await fetchDailyRoutines(user.uid);
+        setDailyRoutines(routines.filter(routine => routine.days === undefined || routine.days.includes(currentDay) || routine.id !== undefined));
+        setLoading(false);
+        console.log("DEBUG: Fetched daily routines:", routines);
+    } catch (error) {
+        console.error("DEBUG: Error fetching daily routines:", error);
+        setLoading(false);
     }
   };
+
+  // Pass refreshSwiper function as a parameter when navigating to Routine screen
+  const handleRoutineClick = (routine) => {
+    if (routine.title === `Add Routine`) {
+        navigation.navigate('AddRoutine', { updateDailyRoutines, navigation });
+    } else {
+        console.log(`DEBUG: ${routine.title} clicked`);
+        navigation.navigate('Routine', { routine, refreshSwiper:refreshSwiper }); // Pass refreshSwiper here
+    }
+  };
+
   
   // Update daily routines
   const updateDailyRoutines = (newRoutine) => {
