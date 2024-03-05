@@ -1,5 +1,5 @@
 import { FIRESTORE_DB } from "../../firebase";
-import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc } from "firebase/firestore";
 
 const fetchDailyRoutines = async (uid) => {
   try {
@@ -24,6 +24,26 @@ const fetchDailyRoutines = async (uid) => {
   }
 };
 
+const addRoutine = async (userId, routineData, updateDailyRoutines) => {
+  try {
+    // Add routine to user's routines collection in Firestore
+    const routinesDocRef = collection(FIRESTORE_DB, 'users', userId, 'routines');
+    const docRef = await addDoc(routinesDocRef, {
+      title: routineData.title,
+      days: routineData.days,
+      steps: routineData.steps,
+    });
+
+    // Call the update function passed from HomeScreen to update dynamically
+    updateDailyRoutines({ id: docRef.id, ...routineData });
+
+    console.log('DEBUG: ', routineData.title, 'added successfully');
+  } catch (error) {
+    console.error('DEBUG: Error adding routine: ', error);
+    throw error;
+  }
+};
+
 const deleteRoutine = async (userId, routineId) => {
   try {
       // Delete routine document from Firestore
@@ -35,4 +55,21 @@ const deleteRoutine = async (userId, routineId) => {
   }
 };
 
-export { fetchDailyRoutines, deleteRoutine };
+const updateRoutine = async (userId, routineId, updatedRoutine) => {
+  try {
+      // Update routine document in Firestore
+      await updateDoc(doc(FIRESTORE_DB, "users", userId, "routines", routineId), 
+          {
+              title: updatedRoutine.title,
+              days: updatedRoutine.days,
+              steps: updatedRoutine.steps
+          }
+      );
+      console.log(`DEBUG: Routine with ID ${routineId} updated with data ${JSON.stringify(updatedRoutine)}`);
+  } catch (error) {
+      console.error("DEBUG: Error updating routine:", error);
+      throw error;
+  }
+}
+
+export { fetchDailyRoutines, addRoutine, deleteRoutine, updateRoutine };

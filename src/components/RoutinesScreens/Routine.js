@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { deleteRoutine } from '../../utils/FirestoreDataService';
+import { deleteRoutine, updateRoutine } from '../../utils/FirestoreDataService';
 import { useAuth } from '../../utils/AuthContext';
 
 const Routine = ({ route }) => {
@@ -80,7 +80,7 @@ const Routine = ({ route }) => {
     };
 
     const handleEditRoutine = () => {
-        console.log('DEBUG: Edit Routine button pressed');
+        navigation.navigate('EditRoutine', { routineId });
     };
 
     // Function to handle routine deletion, asks for confirmation

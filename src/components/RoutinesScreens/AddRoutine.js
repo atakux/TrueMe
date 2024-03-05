@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, Dimensions, Platform, Modal, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { collection, addDoc } from 'firebase/firestore';
-import { FIRESTORE_DB } from '../../../firebase'; 
 import { useAuth } from '../../utils/AuthContext';
 import { loadFonts } from '../../utils/FontLoader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DraggableFlatList from 'react-native-draggable-flatlist';
+
+import { addRoutine } from '../../utils/FirestoreDataService';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -55,36 +55,13 @@ const AddRoutine = ({ route }) => {
     // Add routine 
     const handleAddRoutine = async () => {
       try {
-        setIsLoading(true);
-        setErrors([]);
-
-        // Validate inputs
-        if (routineName === '') {
-          console.log('DEBUG: Routine title cannot be empty');
-          setErrors((prevErrors) => [...prevErrors, 'Please enter a routine name']);
-          return;
-        } else if (selectedDaysCount === 0) {
-          console.log('DEBUG: Cant be 0 days selected');
-          setErrors((prevErrors) => [...prevErrors, 'Please select at least one day for your routine']);
-          return;
-        } else if (steps.length === 0) {
-          console.log('DEBUG: Steps cannot be empty');
-          setErrors((prevErrors) => [...prevErrors, 'Please add at least one step']);
-          return;
-        } 
-
-        // Add routine to user's routines collection in Firestore
-        const routinesDocRef = collection(FIRESTORE_DB, 'users', user.uid, 'routines');
-        const docRef = await addDoc(routinesDocRef, {
+        routineData = {
           title: routineName,
           days: selectedDays,
-          steps: steps,
-        });
+          steps: steps
+        };
 
-        // Call the update function passed from HomeScreen to update dynamically
-        updateDailyRoutines({ id: docRef.id, title: routineName, days: selectedDays, steps: steps });
-
-        console.log('DEBUG: ', routineName, 'added successfully');
+        await addRoutine(user.uid, routineData, updateDailyRoutines);
 
         // Navigate back to HomeScreen
         navigation.goBack();

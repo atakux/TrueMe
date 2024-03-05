@@ -10,6 +10,7 @@ import LoginScreen from './src/authentication/LoginScreen';
 import SignupScreen from './src/authentication/SignupScreen';
 import AddRoutine from './src/components/RoutinesScreens/AddRoutine';
 import Routine from './src/components/RoutinesScreens/Routine';
+import EditRoutine from './src/components/RoutinesScreens/EditRoutine';
 import TabBar from './src/utils/TabBar';
 
 const Stack = createStackNavigator();
@@ -27,6 +28,7 @@ export default function App() {
           <Stack.Screen name="HomeScreen" component={TabBar} options={{headerShown: false}}/>
           <Stack.Screen name="AddRoutine" component={AddRoutine} options={{headerShown: false}}/>
           <Stack.Screen name="Routine" component={Routine} options={{headerShown: false}}/>
+          <Stack.Screen name="EditRoutine" component={EditRoutine} options={{headerShown: false}}/>
         </Stack.Navigator>
       </NavigationContainer>
       <StatusBar style="auto" />
