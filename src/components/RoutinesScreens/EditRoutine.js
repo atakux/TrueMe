@@ -343,8 +343,8 @@ const EditRoutine = ({ route }) => {
       fontSize: 28,
       fontFamily: "Sofia-Sans",
       textAlign: "left",
-      marginTop: 20,
       marginLeft: 20,
+      marginTop: 50,
     }, // End of title
 
     cancelButton: {
@@ -376,13 +376,13 @@ const EditRoutine = ({ route }) => {
       borderBottomColor: "rgba(0, 0, 0, 0)",
       borderLeftColor: "rgba(0, 0, 0, 0)",
       borderRightColor: "rgba(0, 0, 0, 0)",
-      borderColor: "rgba(0, 0, 0, 0.1)",
+      borderTopColor: "rgba(0, 0, 0, 0.1)",
       
       // Alignment
       alignSelf: "center",
       alignItems: "center",
       justifyContent: "center",
-      paddingTop: 20,
+      paddingTop: 15,
     }, // End of buttonContainer    
 
     inputName: {
@@ -464,7 +464,7 @@ const EditRoutine = ({ route }) => {
       alignItems: "center",
       alignSelf: "center",
       marginTop: 2,
-      marginBottom: 5,
+      marginBottom: 15,
     }, // End of editRoutinebutton
     
     buttonText: {

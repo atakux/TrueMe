@@ -366,7 +366,7 @@ const AddRoutine = ({ route }) => {
       alignSelf: "center",
       alignItems: "center",
       justifyContent: "center",
-      paddingTop: 20,
+      paddingTop: 15,
     }, // End of buttonContainer    
 
     inputName: {
@@ -447,8 +447,7 @@ const AddRoutine = ({ route }) => {
       justifyContent: "center",
       alignItems: "center",
       alignSelf: "center",
-      marginTop: 2,
-      marginBottom: 5,
+      marginBottom: 10,
     }, // End of addRoutinebutton
     
     buttonText: {
@@ -476,6 +475,17 @@ const AddRoutine = ({ route }) => {
       borderColor: '#ccc',
       padding: 10,
       borderRadius: 5,
+
+      ...Platform.select({
+        ios: {
+          padding: 10,
+        },
+
+        android: {
+          padding: 8,
+        },
+
+      }),
     }, // End of dayButton
 
     selectedDayButton: {
