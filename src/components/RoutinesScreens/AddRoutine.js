@@ -55,6 +55,24 @@ const AddRoutine = ({ route }) => {
     // Add routine 
     const handleAddRoutine = async () => {
       try {
+        setIsLoading(true);
+        setErrors([]);
+
+        // Validate inputs
+        if (routineName === '') {
+          console.log('DEBUG: Routine title cannot be empty');
+          setErrors((prevErrors) => [...prevErrors, 'Please enter a routine name']);
+          return;
+        } else if (selectedDaysCount === 0) {
+          console.log('DEBUG: Cant be 0 days selected');
+          setErrors((prevErrors) => [...prevErrors, 'Please select at least one day for your routine']);
+          return;
+        } else if (steps.length === 0) {
+          console.log('DEBUG: Steps cannot be empty');
+          setErrors((prevErrors) => [...prevErrors, 'Please add at least one step']);
+          return;
+        } 
+        
         routineData = {
           title: routineName,
           days: selectedDays,
