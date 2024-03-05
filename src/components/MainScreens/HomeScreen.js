@@ -4,7 +4,6 @@ import Swiper from 'react-native-deck-swiper';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { useNavigation } from '@react-navigation/native';
-import { useRoute } from '@react-navigation/native';
 
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
@@ -13,7 +12,7 @@ import { useAuth } from '../../utils/AuthContext';
 import { fetchDailyRoutines } from '../../utils/FirestoreDataService'; 
 import { RoutineProvider } from '../../utils/RoutineContext';
 
-const HomeScreen = ({ route }) => {
+const HomeScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const [dailyRoutines, setDailyRoutines] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,10 +28,6 @@ const HomeScreen = ({ route }) => {
 
     loadAsyncData();
   }, []);
-
-  const handleRoutineDeletion = (deletedRoutineId) => {
-    setDailyRoutines(prevRoutines => prevRoutines.filter(routine => routine.id !== deletedRoutineId));
-  };
 
   useEffect(() => {
     const fetchRoutines = async () => {
@@ -51,15 +46,6 @@ const HomeScreen = ({ route }) => {
       fetchRoutines();
     }
 
-    // Set up listener for routine deletion
-    const unsubscribe = navigation.addListener('focus', () => {
-      const deletedRoutineId = route.params?.deletedRoutineId;
-      if (deletedRoutineId) {
-        handleRoutineDeletion(deletedRoutineId);
-      }
-    });
-    
-    return unsubscribe;
   }, [user, navigation]);
 
   if (!user) {
@@ -95,7 +81,7 @@ const HomeScreen = ({ route }) => {
   const currentDay = new Date().getDay();
 
   // Filter daily routines based on the current day or if it's undefined
-  const filteredRoutines = dailyRoutines.filter(routine => routine.days === undefined || routine.days.includes(currentDay));
+  const filteredRoutines = dailyRoutines.filter(routine => routine.days === undefined || routine.days.includes(currentDay) || routine.id !== undefined);
 
   return (
     <RoutineProvider updateDailyRoutines={updateDailyRoutines}>
