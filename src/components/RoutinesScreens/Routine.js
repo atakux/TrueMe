@@ -8,6 +8,7 @@ import { useAuth } from '../../utils/AuthContext';
 const Routine = ({ route }) => {
     const navigation = useNavigation();
     const user = useAuth();
+    const [loading, setLoading] = useState(false);
 
     const { routine, refreshSwiper } = route.params;
 
@@ -150,6 +151,8 @@ const Routine = ({ route }) => {
     // Function to delete routine
     const processDeleteRoutine = async (routineId) => {
         try {
+            setLoading(true);
+
             console.log(`DEBUG: Deleting routine '${routineName}'`);
             await deleteRoutine(user.uid, routineId);
             console.log(`DEBUG: Deleted routine '${routineName}'`);
@@ -158,59 +161,65 @@ const Routine = ({ route }) => {
             refreshSwiper();
             navigation.navigate('HomeScreen');
         } catch (error) {
+            setLoading(false);
+
             console.error('Error deleting routine:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.container}>
-                <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-                    <Image source={require('../../../assets/icons/close.png')} style={styles.closeButtonImage} />
-                </TouchableOpacity>
-                <Text style={styles.title}>{routineName}</Text>
-
-                <Text style={styles.todayText}>Today is {currentDate.toLocaleString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</Text>
-
-                <View style={styles.daysContainer}>
-                    <Text style={styles.weekText}>This week:</Text>
-
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} >
-                        {/* Render empty views to shift days to align the current day to the left */}
-                        {[...Array(offset)].map((_, index) => <View key={index}/>)}
-                        
-                        {/* Render routine days that appear above each day of the week */}
-                        {dayNames.map((_, index) => {
-                            const nextDate = new Date();
-                            nextDate.setDate(currentDate.getDate() + index);
-                            return renderDay((index + offset) % 7, nextDate.getDate().toLocaleString('en-US', { minimumIntegerDigits: 2 }), (nextDate.getMonth() + 1).toLocaleString('en-US', { minimumIntegerDigits: 2 }));
-                        })}
-                    </ScrollView>
-                </View>
-
-                {/* Render the checklist */}
-                {renderChecklist()}
-
-                <Text style={styles.statusBarText}>{calculateCompletion().toFixed(0)}% Complete</Text>
-
-                <View style={styles.statusBar}>
-                    <View style={[styles.statusBarFill, { width: `${calculateCompletion()}%` }]} />
-                </View>
-
-
-                {/* Panel for pencil and trashcan icons */}
-                <View style={styles.bottomPanel}>
-                    <TouchableOpacity onPress={() => handleEditRoutine()}>
-                        <Image source={require('../../../assets/icons/edit.png')} style={styles.icon} />
+            { loading ? (
+                <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator}/>
+            ) : (
+                <View style={styles.container}>
+                    <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
+                        <Image source={require('../../../assets/icons/close.png')} style={styles.closeButtonImage} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDeleteRoutine()}>
-                        <Image source={require('../../../assets/icons/delete.png')} style={styles.icon} />
-                    </TouchableOpacity>
+                    <Text style={styles.title}>{routineName}</Text>
+
+                    <Text style={styles.todayText}>Today is {currentDate.toLocaleString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</Text>
+
+                    <View style={styles.daysContainer}>
+                        <Text style={styles.weekText}>This week:</Text>
+
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} >
+                            {/* Render empty views to shift days to align the current day to the left */}
+                            {[...Array(offset)].map((_, index) => <View key={index}/>)}
+                            
+                            {/* Render routine days that appear above each day of the week */}
+                            {dayNames.map((_, index) => {
+                                const nextDate = new Date();
+                                nextDate.setDate(currentDate.getDate() + index);
+                                return renderDay((index + offset) % 7, nextDate.getDate().toLocaleString('en-US', { minimumIntegerDigits: 2 }), (nextDate.getMonth() + 1).toLocaleString('en-US', { minimumIntegerDigits: 2 }));
+                            })}
+                        </ScrollView>
+                    </View>
+
+                    {/* Render the checklist */}
+                    {renderChecklist()}
+
+                    <Text style={styles.statusBarText}>{calculateCompletion().toFixed(0)}% Complete</Text>
+
+                    <View style={styles.statusBar}>
+                        <View style={[styles.statusBarFill, { width: `${calculateCompletion()}%` }]} />
+                    </View>
+
+
+                    {/* Panel for pencil and trashcan icons */}
+                    <View style={styles.bottomPanel}>
+                        <TouchableOpacity onPress={() => handleEditRoutine()}>
+                            <Image source={require('../../../assets/icons/edit.png')} style={styles.icon} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleDeleteRoutine()}>
+                            <Image source={require('../../../assets/icons/delete.png')} style={styles.icon} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
-
-
-            </View>
+            )}
         </SafeAreaView>
     );
 };
