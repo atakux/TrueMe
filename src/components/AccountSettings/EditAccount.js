@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, ActivityIndicator, Platform, TextInput, RefreshControlComponent } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, Modal, TouchableOpacity, Image, ActivityIndicator, Platform, TextInput, RefreshControlComponent } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
-import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
-import { updateProfile } from 'firebase/auth'; // Import updateProfile from firebase auth
+import { onAuthStateChanged, getDisplayName, EmailAuthProvider } from 'firebase/auth';
+import { updateProfile, reauthenticateWithCredential, updatePassword } from 'firebase/auth'; // Import reauthenticateWithCredential and updatePassword from firebase auth
 
 import { loadFonts } from '../../utils/FontLoader'; 
 import { useAuth } from '../../utils/AuthContext';
@@ -19,10 +19,26 @@ const EditAccount = () => {
   const [bannerImage, setBannerImage] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
   const [loading, setLoading] = useState(false); // Added loading state
-  const [editingDisplayName, setEditingDisplayName] = useState(false); // State to control display name editing
-  const [newDisplayName, setNewDisplayName] = useState(''); // State to store new display name
-  const [editingEmail, setEditingEmail] = useState(false); // State to control email editing
-  const [newEmail, setNewEmail] = useState(''); // State to store new email
+  
+  const [editingDisplayName, setEditingDisplayName] = useState(false);
+  const [newDisplayName, setNewDisplayName] = useState('');
+
+  const [editingEmail, setEditingEmail] = useState(false); 
+  const [newEmail, setNewEmail] = useState(''); 
+  
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [isEditPasswordModalVisible, setIsEditPasswordModalVisible] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState([]);
+  const [PWLoading, setPWLoading] = useState(false);
+
+  // Function to toggle modal visibility
+  const toggleEditPasswordModal = () => {
+    setIsEditPasswordModalVisible(!isEditPasswordModalVisible);
+  };
+
 
   useEffect(() => {
     const loadAsyncData = async () => {
@@ -119,10 +135,73 @@ const EditAccount = () => {
   };
 
   const handleSaveChanges = async () => {
+
+    try {
+      setLoading(true);
+
       handleDisplayNameChange();
       handleEmailChange();
 
       navigation.goBack();
+    } catch (error) {
+      setLoading(false);
+      console.error('Error saving changes:', error);
+    } finally {
+      setLoading(false);
+    }
+      
+  };
+
+  const handleUpdatePassword = async () => {
+    try {
+      setPasswordErrors([]);
+      setPWLoading(true);
+
+      if (newPassword === '' && confirmPassword === '' && currentPassword === '') {
+        return;
+      } else if (newPassword !== confirmPassword) {
+        setPasswordErrors(['New password & confirm password must match']);
+        setLoading(false);
+        return;
+      } else if (newPassword.length < 6) {
+        setPasswordErrors(['Password must be at least 6 characters']);
+        setLoading(false);
+        return;
+      }
+      else {
+        // Re-authenticate user before changing password
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+        await reauthenticateWithCredential(user, credential);
+
+        // Check if new password matches confirmation
+        if (newPassword !== confirmPassword) {
+          setErrors(['New password and confirm password must match']);
+          setLoading(false);
+          return;
+        }
+
+        // Update password in Firebase auth
+        await updatePassword(user, newPassword);
+        console.log('Password updated successfully');
+
+        setIsEditPasswordModalVisible(false);
+        
+        // Reset states and navigate back
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      }
+    } catch (error) {
+      if (error.code === 'auth/invalid-credential') {
+        setPasswordErrors(['Current password is incorrect']);
+        setPWLoading(false);
+        return;
+      }
+      console.error('Error updating password:', error);
+      setErrors([error.message]); // You can handle error messages
+    } finally {
+      setPWLoading(false);
+    }
   };
 
   const handleDisplayNameChange = async () => {
@@ -175,17 +254,17 @@ const EditAccount = () => {
   return (
     <SafeAreaView style={styles.container}>
         <View style={styles.closeButtonContainer}>
-            <Text style={styles.mainText}>Edit Account</Text>
-            <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-                <Image source={require('../../../assets/icons/close.png')} style={styles.closeButtonImage} />
-            </TouchableOpacity>
+          <Text style={styles.mainText}>Edit Account</Text>
+          <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
+              <Image source={require('../../../assets/icons/close.png')} style={styles.closeButtonImage} />
+          </TouchableOpacity>
 
-            {/* Error Message */}
-            {errors.map((error, index) => (
-                <Text key={index} style={styles.errorMessage}>
-                    {" ▸ " + error}
-                </Text>
-            ))}
+          {/* Error Message */}
+          {errors.map((error, index) => (
+              <Text key={index} style={styles.errorMessage}>
+                  {" ▸ " + error}
+              </Text>
+          ))}
         </View>
 
         <View style={styles.imagesContainer}>
@@ -227,58 +306,119 @@ const EditAccount = () => {
         </View>
         
         <View>
-            <View style={styles.inputContainer}>
-                {editingDisplayName ? (
-                    <View>
-                        <Text style={styles.labelText}>New Username: </Text>
-                        <View style={{ flexDirection: 'row', marginLeft: 10}}>
-                            <Image source={require('../../../assets/icons/edit-text.png')} />
-                            <TextInput
-                                style={styles.inputText}
-                                placeholder={user.displayName}
-                                onChangeText={setNewDisplayName}
-                                value={newDisplayName}
-                                autoCapitalize='none' 
-                            />
-                        </View>
-                    </View>
-                ) : (
-                    <View>
-                        <Text style={styles.labelText}>Current Username: </Text>
-                        <TouchableOpacity style={{ flexDirection: 'row', marginLeft: 10}} onPress={() => setEditingDisplayName(true)}>
-                            <Image source={require('../../../assets/icons/edit-text.png')} />
-                            <Text style={styles.previousText}>{user.displayName}</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
-            </View>
+          <View style={styles.inputContainer}>
+            {editingDisplayName ? (
+              <View>
+                <Text style={styles.labelText}>New Username: </Text>
+                <View style={{ flexDirection: 'row', marginLeft: 10}}>
+                  <Image source={require('../../../assets/icons/edit-text.png')} />
+                  <TextInput
+                    style={styles.inputText}
+                    placeholder={user.displayName}
+                    onChangeText={setNewDisplayName}
+                    value={newDisplayName}
+                    autoCapitalize='none' 
+                  />
+                </View>
+              </View>
+            ) : (
+              <View>
+                <Text style={styles.labelText}>Current Username: </Text>
+                <TouchableOpacity style={{ flexDirection: 'row', marginLeft: 10}} onPress={() => setEditingDisplayName(true)}>
+                  <Image source={require('../../../assets/icons/edit-text.png')} />
+                  <Text style={styles.previousText}>{user.displayName}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
 
-            <View style={styles.inputContainer}>
-                {editingEmail ? (
-                    <View>
-                        <Text style={styles.labelText}>New Email: </Text>
-                        <View style={{ flexDirection: 'row', marginLeft: 10}}>
-                            <Image source={require('../../../assets/icons/edit-text.png')} />
-                            <TextInput
-                                style={styles.inputText}
-                                placeholder={user.email}
-                                onChangeText={setNewEmail}
-                                value={newEmail}
-                                autoCapitalize='none' 
-                            />
-                        </View>
-                    </View>
-                ) : (
-                    <View>
-                        <Text style={styles.labelText}>Current Email: </Text>
-                        <TouchableOpacity style={{ flexDirection: 'row', marginLeft: 10}} onPress={() => setEditingEmail(true)}>
-                            <Image source={require('../../../assets/icons/edit-text.png')} />
-                            <Text style={styles.previousText}>{user.email}</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
-            </View>
+          <View style={styles.inputContainer}>
+            {editingEmail ? (
+              <View>
+                <Text style={styles.labelText}>New Email: </Text>
+                <View style={{ flexDirection: 'row', marginLeft: 10}}>
+                  <Image source={require('../../../assets/icons/edit-text.png')} />
+                  <TextInput
+                    style={styles.inputText}
+                    placeholder={user.email}
+                    onChangeText={setNewEmail}
+                    value={newEmail}
+                    autoCapitalize='none' 
+                  />
+                </View>
+              </View>
+            ) : (
+              <View>
+                <Text style={styles.labelText}>Current Email: </Text>
+                <TouchableOpacity style={{ flexDirection: 'row', marginLeft: 10}} onPress={() => setEditingEmail(true)}>
+                  <Image source={require('../../../assets/icons/edit-text.png')} />
+                  <Text style={styles.previousText}>{user.email}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.inputContainer}>
+          <TouchableOpacity style={styles.editButton} onPress={toggleEditPasswordModal}>
+            <Text style={styles.editButtonText}>Edit Password</Text>
+          </TouchableOpacity>            
+          </View>
         </View>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isEditPasswordModalVisible}
+          onRequestClose={toggleEditPasswordModal}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              {PWLoading ? (
+                <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
+              ) : (
+                <View>
+                  {/* Error Message */}
+                  {passwordErrors.map((error, index) => (
+                      <Text key={index} style={styles.errorMessage}>
+                          {" ▸ " + error}
+                      </Text>
+                  ))}
+
+                  <Text style={styles.labelText}>Current Password</Text>
+                  <TextInput
+                    style={styles.pwInputText}
+                    placeholder="Enter current password"
+                    secureTextEntry={true}
+                    onChangeText={setCurrentPassword}
+                    value={currentPassword}
+                  />
+                  <Text style={styles.labelText}>New Password</Text>
+                  <TextInput
+                    style={styles.pwInputText}
+                    placeholder="Enter new password"
+                    secureTextEntry={true}
+                    onChangeText={setNewPassword}
+                    value={newPassword}
+                  />
+                  <Text style={styles.labelText}>Confirm New Password</Text>
+                  <TextInput
+                    style={styles.pwInputText}
+                    placeholder="Confirm new password"
+                    secureTextEntry={true}
+                    onChangeText={setConfirmPassword}
+                    value={confirmPassword}
+                  />
+
+                  <TouchableOpacity style={styles.savePasswordButton} onPress={handleUpdatePassword}>
+                    <Text style={styles.savePasswordButtonText}>Save</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.cancelButton} onPress={toggleEditPasswordModal}>
+                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          </View>
+        </Modal>
 
         <View style={styles.bottomPanel}>
             {loading ? (
@@ -310,7 +450,7 @@ const styles = StyleSheet.create({
   }, // End of inputContainer
 
   bottomPanel: {
-    bottom: -150,
+    bottom: -100,
     width: "110%",
     backgroundColor: "#FFFFFF",
     
@@ -411,6 +551,20 @@ const styles = StyleSheet.create({
     fontFamily: 'Sofia-Sans',
     color: '#000000',
     textAlign: "left",
+  }, // End of inputText
+
+  pwInputText: {
+    fontSize: 20,
+    fontFamily: 'Sofia-Sans',
+    color: '#000000',
+    textAlign: "left",
+    marginTop: 5,
+    marginBottom: 10,
+    marginLeft: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#64BBA1",
+    padding: 5,
   }, // End of inputText
 
   previousText: {
@@ -612,6 +766,76 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 20,
   }, // End of editIcon
+
+  editButton: {
+    backgroundColor: '#64BBA1',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignSelf: 'center',
+    marginTop: 20,
+  },
+
+  editButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'Sofia-Sans',
+    textAlign: 'center',
+  },
+
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 20,
+    width: '80%',
+  },
+
+  modalTitle: {
+    fontSize: 20,
+    fontFamily: 'Sofia-Sans-Bold',
+    color: '#333333',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+
+  savePasswordButton: {
+    backgroundColor: '#64BBA1',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignSelf: 'center',
+    margin: 10,
+  },
+  savePasswordButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'Sofia-Sans',
+    textAlign: 'center',
+  },
+
+  cancelButton: {
+    backgroundColor: '#CCCCCC',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignSelf: 'center',
+    marginBottom: 10,
+  },
+
+  cancelButtonText: {
+    color: '#333333',
+    fontSize: 16,
+    fontFamily: 'Sofia-Sans',
+    textAlign: 'center',
+  },
+
 
 }); // End of Stylesheet
 
