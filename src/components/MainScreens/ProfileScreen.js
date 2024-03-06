@@ -30,7 +30,7 @@ const ProfileScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={{ alignItems: 'center', marginTop: 50 }}>
-        <Text style={styles.mainText}>Profile</Text>
+        <Text style={styles.mainText}>Profile Screen</Text>
       </View>
       
        
