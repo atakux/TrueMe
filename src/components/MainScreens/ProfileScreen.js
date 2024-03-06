@@ -1,8 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, ActivityIndicator, Platform } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
+
+import { FIREBASE_AUTH } from "../../../firebase";
 
 import { loadFonts } from '../../utils/FontLoader'; 
 import { useAuth } from '../../utils/AuthContext';
@@ -10,6 +13,7 @@ import { uploadBannerImage, fetchBannerImage, uploadProfileImage, fetchProfileIm
 import * as ImagePicker from 'expo-image-picker';
 
 const ProfileScreen = () => {
+  const auth = FIREBASE_AUTH;
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
   const isFocused = useIsFocused(); // Hook to determine if screen is focused
@@ -52,6 +56,21 @@ const ProfileScreen = () => {
   if (!fontLoaded || !user) {
     // Font is still loading or user not logged in, you can return a loading indicator or null
     return null;
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(
+        auth,
+        user
+      );
+
+      console.log("DEBUG:", user.displayName, 'signed out');
+
+      navigation.navigate('LaunchScreen')
+    } catch (error) {
+      console.error('Error signing out: ', error);
+    }
   };
 
   const pickBannerImage = async () => {
@@ -142,11 +161,41 @@ const ProfileScreen = () => {
         <Text style={styles.mainText}>{user.displayName}</Text>
       </View>
 
-      <View styles={styles.buttonsContainer}>
-          <TouchableOpacity onPress={() => navigation.navigate('EditAccount')} style={styles.buttons}>
-            <Text style={styles.buttonText}>Edit Account</Text>
-          </TouchableOpacity>
-      </View>
+      <ScrollView style={styles.scrollView}>
+        <View styles={styles.buttonsContainer}>
+        
+          {/* Edit Account and Log Out buttons */}
+          <View style={{flexDirection: "row", justifyContent: "space-evenly", marginTop: 10}}>
+            <TouchableOpacity onPress={() => handleLogout()} style={styles.buttons}>
+              <Text style={styles.buttonText}>Log Out</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('EditAccount')} style={styles.buttons}>
+              <Text style={styles.buttonText}>Edit Account</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Skin Diagnostic Test and Results buttons */}
+          <View style={{flexDirection: "row", justifyContent: "space-evenly", marginTop: 20}}>
+            <TouchableOpacity onPress={() => console.log('DEBUG: skin diagnostic clicked')} style={styles.buttons}>
+              <Text style={styles.buttonText}>Skin Diagnostic Test</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => console.log('DEBUG: Skin Diagnostic results clicked')} style={styles.buttons}>
+              <Text style={styles.buttonText}>Skin Diagnostic Results</Text>
+            </TouchableOpacity>
+          </View>
+        
+          {/* Payment Information and About us buttons */}
+          <View style={{flexDirection: "row", justifyContent: "space-evenly", marginTop: 20}}>
+            <TouchableOpacity onPress={() => console.log('DEBUG: payment info clicked')} style={styles.buttons}>
+              <Text style={styles.buttonText}>Payment Information</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => console.log('DEBUG: about us clicked')} style={styles.buttons}>
+              <Text style={styles.buttonText}>About Us</Text>
+            </TouchableOpacity>
+          </View>
+
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -158,6 +207,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAFAFA",
     width: "100%",
   }, // End of container
+
+  scrollView: {
+    flex: 1,
+    marginBottom: 20,
+  },
 
   buttonsContainer: {
     flex: 1,
@@ -342,8 +396,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
-    marginHorizontal: 20,
-    marginVertical: 10,
 
     ...Platform.select({
       ios: {
@@ -373,6 +425,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignContent: 'center',
+    textAlign: 'center',
     fontFamily: 'Sofia-Sans',
     fontSize: 20,
     color: '#000000',
