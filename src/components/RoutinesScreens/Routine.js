@@ -20,7 +20,7 @@ const Routine = ({ route }) => {
     console.log("DEBUG: Route: ", route);
     console.log("DEBUG: Routine Data:", routineData);
 
-    const [completionStatus, setCompletionStatus] = useState(routineSteps ? Array(routineSteps.length).fill(false) : []);
+    const [completionStatus, setCompletionStatus] = useState(routineData.stepCompletionStatus || []);
 
     if (!routineData) {
         return <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator}/>;
@@ -73,10 +73,19 @@ const Routine = ({ route }) => {
     };
 
     // Function to toggle completion status of step
-    const toggleCompletion = (index) => {
-        const newStatus = [...completionStatus];
-        newStatus[index] = !newStatus[index];
-        setCompletionStatus(newStatus);
+    const toggleCompletion = async (index) => {
+        try {
+            const newStatus = [...completionStatus];
+            newStatus[index] = !newStatus[index];
+            setCompletionStatus(newStatus);
+            
+            // Update the completion status in Firestore
+            const updatedRoutine = { ...routineData };
+            updatedRoutine.stepCompletionStatus = newStatus;
+            await updateRoutine(user.uid, routineId, updatedRoutine);
+        } catch (error) {
+            console.error('Error toggling completion status:', error);
+        }
     };
 
     const handleEditRoutine = () => {

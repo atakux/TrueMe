@@ -80,7 +80,8 @@ const AddRoutine = ({ route }) => {
         routineData = {
           title: routineName,
           days: selectedDays,
-          steps: steps
+          steps: steps,
+          stepCompletionStatus: Array(steps.length).fill(false),
         };
 
         await addRoutine(user.uid, routineData, updateDailyRoutines);

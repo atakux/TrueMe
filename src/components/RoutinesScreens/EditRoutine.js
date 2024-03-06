@@ -68,12 +68,12 @@ const EditRoutine = ({ route }) => {
       return null;
     }
 
-    // Add routine 
+    // Edit routine 
     const handleEditRoutine = async () => {
       try {
         setIsLoading(true);
         setErrors([]);
-
+    
         // Validate inputs
         if (newRoutineName === '') {
           setNewRoutineName(oldRoutineName);
@@ -85,20 +85,35 @@ const EditRoutine = ({ route }) => {
           console.log('DEBUG: Steps cannot be empty');
           setErrors((prevErrors) => [...prevErrors, 'Please add at least one step']);
           return;
-        } 
-
-        const editedRoutine = {
+        }
+    
+        let editedRoutine = {
           title: newRoutineName ? newRoutineName : oldRoutineName,
           days: newSelectedDays,
-          steps: newSteps
+          steps: newSteps,
         };
-
+    
+        // Check if the new routine has more steps than the old routine
+        if (newSteps.length !== oldSteps.length) {
+          // Preserve existing completion statuses and append false for new steps
+          const additionalStepCompletionStatus = Array(newSteps.length - oldSteps.length).fill(false);
+          editedRoutine = {
+            ...editedRoutine,
+            stepCompletionStatus: [...oldRoutine.stepCompletionStatus, ...additionalStepCompletionStatus],
+          };
+        } else {
+          // Keep the existing step completion statuses as is
+          editedRoutine = {
+            ...editedRoutine,
+            stepCompletionStatus: editedRoutine.stepCompletionStatus,
+          };
+        }
+    
         await updateRoutine(user.uid, oldRoutine.id, editedRoutine);
-
+    
         refreshSwiper();
         // Navigate back to HomeScreen
         navigation.navigate('HomeScreen');
-
       } catch (error) {
         console.error('DEBUG: Error updating routine: ', error);
       } finally {

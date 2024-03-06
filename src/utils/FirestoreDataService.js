@@ -14,6 +14,7 @@ const fetchDailyRoutines = async (uid) => {
         title: doc.data().title,
         days: doc.data().days,
         steps: doc.data().steps,
+        stepCompletionStatus: doc.data().stepCompletionStatus
       });
     });
 
@@ -32,6 +33,7 @@ const addRoutine = async (userId, routineData, updateDailyRoutines) => {
       title: routineData.title,
       days: routineData.days,
       steps: routineData.steps,
+      stepCompletionStatus: routineData.stepCompletionStatus
     });
 
     // Call the update function passed from HomeScreen to update dynamically
@@ -64,7 +66,8 @@ const updateRoutine = async (userId, routineId, updatedRoutine) => {
     await updateDoc(routinesDocRef, {
       title: updatedRoutine.title,
       days: updatedRoutine.days,
-      steps: updatedRoutine.steps
+      steps: updatedRoutine.steps,
+      stepCompletionStatus: updatedRoutine.stepCompletionStatus
     });
 
     console.log(`DEBUG: Routine with ID ${routineId} updated with data ${JSON.stringify(updatedRoutine)}`);
