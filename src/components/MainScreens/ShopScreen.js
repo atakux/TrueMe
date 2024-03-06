@@ -6,11 +6,35 @@ import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 import { loadFonts } from '../../utils/FontLoader';
 import { useAuth } from '../../utils/AuthContext';
 
+import fetchAmazonProductData from '../../utils/API/amazonAPI';
+
+
 const ShopScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
   const user = useAuth();
   const [activeTab, setActiveTab] = useState('Button 1'); // Initial active tab
+  const [skincareProducts, setSkincareProducts] = useState([]); // State to store fetched skincare products
+  const axios = require('axios');
+
+//////////////////////////////////////////////////////////////
+// BE CAREFUL WITH THIS, API COSTS MONEY, DO NOT LOOP
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchAmazonProductData("iphone");
+        setSkincareProducts(data.data); // Update state with fetched data
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+/////////////////////////////////////////////////////////////
+
 
   useEffect(() => {
     const loadAsyncData = async () => {
@@ -55,8 +79,6 @@ const ShopScreen = () => {
           <Text style={styles.titleText}> {'\n'}Products For You </Text>
         </View>
 
-
-
         <View style={styles.tabContainer}>
           <TouchableOpacity
             onPress={() => handleButtonClick("Button 1")}
@@ -73,9 +95,6 @@ const ShopScreen = () => {
           {/* Add more tabs as needed */}
         </View>
 
-
-
-
         {/* Search bar */}
         <View style={styles.searchContainer}>
           <TextInput
@@ -87,9 +106,15 @@ const ShopScreen = () => {
 
 
 
-
         {/* Render content based on active tab */}
-        {activeTab === 'Button 1' && <View style={styles.tabContent}><Text>Skincare Products go Here</Text></View>}
+        {activeTab === 'Button 1' && (
+          <View style={styles.tabContent}>
+            {skincareProducts.slice(0, 10).map(product => (
+              <Text key={product.asin}>{product.title}</Text>
+            ))}
+          </View>
+        )}
+
         {activeTab === 'Button 2' && <View style={styles.tabContent}><Text>Makeup Products go Here</Text></View>}
 
 
@@ -106,6 +131,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: "#FAFAFA",
     alignItems: 'center',
+    paddingBottom: 50,
   }, // End of container
 
   mainText: {
@@ -198,9 +224,11 @@ const styles = StyleSheet.create({
   },
 
   tabContent: {
+    height: 645, // Set the height to your desired fixed size
     padding: 20,
     backgroundColor: '#f0f0f0',
     marginTop: 10,
+    overflow: 'scroll', // Enable scrolling if content exceeds container size
   },
 
   searchContainer: {
