@@ -41,8 +41,8 @@ const ShopScreen = () => {
       }
     };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
   // Load fonts and check user authentication
   useEffect(() => {
