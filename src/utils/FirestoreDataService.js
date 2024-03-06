@@ -79,7 +79,7 @@ const updateRoutine = async (userId, routineId, updatedRoutine) => {
   }
 };
 
-const uploadImage = async (userId, imageUri) => {
+const uploadBannerImage = async (userId, imageUri) => {
   
   try {
     // Reference to the user's images collection
@@ -145,10 +145,71 @@ const fetchBannerImage = async (userId) => {
   }
 };
 
+const uploadProfileImage = async (userId, imageUri) => {
+  
+  try {
+    // Reference to the user's images collection
+    const imagesCollectionRef = collection(FIRESTORE_DB, "users", userId, "images");
 
+    // Convert the image data URI to a blob
+    const response = await fetch(imageUri);
+    const blob = await response.blob();
 
+    // Upload image blob to Firebase Storage
+    const storageRef = ref(FIREBASE_STORAGE, `images/${userId}/profileImg`);
+    const uploadTaskSnapshot = await uploadBytes(storageRef, blob);
+    
+    if (!uploadTaskSnapshot) {
+      throw new Error("Upload task snapshot is undefined");
+    }
 
+    // Get the download URL of the uploaded image
+    const imageUrl = await getDownloadURL(uploadTaskSnapshot.ref);
 
+    console.log("DEBUG: Image URL: ", imageUrl);
 
+    // Add the image URL to Firestore
+    const imagesDocRef = doc(imagesCollectionRef, "profileImg");
+    await setDoc(imagesDocRef, {
+      profileImg: imageUrl
+    });
 
-export { fetchDailyRoutines, addRoutine, deleteRoutine, updateRoutine, uploadImage, fetchBannerImage };
+    console.log('DEBUG: Image uploaded successfully');
+  } catch (error) {
+    console.log("DEBUG: Image URI: ", imageUri);
+    console.error('DEBUG: Error uploading image: ', error);
+    throw error;
+  }
+};
+
+const fetchProfileImage = async (userId) => {
+  try {
+    // Reference to the user's images collection
+    const imagesCollectionRef = collection(FIRESTORE_DB, "users", userId, "images");
+
+    // Get the document with ID "profileImg" from the images collection
+    const profileDocRef = doc(imagesCollectionRef, "profileImg");
+    const profileDocSnapshot = await getDoc(profileDocRef);
+
+    // Check if the banner document exists
+    if (!profileDocSnapshot.exists()) {
+      console.log("DEBUG: Profile image not found");
+      return null; // Profile image not found
+    }
+
+    // Get the profile image URL from the document data
+    const profileImageData = profileDocSnapshot.data();
+    if (profileImageData && profileImageData.banner) {
+      return profileImageData.profileImg;
+    } else {
+      console.log("DEBUG: Profile image URL not found in document");
+      return null;
+    }
+  } catch (error) {
+    console.error("DEBUG: Error fetching profile image:", error);
+    throw error;
+  }
+};
+
+export { fetchDailyRoutines, addRoutine, deleteRoutine, updateRoutine, 
+  uploadBannerImage, fetchBannerImage, uploadProfileImage, fetchProfileImage };
