@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  TouchableWithoutFeedback,
+  Keyboard
 } from "react-native";
 
 import { useNavigation } from '@react-navigation/native';
@@ -16,6 +18,11 @@ import { useNavigation } from '@react-navigation/native';
 import { loadFonts } from '../utils/FontLoader'; 
 import { FIREBASE_AUTH } from "../../firebase";
 import { signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+
+
+const dismissKeyboard = () => {
+  Keyboard.dismiss();
+};
 
 const LoginScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
@@ -98,80 +105,79 @@ const LoginScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.mainContainer}>
-      {/* Title */}
-      <View style={{ alignItems: "center", marginTop: 50 }}>
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <SafeAreaView style={styles.mainContainer}>
         {/* Title */}
-        <Text style={styles.trueMeTitle}>{"TrueMe"}</Text>
-      </View>
+        <View style={{ alignItems: "center", marginTop: 50 }}>
+          {/* Title */}
+          <Text style={styles.trueMeTitle}>{"TrueMe"}</Text>
+        </View>
 
-      {/* Login fields 
-            TODO: require fields to be not empty, if empty show error
-            TODO: show error message if login fails
-      */}
-      <View style={styles.loginContainer}>
-        <Text style={styles.loginTitle}>{"Log in"}</Text>
+        {/* Login fields */}
+        <View style={styles.loginContainer}>
+          <Text style={styles.loginTitle}>{"Log in"}</Text>
 
-        {/* Error Message */}
-        {errors.map((error, index) => (
-            <Text key={index} style={styles.errorMessage}>
-                {" ▸ " + error}
-            </Text>
-        ))}
+          {/* Error Message */}
+          {errors.map((error, index) => (
+              <Text key={index} style={styles.errorMessage}>
+                  {" ▸ " + error}
+              </Text>
+          ))}
 
 
-        {/* Email input */}
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={(text) => setEmail(text.toLowerCase())}
-        />
+          {/* Email input */}
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={(text) => setEmail(text.toLowerCase())}
+          />
 
-        {/* Password input */}
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={password}
-          secureTextEntry={true}
-          onChangeText={setPassword}
-        />
+          {/* Password input */}
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            value={password}
+            secureTextEntry={true}
+            onChangeText={setPassword}
+          />
 
-        {/* Login button */}
-        {/* Loading indicator */}
-        { loading ? <ActivityIndicator size="large" color="#329376" style={{ marginTop: 20, alignSelf: "center" }} /> 
-        : <> 
-            <TouchableOpacity
-            style={styles.buttons}
-            onPress={() => {
-                console.log("DEBUG: Login button pressed with email:", email);
+          {/* Login button */}
+          {/* Loading indicator */}
+          { loading ? <ActivityIndicator size="large" color="#329376" style={{ marginTop: 20, alignSelf: "center" }} /> 
+          : <> 
+              <TouchableOpacity
+              style={styles.buttons}
+              onPress={() => {
+                  console.log("DEBUG: Login button pressed with email:", email);
 
-                // retrieves user data from Firebase 
-                //   => navigates to home screen if their inputted login info matches database info
-                handleLogIn();
-            }}
-            >
-            <Text style={styles.buttonText}>{"Log in"}</Text>
-            </TouchableOpacity>
-        </>}
-      </View>
+                  // retrieves user data from Firebase 
+                  //   => navigates to home screen if their inputted login info matches database info
+                  handleLogIn();
+              }}
+              >
+              <Text style={styles.buttonText}>{"Log in"}</Text>
+              </TouchableOpacity>
+          </>}
+        </View>
 
-      {/* Don't have an account? */}
-      <View style={{ alignItems: "center", marginTop: 50 }}>
-        <Text style={styles.textButtonInfo}>Don't have an account yet?</Text>
+        {/* Don't have an account? */}
+        <View style={{ alignItems: "center", marginTop: 50 }}>
+          <Text style={styles.textButtonInfo}>Don't have an account yet?</Text>
 
-        {/* Navigate to sign up page for user to sign up */}
-        <TouchableOpacity
-            style={styles.textButton}
-            onPress={() => {
-                navigation.navigate('SignupScreen');
-            }}>
-            <Text style={styles.textButton}>Sign up!</Text>
-        </TouchableOpacity>
-    </View>
-    </SafeAreaView>
+          {/* Navigate to sign up page for user to sign up */}
+          <TouchableOpacity
+              style={styles.textButton}
+              onPress={() => {
+                  navigation.navigate('SignupScreen');
+              }}>
+              <Text style={styles.textButton}>Sign up!</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 

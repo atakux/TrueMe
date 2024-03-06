@@ -8,6 +8,9 @@ import { AuthProvider } from './src/utils/AuthContext';
 import LaunchScreen from './src/authentication/LaunchScreen';
 import LoginScreen from './src/authentication/LoginScreen';
 import SignupScreen from './src/authentication/SignupScreen';
+import AddRoutine from './src/components/RoutinesScreens/AddRoutine';
+import Routine from './src/components/RoutinesScreens/Routine';
+import EditRoutine from './src/components/RoutinesScreens/EditRoutine';
 import TabBar from './src/utils/TabBar';
 
 const Stack = createStackNavigator();
@@ -23,6 +26,9 @@ export default function App() {
           <Stack.Screen name="LoginScreen" component={LoginScreen} options={{headerShown: false}}/>
           <Stack.Screen name="SignupScreen" component={SignupScreen} options={{headerShown: false}}/>
           <Stack.Screen name="HomeScreen" component={TabBar} options={{headerShown: false}}/>
+          <Stack.Screen name="AddRoutine" component={AddRoutine} options={{headerShown: false}}/>
+          <Stack.Screen name="Routine" component={Routine} options={{headerShown: false}}/>
+          <Stack.Screen name="EditRoutine" component={EditRoutine} options={{headerShown: false}}/>
         </Stack.Navigator>
       </NavigationContainer>
       <StatusBar style="auto" />
@@ -38,3 +44,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+
+// Ignore warning about unserializable values. 
+/* if needed for state persistence or deep link, have to remove warning and fix: 
+      HomeScreen.js, AddRoutine.js, RoutineContext.js
+      
+      https://reactnavigation.org/docs/troubleshooting/
+    
+    probably have to do navigation.setOptions() in some of the screens
+*/
+const originalWarn = console.warn;
+
+console.warn = (...args) => {
+  const [firstArg] = args;
+  if (typeof firstArg === 'string' && firstArg.startsWith('Non-serializable values')) {
+    // Suppress the warning
+    return;
+  }
+  // For other warnings, call the original console.warn()
+  originalWarn.apply(console, args);
+};
+
+import { LogBox } from 'react-native';
+
+LogBox.ignoreLogs([
+  'Non-serializable values were found in the navigation state',
+]);

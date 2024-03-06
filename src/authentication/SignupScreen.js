@@ -9,13 +9,20 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  TouchableWithoutFeedback,
+  Keyboard
 } from "react-native";
 
 import { useNavigation } from '@react-navigation/native';
+import { doc, setDoc, collection, addDoc } from "firebase/firestore";
 
 import { loadFonts } from '../utils/FontLoader'; 
-import { FIREBASE_AUTH } from "../../firebase";
+import { FIREBASE_AUTH, FIRESTORE_DB } from "../../firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+
+const dismissKeyboard = () => {
+  Keyboard.dismiss();
+};
 
 const SignupScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
@@ -96,7 +103,21 @@ const SignupScreen = () => {
       // Update user profile to include username
       await updateProfile(user, {
           displayName: username,
-      })
+      });
+
+      await setDoc(doc(FIRESTORE_DB, "users", user.uid), {
+        id: user.uid,
+        username: username,
+        email: email,
+      });
+
+      const routineRef = collection(FIRESTORE_DB, "users", user.uid, "routines");
+      const routineDocRef = doc(routineRef, "0");
+      await setDoc(routineDocRef, {
+        title: "Add Routine",
+        days: [0, 1, 2, 3, 4, 5, 6],
+        steps: [],
+      });
 
       // Debug
       console.log("DEBUG: Registered with:", user.displayName);
@@ -123,105 +144,107 @@ const SignupScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.mainContainer}>
-      {/* Title */}
-      <View style={{ alignItems: "center"}}>
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <SafeAreaView style={styles.mainContainer}>
         {/* Title */}
-        <Text style={styles.trueMeTitle}>{"TrueMe"}</Text>
+        <View style={{ alignItems: "center"}}>
+          {/* Title */}
+          <Text style={styles.trueMeTitle}>{"TrueMe"}</Text>
+        </View>
+
+        {/* Sign up fields 
+            => Displays error messages dynamically
+        */}
+        <View style={styles.signupContainer}>
+          <Text style={styles.signupTitle}>{"Sign up"}</Text>
+
+          {/* Error Message */}
+          {errors.map((error, index) => (
+              <Text key={index} style={styles.errorMessage}>
+                  {" ▸ " + error}
+              </Text>
+          ))}
+
+
+          {/* Username input */}
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            autoCapitalize="none"
+            value={username}
+            onChangeText={setUsername} // update username
+          />
+
+          {/* Email input */}
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={(text) => setEmail(text.toLowerCase())} // update email
+          />
+
+          {/* Password input */}
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            autoCapitalize="none"
+            value={password}
+            secureTextEntry={true}
+            onChangeText={setPassword} // update password
+          />
+
+          {/* Confirm password input */}
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            autoCapitalize="none"
+            value={confirmPassword}
+            secureTextEntry={true}
+            onChangeText={setConfPassword} // update confirm password
+          />
+
+          {/* Sign up button */}
+          {/* Loading indicator */}
+          { loading ? <ActivityIndicator size="large" color="#329376" style={{ marginTop: 20, alignSelf: "center" }} /> 
+          : <> 
+              <TouchableOpacity
+              style={styles.buttons}
+              onPress={() => {
+                  
+                  if (password === confirmPassword) {
+                      // store user data to Firebase 
+                      //   => navigate to home screen after storing to database
+                      handleSignUp();
+                  } else {
+                      setErrors((prevErrors) => ["Passwords do not match"]);
+                      setLoading(false);
+                      console.log("DEBUG: Passwords do not match");
+                  }
+              }}
+              >
+              <Text style={styles.buttonText}>{"Sign up"}</Text>
+              </TouchableOpacity>
+          </>}
+        </View>
+
+        {/* Have an account? */}
+        <View style={{ alignItems: "center", marginTop: 20 }}>
+          <Text style={styles.textButtonInfo}>Already have an account?</Text>
+
+          {/* Navigate to login page for user to login */}
+          <TouchableOpacity
+              style={styles.textButton}
+              onPress={() => {
+                  navigation.navigate('LoginScreen');
+              }}>
+              <Text style={styles.textButton}>Log in!</Text>
+          </TouchableOpacity>
+
       </View>
-
-      {/* Sign up fields 
-           => Displays error messages dynamically
-      */}
-      <View style={styles.signupContainer}>
-        <Text style={styles.signupTitle}>{"Sign up"}</Text>
-
-        {/* Error Message */}
-        {errors.map((error, index) => (
-            <Text key={index} style={styles.errorMessage}>
-                {" ▸ " + error}
-            </Text>
-        ))}
-
-
-        {/* Username input */}
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          autoCapitalize="none"
-          value={username}
-          onChangeText={setUsername} // update username
-        />
-
-        {/* Email input */}
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={(text) => setEmail(text.toLowerCase())} // update email
-        />
-
-        {/* Password input */}
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          autoCapitalize="none"
-          value={password}
-          secureTextEntry={true}
-          onChangeText={setPassword} // update password
-        />
-
-        {/* Confirm password input */}
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm Password"
-          autoCapitalize="none"
-          value={confirmPassword}
-          secureTextEntry={true}
-          onChangeText={setConfPassword} // update confirm password
-        />
-
-        {/* Sign up button */}
-        {/* Loading indicator */}
-        { loading ? <ActivityIndicator size="large" color="#329376" style={{ marginTop: 20, alignSelf: "center" }} /> 
-        : <> 
-            <TouchableOpacity
-            style={styles.buttons}
-            onPress={() => {
-                
-                if (password === confirmPassword) {
-                    // store user data to Firebase 
-                    //   => navigate to home screen after storing to database
-                    handleSignUp();
-                } else {
-                    setErrors((prevErrors) => ["Passwords do not match"]);
-                    setLoading(false);
-                    console.log("DEBUG: Passwords do not match");
-                }
-            }}
-            >
-            <Text style={styles.buttonText}>{"Sign up"}</Text>
-            </TouchableOpacity>
-        </>}
-      </View>
-
-      {/* Have an account? */}
-      <View style={{ alignItems: "center", marginTop: 20 }}>
-        <Text style={styles.textButtonInfo}>Already have an account?</Text>
-
-        {/* Navigate to login page for user to login */}
-        <TouchableOpacity
-            style={styles.textButton}
-            onPress={() => {
-                navigation.navigate('LoginScreen');
-            }}>
-            <Text style={styles.textButton}>Log in!</Text>
-        </TouchableOpacity>
-
-    </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 
