@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -34,6 +34,18 @@ const Routine = ({ route }) => {
 
     // Calculate the offset to align the current day to the left
     const offset = currentDayIndex > 0 ? currentDayIndex - 0 : 6;
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            const currentDate = new Date();
+            if (currentDate.getHours() === 0 && currentDate.getMinutes() === 0) {
+                resetCompletionStatus();
+            }
+        }, 60000); // Check every minute for midnight
+
+        // Cleanup function
+        return () => clearInterval(intervalId);
+    }, []);
 
     // Function to render each day
     const renderDay = (dayIndex, dayNum, date) => {
@@ -90,6 +102,24 @@ const Routine = ({ route }) => {
 
     const handleEditRoutine = () => {
         navigation.navigate('EditRoutine', { routineData, refreshSwiper });
+    };
+
+    // Function to reset step completion status to false
+    const resetCompletionStatus = () => {
+        const newStatus = new Array(routineSteps.length).fill(false);
+        setCompletionStatus(newStatus);
+        updateRoutineCompletionStatus(newStatus);
+    };
+
+    // Update the completion status in Firestore
+    const updateRoutineCompletionStatus = async (newStatus) => {
+        try {
+            const updatedRoutine = { ...routineData };
+            updatedRoutine.stepCompletionStatus = newStatus;
+            await updateRoutine(user.uid, routineId, updatedRoutine);
+        } catch (error) {
+            console.error('Error updating completion status:', error);
+        }
     };
 
     // Function to handle routine deletion, asks for confirmation
