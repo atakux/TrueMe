@@ -87,27 +87,12 @@ const EditRoutine = ({ route }) => {
           return;
         }
     
-        let editedRoutine = {
+        const editedRoutine = {
           title: newRoutineName ? newRoutineName : oldRoutineName,
           days: newSelectedDays,
           steps: newSteps,
+          stepCompletionStatus: Array(newSteps.length).fill(false),
         };
-    
-        // Check if the new routine has more steps than the old routine
-        if (newSteps.length !== oldSteps.length) {
-          // Preserve existing completion statuses and append false for new steps
-          const additionalStepCompletionStatus = Array(newSteps.length - oldSteps.length).fill(false);
-          editedRoutine = {
-            ...editedRoutine,
-            stepCompletionStatus: [...oldRoutine.stepCompletionStatus, ...additionalStepCompletionStatus],
-          };
-        } else {
-          // Keep the existing step completion statuses as is
-          editedRoutine = {
-            ...editedRoutine,
-            stepCompletionStatus: editedRoutine.stepCompletionStatus,
-          };
-        }
     
         await updateRoutine(user.uid, oldRoutine.id, editedRoutine);
     
@@ -299,7 +284,10 @@ const EditRoutine = ({ route }) => {
                       </TouchableOpacity>
                     )}
                     keyExtractor={(item, index) => `step-${index}`}
-                    onDragEnd={({ data }) => setNewSteps(data)} // Update newSteps state after reordering
+                    onDragEnd={
+                      ({ data }) => setNewSteps(data)
+                      
+                    } // Update newSteps state after reordering
                   />
 
                   {/* Modal for editing/deleting selected step */}
