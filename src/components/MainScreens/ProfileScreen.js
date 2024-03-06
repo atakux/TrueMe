@@ -211,11 +211,24 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     marginBottom: 20,
+    flexGrow: 1,
+    
+    ...Platform.select({
+      ios: {
+        useViewOverflow: true,
+        marginBottom: 70
+      },
+      android: {
+        useViewOverflow: false,
+        marginBottom: 100
+      }
+    })
   },
 
   buttonsContainer: {
     flex: 1,
     width: "100%",
+    marginBottom: 500,
   }, // End of buttonsContainer
 
   imagesContainer: {
