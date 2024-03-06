@@ -21,17 +21,17 @@ const EditAccount = () => {
   const [loading, setLoading] = useState(false); // Added loading state
   const [editingDisplayName, setEditingDisplayName] = useState(false); // State to control display name editing
   const [newDisplayName, setNewDisplayName] = useState(''); // State to store new display name
+  const [editingEmail, setEditingEmail] = useState(false); // State to control email editing
+  const [newEmail, setNewEmail] = useState(''); // State to store new email
 
   useEffect(() => {
     const loadAsyncData = async () => {
-      await loadFonts();
-      setFontLoaded(true);
+        await loadFonts();
+        setFontLoaded(true);
     };
-
+  
     loadAsyncData();
-  }, []);
 
-  useEffect(() => {
     const fetchBanner = async () => {
       try {
         setLoading(true); // Set loading to true while fetching image
@@ -118,6 +118,11 @@ const EditAccount = () => {
     }
   };
 
+  const handleSaveChanges = async () => {
+      handleDisplayNameChange();
+      handleEmailChange();
+  };
+
   const handleDisplayNameChange = async () => {
     try {
       setLoading(true);
@@ -139,6 +144,29 @@ const EditAccount = () => {
     }
   };
 
+  const handleEmailChange = async () => {
+    try {
+      setLoading(true);
+      if (newEmail === '') {
+        return;
+      } else {
+        // Update email in Firebase auth
+        await updateProfile(user, { email: newEmail ? newEmail : user.email });
+        console.log('DEBUG: Email updated successfully');
+        
+        // Reset states and navigate back
+        setEditingEmail(false);
+        setNewEmail('');
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.error('DEBUG: Error updating email:', error);
+      setErrors([...errors, error.message]); // You can handle error messages
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!fontLoaded || !user) {
     // Font is still loading or user not logged in, you can return a loading indicator or null
     return null;
@@ -154,10 +182,10 @@ const EditAccount = () => {
 
             {/* Error Message */}
             {errors.map((error, index) => (
-                      <Text key={index} style={styles.errorMessage}>
-                          {" ▸ " + error}
-                      </Text>
-              ))}
+                <Text key={index} style={styles.errorMessage}>
+                    {" ▸ " + error}
+                </Text>
+            ))}
         </View>
 
         <View style={styles.imagesContainer}>
@@ -199,22 +227,54 @@ const EditAccount = () => {
         </View>
         
         <View>
-            <View style={styles.usernameContainer}>
+            <View style={styles.inputContainer}>
                 {editingDisplayName ? (
                     <View>
                         <Text style={styles.labelText}>New Username: </Text>
-                        <TextInput
-                            style={styles.inputText}
-                            placeholder={user.displayName}
-                            onChangeText={setNewDisplayName}
-                            value={newDisplayName}
-                            autoCapitalize='none' 
-                        />
+                        <View style={{ flexDirection: 'row', marginLeft: 10}}>
+                            <Image source={require('../../../assets/icons/edit-text.png')} />
+                            <TextInput
+                                style={styles.inputText}
+                                placeholder={user.displayName}
+                                onChangeText={setNewDisplayName}
+                                value={newDisplayName}
+                                autoCapitalize='none' 
+                            />
+                        </View>
                     </View>
                 ) : (
                     <View>
                         <Text style={styles.labelText}>Current Username: </Text>
-                        <Text style={styles.inputText} onPress={() => setEditingDisplayName(true)}>{user.displayName}</Text>
+                        <TouchableOpacity style={{ flexDirection: 'row', marginLeft: 10}} onPress={() => setEditingDisplayName(true)}>
+                            <Image source={require('../../../assets/icons/edit-text.png')} />
+                            <Text style={styles.previousText}>{user.displayName}</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+            </View>
+
+            <View style={styles.inputContainer}>
+                {editingEmail ? (
+                    <View>
+                        <Text style={styles.labelText}>New Email: </Text>
+                        <View style={{ flexDirection: 'row', marginLeft: 10}}>
+                            <Image source={require('../../../assets/icons/edit-text.png')} />
+                            <TextInput
+                                style={styles.inputText}
+                                placeholder={user.email}
+                                onChangeText={setNewEmail}
+                                value={newEmail}
+                                autoCapitalize='none' 
+                            />
+                        </View>
+                    </View>
+                ) : (
+                    <View>
+                        <Text style={styles.labelText}>Current Email: </Text>
+                        <TouchableOpacity style={{ flexDirection: 'row', marginLeft: 10}} onPress={() => setEditingEmail(true)}>
+                            <Image source={require('../../../assets/icons/edit-text.png')} />
+                            <Text style={styles.previousText}>{user.email}</Text>
+                        </TouchableOpacity>
                     </View>
                 )}
             </View>
@@ -224,9 +284,11 @@ const EditAccount = () => {
             {loading ? (
                 <ActivityIndicator size="large" color="#64BBA1" />
             ) : (
-                <TouchableOpacity style={styles.saveButton} onPress={handleDisplayNameChange}>
-                    <Text style={styles.saveButtonText}>Save Changes</Text>
-                </TouchableOpacity>
+                <>
+                    <TouchableOpacity style={styles.saveButton} onPress={handleSaveChanges}>
+                        <Text style={styles.saveButtonText}>Save Changes</Text>
+                    </TouchableOpacity>
+                </>
             )}
         </View>
     </SafeAreaView>
@@ -241,8 +303,14 @@ const styles = StyleSheet.create({
     width: "100%",
   }, // End of container
 
+  inputContainer: {
+    width: "100%",
+    marginTop: 10,
+    padding: 5,
+  }, // End of inputContainer
+
   bottomPanel: {
-    bottom: -200,
+    bottom: -150,
     width: "110%",
     backgroundColor: "#FFFFFF",
     
@@ -307,7 +375,7 @@ const styles = StyleSheet.create({
   }, // End of mainText
 
   labelText: {
-    fontSize: 24,
+    fontSize: 23,
     fontFamily: 'Sofia-Sans',
     color: '#000000',
     textAlign: "left",
@@ -320,8 +388,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Sofia-Sans',
     color: '#000000',
     textAlign: "left",
-    paddingLeft: 20
-  }, // End of usernameText
+  }, // End of inputText
+
+  previousText: {
+    fontSize: 20,
+    fontFamily: 'Sofia-Sans',
+    color: '#7FB876',
+    textAlign: "left",
+  },
 
   loadingIndicator: {
     marginTop: 100,
