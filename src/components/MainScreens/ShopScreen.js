@@ -20,18 +20,18 @@ const ShopScreen = () => {
 //////////////////////////////////////////////////////////////
 // BE CAREFUL WITH THIS, API COSTS MONEY, DO NOT LOOP
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetchAmazonProductData("iphone");
-        setSkincareProducts(data.data); // Update state with fetched data
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const data = await fetchAmazonProductData("iphone");
+  //       setSkincareProducts(data.data); // Update state with fetched data
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
 /////////////////////////////////////////////////////////////
 
