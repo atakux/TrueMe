@@ -147,8 +147,6 @@ const styles = StyleSheet.create({
 
   selectBannerImageTinyIconButton: {
     position: 'absolute',
-    bottom: -20,
-    right: 5,
     borderRadius: 50,
     backgroundColor: '#EBF5F5',
     borderWidth: 1,
@@ -160,6 +158,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignContent: 'center',
+
+    ...Platform.select({
+      ios: {
+        bottom: -20,
+        right: 5,
+      },
+
+      android: {
+        bottom: -65,
+        right: 5,
+      },
+    }),
   },
 
   imageContainerBanner: {
