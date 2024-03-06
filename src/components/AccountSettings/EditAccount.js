@@ -9,7 +9,7 @@ import { useAuth } from '../../utils/AuthContext';
 import { uploadBannerImage, fetchBannerImage, uploadProfileImage, fetchProfileImage } from '../../utils/FirestoreDataService'; // Import fetchLatestBannerImage function
 import * as ImagePicker from 'expo-image-picker';
 
-const ProfileScreen = () => {
+const EditAccount = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
   const user = useAuth();
@@ -24,7 +24,9 @@ const ProfileScreen = () => {
     };
 
     loadAsyncData();
+  }, []);
 
+  useEffect(() => {
     const fetchBanner = async () => {
       try {
         setLoading(true); // Set loading to true while fetching image
@@ -118,47 +120,68 @@ const ProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.imagesContainer}>
-        {loading ? ( // Conditionally rendering loading indicator
-          <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
-        ) : bannerImage ? (
-          <View style={styles.imageContainerBanner}>
-            <Image source={{ uri: bannerImage }} style={styles.imageBanner} />
-            <View>
-               {loading ? (
-                 <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
-               ) : profileImage ? (
-                 <View style={styles.profileImageContainer}>
-                   <Image source={{ uri: profileImage }} style={styles.profileImage} />
-                 </View>
-               ) : (
-                <TouchableOpacity onPress={pickProfileImage}>
-                 <View style={styles.profileImageContainer}>
-                   <Image source={require('../../../assets/icons/add-photo.png')} style={styles.selectProfileIcon}/>
-                 </View>
-                </TouchableOpacity>
-               )}
-            </View>
-          </View>
-        ) : (
-          <View style={styles.selectBannerImageContainer}>
-            <TouchableOpacity onPress={pickBannerImage}>
-              <Image source={require('../../../assets/icons/select.png')} style={styles.selectBannerIcon} />
-              <Text style={styles.imageButtonText}>Select Banner Image</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
-      
-      <View>
-        <Text style={styles.mainText}>{user.displayName}</Text>
-      </View>
 
-      <View styles={styles.buttonsContainer}>
-          <TouchableOpacity onPress={() => navigation.navigate('EditAccount')} style={styles.buttons}>
-            <Text style={styles.buttonText}>Edit Account</Text>
-          </TouchableOpacity>
-      </View>
+        <View style={styles.closeButtonContainer}>
+            <Text style={styles.mainText}>Edit Account</Text>
+            <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
+                <Image source={require('../../../assets/icons/close.png')} style={styles.closeButtonImage} />
+            </TouchableOpacity>
+        </View>
+
+    <View style={styles.imagesContainer}>
+        {loading ? ( // Conditionally rendering loading indicator
+        <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
+        ) : bannerImage ? (
+        <View style={styles.imageContainerBanner}>
+            <Image source={{ uri: bannerImage }} style={styles.imageBanner} />
+            <TouchableOpacity style={styles.selectBannerImageTinyIconButton} onPress={pickBannerImage}>
+            <Image source={require('../../../assets/icons/selectTiny.png')} style={styles.selectBannerIconTiny} />
+            </TouchableOpacity>
+            {/* Circle */}
+            <View>
+            {loading ? (
+                <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
+            ) : profileImage ? (
+                <View style={styles.profileImageContainer}>
+                <Image source={{ uri: profileImage }} style={styles.profileImage} />
+                <TouchableOpacity style={styles.selectProfileImageTinyIconButton} onPress={pickProfileImage}>
+                    <Image source={require('../../../assets/icons/add-photoTiny.png')} style={styles.selectProfileIconTiny} />
+                </TouchableOpacity>
+                </View>
+            ) : (
+                <TouchableOpacity onPress={pickProfileImage}>
+                <View style={styles.profileImageContainer}>
+                <Image source={require('../../../assets/icons/add-photo.png')} style={styles.selectProfileIcon}/>
+                </View>
+                </TouchableOpacity>
+            )}
+            </View>
+        </View>
+        ) : (
+        <View style={styles.selectBannerImageContainer}>
+            <TouchableOpacity onPress={pickBannerImage}>
+            <Image source={require('../../../assets/icons/select.png')} style={styles.selectBannerIcon} />
+            <Text style={styles.buttonText}>Select Banner Image</Text>
+            </TouchableOpacity>
+        </View>
+        )}
+    </View>
+    
+    <View>
+        <View>
+            <Text style={styles.usernameText}>{user.displayName}</Text>
+        </View>
+    </View>
+
+      <View style={styles.bottomPanel}>
+            {loading ? (
+                <ActivityIndicator size="large" color="#64BBA1" />
+            ) : (
+                <TouchableOpacity style={styles.saveButton} onPress={() => console.log("save changes")}>
+                <Text style={styles.saveButtonText}>Save Changes</Text>
+                </TouchableOpacity>
+            )}
+        </View>
     </SafeAreaView>
   );
 };
@@ -171,10 +194,38 @@ const styles = StyleSheet.create({
     width: "100%",
   }, // End of container
 
-  buttonsContainer: {
-    flex: 1,
+  bottomPanel: {
+    bottom: -290,
+    width: "110%",
+    backgroundColor: "#FFFFFF",
+    
+    // Border
+    borderRadius: 75,
+    borderWidth: 2,
+    borderBottomColor: "rgba(0, 0, 0, 0)",
+    borderLeftColor: "rgba(0, 0, 0, 0)",
+    borderRightColor: "rgba(0, 0, 0, 0)",
+    borderTopColor: "rgba(0, 0, 0, 0.1)",
+    
+    // Alignment
+    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 15,
+  }, // End of bottomPanel   
+
+  closeButtonContainer: {
     width: "100%",
-  }, // End of buttonsContainer
+    marginTop: 20,
+  },
+
+  closeButton: {
+    position: 'absolute', 
+    top: 10,
+    right: 10,
+    marginRight: 10,
+    zIndex: 999,
+}, // End of closeButton
 
   imagesContainer: {
     width: "100%",
@@ -187,16 +238,23 @@ const styles = StyleSheet.create({
         height: 325,
       },
     }),
-  }, // End of imagesContainer
+  },
 
   mainText: {
+    fontSize: 28,
+    fontFamily: 'Sofia-Sans',
+    color: '#000000',
+    textAlign: "left",
+    padding: 10
+  }, // End of mainText
+
+  usernameText: {
     fontSize: 24,
     fontFamily: 'Sofia-Sans',
     color: '#000000',
     textAlign: "center",
     letterSpacing: 3.5,
-    marginBottom: 5,
-  }, // End of mainText
+  }, // End of usernameText
 
   loadingIndicator: {
     marginTop: 100,
@@ -209,6 +267,9 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     borderRadius: 100,
+    borderColor: '#7FB876',
+    borderWidth: 1,
+    backgroundColor: '#EBF5F5',
     alignContent: 'center',
     justifyContent: 'center',
     alignSelf: "center",
@@ -252,8 +313,10 @@ const styles = StyleSheet.create({
       ios: {
         bottom: 2,
       },
+
       android: {
-        bottom: 2,  
+        bottom: 2,
+        
       },
     }),
   }, // End of selectProfileIcon
@@ -347,56 +410,41 @@ const styles = StyleSheet.create({
   }, // End of imageBanner
 
   buttons: {
-    width: 160,
-    height: 114,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    width: 159,
+    height: 82,
+    backgroundColor: '#D0F2DA',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#7FB876',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10,
-    marginHorizontal: 20,
-    marginVertical: 10,
-
-    ...Platform.select({
-      ios: {
-        elevation: 5,
-        shadowColor: "black",
-        shadowOffset: {
-          width: 0,
-          height: 3,
-        },
-        shadowOpacity: 0.25,
-      },
-
-      android: {
-        elevation: 5,
-        shadowColor: 'black',
-        shadowOffset: { 
-          width: 0, 
-          height: 3, 
-        },
-        shadowOpacity: 0.25,
-      }
-
-    }),
   }, // End of buttons
 
   buttonText: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignContent: 'center',
-    fontFamily: 'Sofia-Sans',
-    fontSize: 20,
-    color: '#000000',
-
-  }, // End of buttonText
-
-  imageButtonText: {
     fontSize: 16,
     fontFamily: 'Sofia-Sans',
     color: '#64BBA1',
     textAlign: "center",
   }, // End of buttonText
+
+  saveButton: {
+    width: "85%",
+    height: 60,
+    backgroundColor: "#D0F2DA",
+    borderRadius: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    marginTop: 2,
+    marginBottom: 15,
+  }, // End of saveButton
+
+  saveButtonText: {
+    fontSize: 28,
+    fontFamily: "Sofia-Sans",
+    color: "#64BBA1",
+    textAlign: "center",
+  }, // End of saveButtonText
 });
 
-export default ProfileScreen;
+export default EditAccount;
