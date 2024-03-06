@@ -1,6 +1,6 @@
 import { FIRESTORE_DB, FIREBASE_STORAGE } from "../../firebase";
 import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc, getDoc, setDoc } from "firebase/firestore";
-import { ref, uploadString, getDownloadURL, uploadBytes } from "firebase/storage";
+import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 import "firebase/compat/storage";
 
 const fetchDailyRoutines = async (uid) => {
@@ -211,5 +211,20 @@ const fetchProfileImage = async (userId) => {
   }
 };
 
+const updateUsernameInFirestore = async (userId, newUsername) => {
+  try {
+    const userDocRef = doc(FIRESTORE_DB, 'users', userId);
+    await updateDoc(userDocRef, {
+      username: newUsername
+    });
+    console.log('DEBUG: Username updated successfully');
+  } catch (error) {
+    console.error('DEBUG: Error updating username:', error);
+    throw error;
+  }
+};
+
+
 export { fetchDailyRoutines, addRoutine, deleteRoutine, updateRoutine, 
-  uploadBannerImage, fetchBannerImage, uploadProfileImage, fetchProfileImage };
+  uploadBannerImage, fetchBannerImage, uploadProfileImage, fetchProfileImage,
+  updateUsernameInFirestore };

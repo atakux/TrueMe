@@ -1,21 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, ActivityIndicator, Platform } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, ActivityIndicator, Platform, TextInput } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
+import { updateProfile } from 'firebase/auth'; // Import updateProfile from firebase auth
 
 import { loadFonts } from '../../utils/FontLoader'; 
 import { useAuth } from '../../utils/AuthContext';
-import { uploadBannerImage, fetchBannerImage, uploadProfileImage, fetchProfileImage } from '../../utils/FirestoreDataService'; // Import fetchLatestBannerImage function
+import { uploadBannerImage, fetchBannerImage, uploadProfileImage, fetchProfileImage, updateUsernameInFirestore } from '../../utils/FirestoreDataService'; // Import fetchLatestBannerImage function
 import * as ImagePicker from 'expo-image-picker';
 
 const EditAccount = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
   const user = useAuth();
+  const [errors, setErrors] = useState([]);
+
   const [bannerImage, setBannerImage] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
   const [loading, setLoading] = useState(false); // Added loading state
+  const [editingDisplayName, setEditingDisplayName] = useState(false); // State to control display name editing
+  const [newDisplayName, setNewDisplayName] = useState(''); // State to store new display name
 
   useEffect(() => {
     const loadAsyncData = async () => {
@@ -62,11 +67,6 @@ const EditAccount = () => {
       fetchProfile(); // Fetch the profile image when user is available
     }
   }, [user]);
-
-  if (!fontLoaded || !user) {
-    // Font is still loading or user not logged in, you can return a loading indicator or null
-    return null;
-  };
 
   const pickBannerImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -118,67 +118,114 @@ const EditAccount = () => {
     }
   };
 
+  const handleDisplayNameChange = async () => {
+    try {
+      setLoading(true);
+    
+      if (newDisplayName === '') {
+        setNewDisplayName(user.displayName);
+      } 
+
+      await updateProfile(user, { displayName: newDisplayName ? newDisplayName : user.displayName }); // Update display name in Firebase auth
+      console.log('DEBUG: Display name updated successfully');
+      await updateUsernameInFirestore(user.uid, newDisplayName); // Update username in Firestore
+      setEditingDisplayName(false);
+      navigation.goBack();
+    } catch (error) {
+      setLoading(false);
+      console.error('DEBUG: Error updating display name:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!fontLoaded || !user) {
+    // Font is still loading or user not logged in, you can return a loading indicator or null
+    return null;
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-
         <View style={styles.closeButtonContainer}>
             <Text style={styles.mainText}>Edit Account</Text>
             <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
                 <Image source={require('../../../assets/icons/close.png')} style={styles.closeButtonImage} />
             </TouchableOpacity>
+
+            {/* Error Message */}
+            {errors.map((error, index) => (
+                      <Text key={index} style={styles.errorMessage}>
+                          {" ▸ " + error}
+                      </Text>
+              ))}
         </View>
 
-    <View style={styles.imagesContainer}>
-        {loading ? ( // Conditionally rendering loading indicator
-        <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
-        ) : bannerImage ? (
-        <View style={styles.imageContainerBanner}>
-            <Image source={{ uri: bannerImage }} style={styles.imageBanner} />
-            <TouchableOpacity style={styles.selectBannerImageTinyIconButton} onPress={pickBannerImage}>
-            <Image source={require('../../../assets/icons/selectTiny.png')} style={styles.selectBannerIconTiny} />
-            </TouchableOpacity>
-            {/* Circle */}
-            <View>
+        <View style={styles.imagesContainer}>
             {loading ? (
                 <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
-            ) : profileImage ? (
-                <View style={styles.profileImageContainer}>
-                <Image source={{ uri: profileImage }} style={styles.profileImage} />
-                <TouchableOpacity style={styles.selectProfileImageTinyIconButton} onPress={pickProfileImage}>
-                    <Image source={require('../../../assets/icons/add-photoTiny.png')} style={styles.selectProfileIconTiny} />
-                </TouchableOpacity>
+            ) : bannerImage ? (
+                <View style={styles.imageContainerBanner}>
+                    <Image source={{ uri: bannerImage }} style={styles.imageBanner} />
+                    <TouchableOpacity style={styles.selectBannerImageTinyIconButton} onPress={pickBannerImage}>
+                        <Image source={require('../../../assets/icons/selectTiny.png')} style={styles.selectBannerIconTiny} />
+                    </TouchableOpacity>
+                    <View>
+                        {loading ? (
+                            <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
+                        ) : profileImage ? (
+                            <View style={styles.profileImageContainer}>
+                                <Image source={{ uri: profileImage }} style={styles.profileImage} />
+                                <TouchableOpacity style={styles.selectProfileImageTinyIconButton} onPress={pickProfileImage}>
+                                    <Image source={require('../../../assets/icons/add-photoTiny.png')} style={styles.selectProfileIconTiny} />
+                                </TouchableOpacity>
+                            </View>
+                        ) : (
+                            <TouchableOpacity onPress={pickProfileImage}>
+                                <View style={styles.profileImageContainer}>
+                                    <Image source={require('../../../assets/icons/add-photo.png')} style={styles.selectProfileIcon}/>
+                                </View>
+                            </TouchableOpacity>
+                        )}
+                    </View>
                 </View>
             ) : (
-                <TouchableOpacity onPress={pickProfileImage}>
-                <View style={styles.profileImageContainer}>
-                <Image source={require('../../../assets/icons/add-photo.png')} style={styles.selectProfileIcon}/>
+                <View style={styles.selectBannerImageContainer}>
+                    <TouchableOpacity onPress={pickBannerImage}>
+                        <Image source={require('../../../assets/icons/select.png')} style={styles.selectBannerIcon} />
+                        <Text style={styles.buttonText}>Select Banner Image</Text>
+                    </TouchableOpacity>
                 </View>
-                </TouchableOpacity>
             )}
+        </View>
+        
+        <View>
+            <View style={styles.usernameContainer}>
+                {editingDisplayName ? (
+                    <View>
+                        <Text style={styles.labelText}>New Username: </Text>
+                        <TextInput
+                            style={styles.inputText}
+                            placeholder={user.displayName}
+                            onChangeText={setNewDisplayName}
+                            value={newDisplayName}
+                            autoCapitalize='none' 
+                        />
+                    </View>
+                ) : (
+                    <View>
+                        <Text style={styles.labelText}>Current Username: </Text>
+                        <Text style={styles.inputText} onPress={() => setEditingDisplayName(true)}>{user.displayName}</Text>
+                    </View>
+                )}
             </View>
         </View>
-        ) : (
-        <View style={styles.selectBannerImageContainer}>
-            <TouchableOpacity onPress={pickBannerImage}>
-            <Image source={require('../../../assets/icons/select.png')} style={styles.selectBannerIcon} />
-            <Text style={styles.buttonText}>Select Banner Image</Text>
-            </TouchableOpacity>
-        </View>
-        )}
-    </View>
-    
-    <View>
-        <View>
-            <Text style={styles.usernameText}>{user.displayName}</Text>
-        </View>
-    </View>
 
-      <View style={styles.bottomPanel}>
+        <View style={styles.bottomPanel}>
             {loading ? (
                 <ActivityIndicator size="large" color="#64BBA1" />
             ) : (
-                <TouchableOpacity style={styles.saveButton} onPress={() => console.log("save changes")}>
-                <Text style={styles.saveButtonText}>Save Changes</Text>
+                <TouchableOpacity style={styles.saveButton} onPress={handleDisplayNameChange}>
+                    <Text style={styles.saveButtonText}>Save Changes</Text>
                 </TouchableOpacity>
             )}
         </View>
@@ -195,7 +242,7 @@ const styles = StyleSheet.create({
   }, // End of container
 
   bottomPanel: {
-    bottom: -290,
+    bottom: -200,
     width: "110%",
     backgroundColor: "#FFFFFF",
     
@@ -240,6 +287,17 @@ const styles = StyleSheet.create({
     }),
   },
 
+  errorMessage: {
+    fontSize: 14,
+    fontFamily: "Sofia-Sans",
+    color: "red",
+    textAlign: "center",
+    alignSelf: "flex-start",
+    marginTop: 5,
+    marginBottom: 5,
+    marginLeft: 15,
+  }, // End of errorMessage
+
   mainText: {
     fontSize: 28,
     fontFamily: 'Sofia-Sans',
@@ -248,12 +306,21 @@ const styles = StyleSheet.create({
     padding: 10
   }, // End of mainText
 
-  usernameText: {
+  labelText: {
     fontSize: 24,
     fontFamily: 'Sofia-Sans',
     color: '#000000',
-    textAlign: "center",
-    letterSpacing: 3.5,
+    textAlign: "left",
+    paddingTop: 10,
+    paddingLeft: 10
+  },
+
+  inputText: {
+    fontSize: 20,
+    fontFamily: 'Sofia-Sans',
+    color: '#000000',
+    textAlign: "left",
+    paddingLeft: 20
   }, // End of usernameText
 
   loadingIndicator: {
@@ -261,7 +328,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   }, // End of loadingIndicator
 
-  // Profile Picture
   profileImageContainer: {
     position: 'absolute',
     width: 150,
@@ -327,7 +393,6 @@ const styles = StyleSheet.create({
     borderRadius: 100,
   }, // End of profileImage
 
-  // Banner
   selectBannerImageContainer: {
     width: "100%",
     height: 200,
@@ -445,6 +510,12 @@ const styles = StyleSheet.create({
     color: "#64BBA1",
     textAlign: "center",
   }, // End of saveButtonText
-});
+
+  editIcon: {
+    alignSelf: 'center',
+    marginTop: 20,
+  }, // End of editIcon
+
+}); // End of Stylesheet
 
 export default EditAccount;
