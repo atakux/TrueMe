@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, ActivityIndicator, Platform, TextInput } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, ActivityIndicator, Platform, TextInput, RefreshControlComponent } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
@@ -121,6 +121,8 @@ const EditAccount = () => {
   const handleSaveChanges = async () => {
       handleDisplayNameChange();
       handleEmailChange();
+
+      navigation.goBack();
   };
 
   const handleDisplayNameChange = async () => {
@@ -128,14 +130,13 @@ const EditAccount = () => {
       setLoading(true);
     
       if (newDisplayName === '') {
-        setNewDisplayName(user.displayName);
-      } 
-
-      await updateProfile(user, { displayName: newDisplayName ? newDisplayName : user.displayName }); // Update display name in Firebase auth
-      console.log('DEBUG: Display name updated successfully');
-      await updateUsernameInFirestore(user.uid, newDisplayName); // Update username in Firestore
-      setEditingDisplayName(false);
-      navigation.goBack();
+        return;
+      } else {
+        await updateProfile(user, { displayName: newDisplayName ? newDisplayName : user.displayName }); // Update display name in Firebase auth
+        console.log('DEBUG: Display name updated successfully');
+        await updateUsernameInFirestore(user.uid, newDisplayName); // Update username in Firestore
+        setEditingDisplayName(false);
+      }
     } catch (error) {
       setLoading(false);
       console.error('DEBUG: Error updating display name:', error);
@@ -157,7 +158,6 @@ const EditAccount = () => {
         // Reset states and navigate back
         setEditingEmail(false);
         setNewEmail('');
-        navigation.goBack();
       }
     } catch (error) {
       console.error('DEBUG: Error updating email:', error);

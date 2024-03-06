@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, ActivityIndicator, Platform } from 'react-native';
 
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
 import { loadFonts } from '../../utils/FontLoader'; 
@@ -12,54 +12,42 @@ import * as ImagePicker from 'expo-image-picker';
 const ProfileScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
+  const isFocused = useIsFocused(); // Hook to determine if screen is focused
   const user = useAuth();
   const [bannerImage, setBannerImage] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
   const [loading, setLoading] = useState(false); // Added loading state
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true); // Set loading to true while fetching image
+      // Fetch the latest banner image URL for the user
+      const bannerImageUrl = await fetchBannerImage(user.uid);
+      if (bannerImageUrl) {
+        setBannerImage(bannerImageUrl);
+      }
+      // Fetch the latest profile image URL for the user
+      const profileImageUrl = await fetchProfileImage(user.uid);
+      if (profileImageUrl) {
+        setProfileImage(profileImageUrl);
+      }
+    } catch (error) {
+      console.error('Error fetching images: ', error);
+    } finally {
+      setLoading(false); // Set loading back to false after fetch completes
+    }
+  }, [user]);
 
   useEffect(() => {
     const loadAsyncData = async () => {
       await loadFonts();
       setFontLoaded(true);
     };
-
     loadAsyncData();
-
-    const fetchBanner = async () => {
-      try {
-        setLoading(true); // Set loading to true while fetching image
-        // Fetch the latest banner image URL for the user
-        const bannerImageUrl = await fetchBannerImage(user.uid);
-        if (bannerImageUrl) {
-          setBannerImage(bannerImageUrl);
-        }
-      } catch (error) {
-        console.error('Error fetching banner image: ', error);
-      } finally {
-        setLoading(false); // Set loading back to false after fetch completes
-      }
-    };
-
-    const fetchProfile = async () => {
-      try {
-        setLoading(true); // Set loading to true while fetching image
-        // Fetch the latest profile image URL for the user
-        const profileImageUrl = await fetchProfileImage(user.uid);
-        if (profileImageUrl) {
-          setProfileImage(profileImageUrl);
-        }
-      } catch (error) {
-        console.error('Error fetching profile image: ', error);
-      } finally {
-        setLoading(false); // Set loading back to false after fetch completes
-      }
-    };
-
     if (user) {
-      fetchBanner(); // Fetch the banner image when user is available
-      fetchProfile(); // Fetch the profile image when user is available
+      fetchData(); // Fetch data when user is available
     }
-  }, [user]);
+  }, [user, fetchData, isFocused]); // Include isFocused in dependency array
 
   if (!fontLoaded || !user) {
     // Font is still loading or user not logged in, you can return a loading indicator or null
