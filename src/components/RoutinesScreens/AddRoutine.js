@@ -75,7 +75,11 @@ const AddRoutine = ({ route }) => {
           console.log('DEBUG: Steps cannot be empty');
           setErrors((prevErrors) => [...prevErrors, 'Please add at least one step']);
           return;
-        } 
+        } else if (routineName.length > 30) {
+          console.log('DEBUG: Routine name must be less than 30 characters');
+          setErrors((prevErrors) => [...prevErrors, 'Routine name must be less than 30 characters']);
+          return;
+        }
 
         routineData = {
           title: routineName,

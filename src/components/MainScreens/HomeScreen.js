@@ -100,7 +100,6 @@ const HomeScreen = () => {
 
   // Function to calculate completion percentage
   const calculateCompletion = (routine) => {
-    console.log(routine)
     const totalSteps = routine.steps.length;
     const completedSteps = routine.stepCompletionStatus.filter(status => status === true).length;
     return (completedSteps / totalSteps) * 100;
@@ -139,7 +138,7 @@ const HomeScreen = () => {
                 cards={dailyRoutines}
                 renderCard={(item) => (
                   <View key={item.id} style={styles.dailyRoutinesCards}>
-                    <TouchableOpacity onPress={() => handleRoutineClick(item)}>
+                    
                       <View>
                         {/* Status bar */}
                         {item.title !== 'Add Routine' ? (
@@ -151,11 +150,13 @@ const HomeScreen = () => {
                                 <Image source={require('../../../assets/icons/leaf-heart.png')}/>
                               </View>
 
-                              <Text style={styles.dailyRoutineText}>{item.title}</Text>
+                              <TouchableOpacity onPress={() => handleRoutineClick(item)}>
+                                <Text style={styles.dailyRoutineText}>{item.title}</Text>
+                              </TouchableOpacity> 
                             </View>
 
                             <View style={styles.statusBarContainer}>
-                                <Text style={styles.statusBarText}>{calculateCompletion(item).toFixed(0)}%</Text>
+                                <Text style={styles.statusBarText}>{calculateCompletion(item).toFixed(0)}% </Text>
 
                                 <View style={styles.statusBar}>
                                   <View style={[styles.statusBarFill, { width: `${calculateCompletion(item)}%` }]} />
@@ -163,10 +164,15 @@ const HomeScreen = () => {
                             </View>
                           </View>
                         ) : (
-                          <Text style={styles.addRoutineText}>{item.title}</Text>
+                          <TouchableOpacity onPress={() => handleRoutineClick(item)}>
+                            <View style={{ flexDirection: 'row', alignSelf: 'center', alignItems: 'center', justifyContent: 'space-between'}}>
+                              <Image source={require('../../../assets/icons/add.png')} style={styles.addRoutineIcon}/>
+                              <Text style={styles.addRoutineText}>{item.title}</Text>
+                            </View>
+                          </TouchableOpacity>
+
                         ) }
                       </View>
-                    </TouchableOpacity>
                   </View>
                 )}
                 keyExtractor={(item) => `${item.id}`}
@@ -247,12 +253,33 @@ const styles = StyleSheet.create({
       borderWidth: 1,
       borderColor: '#AEAEAE',
       padding: 5,
-      marginTop: 5,
-      marginBottom: 5,
-      marginRight: 5,
-      marginLeft: -8,
       alignSelf: "flex-start",
-      bottom: 3,
+
+      ...Platform.select({
+        ios: {
+          marginTop: 5,
+          marginBottom: 5,
+          marginRight: 5,
+          marginLeft: -8,
+          bottom: 3,
+        },
+
+        android: {
+          marginTop: 10,
+          marginBottom: 5,
+          marginRight: 5,
+          marginLeft: -8,
+          bottom: 3,
+        }
+      }),
+    },
+
+    addRoutineIcon: {
+      marginTop: 5,
+      width: 40,
+      height: 40,
+      marginLeft: 20,
+      marginRight: 20
     },
 
     statusBar: {
@@ -260,11 +287,11 @@ const styles = StyleSheet.create({
       backgroundColor: '#E0E0E0',
       height: 10,
       borderRadius: 50,
-      width: '70%', // Added width property
+      width: '65%', // Added width property
     },
 
     statusBarFill: {
-      height: '90%',
+      height: '100%',
       backgroundColor: '#64BBA1',
       borderRadius: 50,
       width: '100%',
@@ -276,18 +303,22 @@ const styles = StyleSheet.create({
       color: '#000000',
       textAlign: "left",
       alignSelf: "flex-start",
-      marginRight: 2
     },
 
     statusBarContainer : {
-      width: '45%',
+      width: '35%',
       flexDirection: 'row',
       backgroundColor: '#EBF5F5',
       borderRadius: 10,
-      padding: 10,
+
+      paddingRight: 10,
+      paddingBottom: 10,
+      paddingTop: 10,
+      paddingLeft: 5,
+
       bottom: 50,
       alignSelf: "flex-end",
-      marginRight: -10
+      marginRight: -15
     },
 
     loadingIndicator: {
@@ -369,7 +400,7 @@ const styles = StyleSheet.create({
 
           elevation: 5,
           marginTop: 30,
-          marginBottom: 10,
+          marginBottom: 5,
           alignSelf: "center",
           padding: 20,
 
@@ -392,10 +423,10 @@ const styles = StyleSheet.create({
 
         android: {
           // Need for android to function properly
-          marginBottom: 150
+          marginBottom: 225
         }
 
-      })
+      }),
     }, // End of dailyRoutinesContainer
 
     dailyRoutinesCards: {
@@ -517,10 +548,21 @@ const styles = StyleSheet.create({
       fontFamily: 'Sofia-Sans',
       color: '#000000',
       textAlign: "left",
-      marginTop: 10,
-      marginBottom: 10,
-      marginRight: 10,
-      marginLeft: 2
+
+      ...Platform.select({
+        ios: {
+          marginTop: 10,
+          marginBottom: 10,
+          marginRight: 10,
+          marginLeft: 2,
+        },
+
+        android: {
+          marginTop: 15,
+          marginBottom: 10,
+          marginRight: 10,
+        }
+      }),
     }, // End of dailyRoutineText
 
     addRoutineText: {
@@ -528,7 +570,7 @@ const styles = StyleSheet.create({
       fontFamily: 'Sofia-Sans',
       color: '#000000',
       textAlign: "left",
-      marginBottom: 5
+      marginRight: 20,
     }, // End of addRoutineText
   
   });

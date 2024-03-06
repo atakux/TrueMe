@@ -122,6 +122,12 @@ const Routine = ({ route }) => {
         }
     };
 
+    const calculateCompletion = () => {
+        const totalSteps = routineSteps.length;
+        const completedSteps = completionStatus.filter(status => status === true).length;
+        return (completedSteps / totalSteps) * 100;
+    };
+
     // Function to handle routine deletion, asks for confirmation
     const handleDeleteRoutine = () => {
         Alert.alert(
@@ -186,6 +192,12 @@ const Routine = ({ route }) => {
                 {/* Render the checklist */}
                 {renderChecklist()}
 
+                <Text style={styles.statusBarText}>{calculateCompletion().toFixed(0)}% Complete</Text>
+
+                <View style={styles.statusBar}>
+                    <View style={[styles.statusBarFill, { width: `${calculateCompletion()}%` }]} />
+                </View>
+
 
                 {/* Panel for pencil and trashcan icons */}
                 <View style={styles.bottomPanel}>
@@ -209,6 +221,34 @@ const styles = StyleSheet.create({
         backgroundColor: "#FAFAFA",
         width: "100%",
     }, // End of container
+
+    statusBar: {
+        alignSelf: "center",
+        backgroundColor: '#E0E0E0',
+        height: 10,
+        borderRadius: 50,
+        width: '90%',
+        margin: 10,
+        marginHorizontal: 20
+      },
+  
+      statusBarFill: {
+        height: '100%',
+        backgroundColor: '#64BBA1',
+        borderRadius: 50,
+        width: '100%',
+      },
+  
+      statusBarText: {
+        fontSize: 18,
+        fontFamily: 'Sofia-Sans',
+        color: '#000000',
+        textAlign: "left",
+        alignSelf: "flex-start",
+        margin: 5,
+        marginTop: 30,
+        marginLeft: 20
+      },
 
     loadingIndicator: {
         marginTop: 300,
