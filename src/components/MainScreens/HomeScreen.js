@@ -98,6 +98,15 @@ const HomeScreen = () => {
     setDailyRoutines([...dailyRoutines, newRoutine]);
   };
 
+  // Function to calculate completion percentage
+  const calculateCompletion = (routine) => {
+    console.log(routine)
+    const totalSteps = routine.steps.length;
+    const completedSteps = routine.stepCompletionStatus.filter(status => status === true).length;
+    return (completedSteps / totalSteps) * 100;
+  };
+
+
   return (
     <RoutineProvider updateDailyRoutines={updateDailyRoutines}>
       <SafeAreaView style={styles.container}>
@@ -131,7 +140,13 @@ const HomeScreen = () => {
                 renderCard={(item) => (
                   <View key={item.id} style={styles.dailyRoutinesCards}>
                     <TouchableOpacity onPress={() => handleRoutineClick(item)}>
-                      <Text style={styles.mainText}>{item.title}</Text>
+                      <Text style={styles.dailyRoutineText}>{item.title}</Text>
+                      {/* Status bar */}
+                      {item.title !== 'Add Routine' && (
+                        <View style={styles.statusBar}>
+                            <View style={[styles.statusBarFill, { width: `${calculateCompletion(item)}%` }]} />
+                        </View>
+                      )}
                     </TouchableOpacity>
                   </View>
                 )}
@@ -207,6 +222,18 @@ const styles = StyleSheet.create({
         }
       })
     }, // End of scrollView
+
+    statusBar: {
+      backgroundColor: '#E0E0E0',
+      height: 20,
+      borderRadius: 5,
+      marginBottom: 10,
+    },
+    statusBarFill: {
+        height: '100%',
+        backgroundColor: '#64BBA1', 
+        borderRadius: 5,
+    },
 
     loadingIndicator: {
       marginTop: 300,
@@ -430,10 +457,11 @@ const styles = StyleSheet.create({
     }, // End of dailyRoutineItem
   
     dailyRoutineText: {
-      fontSize: 18,
+      fontSize: 22,
       fontFamily: 'Sofia-Sans',
       color: '#000000',
-      textAlign: 'center',
+      textAlign: "left",
+      marginBottom: 5
     }, // End of dailyRoutineText
   
   });
