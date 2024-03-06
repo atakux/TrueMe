@@ -140,13 +140,32 @@ const HomeScreen = () => {
                 renderCard={(item) => (
                   <View key={item.id} style={styles.dailyRoutinesCards}>
                     <TouchableOpacity onPress={() => handleRoutineClick(item)}>
-                      <Text style={styles.dailyRoutineText}>{item.title}</Text>
-                      {/* Status bar */}
-                      {item.title !== 'Add Routine' && (
-                        <View style={styles.statusBar}>
-                            <View style={[styles.statusBarFill, { width: `${calculateCompletion(item)}%` }]} />
-                        </View>
-                      )}
+                      <View>
+                        {/* Status bar */}
+                        {item.title !== 'Add Routine' ? (
+                          <View style={{justifyContent: 'space-between'}}>
+
+                            <View style={{flexDirection: 'row'}}>
+                              
+                              <View style={styles.leafIconContainer}>
+                                <Image source={require('../../../assets/icons/leaf-heart.png')}/>
+                              </View>
+
+                              <Text style={styles.dailyRoutineText}>{item.title}</Text>
+                            </View>
+
+                            <View style={styles.statusBarContainer}>
+                                <Text style={styles.statusBarText}>{calculateCompletion(item).toFixed(0)}%</Text>
+
+                                <View style={styles.statusBar}>
+                                  <View style={[styles.statusBarFill, { width: `${calculateCompletion(item)}%` }]} />
+                                </View>
+                            </View>
+                          </View>
+                        ) : (
+                          <Text style={styles.addRoutineText}>{item.title}</Text>
+                        ) }
+                      </View>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -223,16 +242,52 @@ const styles = StyleSheet.create({
       })
     }, // End of scrollView
 
-    statusBar: {
-      backgroundColor: '#E0E0E0',
-      height: 20,
-      borderRadius: 5,
-      marginBottom: 10,
+    leafIconContainer: {
+      borderRadius: 10, 
+      borderWidth: 1,
+      borderColor: '#AEAEAE',
+      padding: 5,
+      marginTop: 5,
+      marginBottom: 5,
+      marginRight: 5,
+      marginLeft: -8,
+      alignSelf: "flex-start",
+      bottom: 3,
     },
+
+    statusBar: {
+      alignSelf: "center",
+      backgroundColor: '#E0E0E0',
+      height: 10,
+      borderRadius: 50,
+      width: '70%', // Added width property
+    },
+
     statusBarFill: {
-        height: '100%',
-        backgroundColor: '#64BBA1', 
-        borderRadius: 5,
+      height: '90%',
+      backgroundColor: '#64BBA1',
+      borderRadius: 50,
+      width: '100%',
+    },
+
+    statusBarText: {
+      fontSize: 14,
+      fontFamily: 'Sofia-Sans',
+      color: '#000000',
+      textAlign: "left",
+      alignSelf: "flex-start",
+      marginRight: 2
+    },
+
+    statusBarContainer : {
+      width: '45%',
+      flexDirection: 'row',
+      backgroundColor: '#EBF5F5',
+      borderRadius: 10,
+      padding: 10,
+      bottom: 50,
+      alignSelf: "flex-end",
+      marginRight: -10
     },
 
     loadingIndicator: {
@@ -447,13 +502,14 @@ const styles = StyleSheet.create({
       backgroundColor: '#FFFFFF',
       borderRadius: 35,
       padding: 20,
-      marginBottom: 10,
       justifyContent: 'center',
       alignItems: 'center',
+      alignSelf: "center",
       shadowColor: 'black',
       shadowOffset: { width: 0, height: 3 },
       shadowOpacity: 0.25,
       elevation: 5,
+      marginHorizontal: 10,
     }, // End of dailyRoutineItem
   
     dailyRoutineText: {
@@ -461,8 +517,19 @@ const styles = StyleSheet.create({
       fontFamily: 'Sofia-Sans',
       color: '#000000',
       textAlign: "left",
-      marginBottom: 5
+      marginTop: 10,
+      marginBottom: 10,
+      marginRight: 10,
+      marginLeft: 2
     }, // End of dailyRoutineText
+
+    addRoutineText: {
+      fontSize: 22,
+      fontFamily: 'Sofia-Sans',
+      color: '#000000',
+      textAlign: "left",
+      marginBottom: 5
+    }, // End of addRoutineText
   
   });
 
