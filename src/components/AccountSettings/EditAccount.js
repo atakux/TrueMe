@@ -340,6 +340,17 @@ const styles = StyleSheet.create({
     right: 10,
     marginRight: 10,
     zIndex: 999,
+
+    ...Platform.select({
+      ios: {
+        marginTop: -25,
+        marginBottom: 10,
+      },
+      android: {
+        marginTop: 25,
+      }
+
+    })
 }, // End of closeButton
 
   imagesContainer: {
@@ -347,9 +358,11 @@ const styles = StyleSheet.create({
 
     ...Platform.select({
       ios: {
+        marginTop: -10,
         height: 290,
       },
       android: {
+        marginTop: -30,
         height: 325,
       },
     }),
@@ -371,7 +384,17 @@ const styles = StyleSheet.create({
     fontFamily: 'Sofia-Sans',
     color: '#000000',
     textAlign: "left",
-    padding: 10
+    padding: 10,
+
+    ...Platform.select({
+      ios: {
+        marginTop: -27,
+        marginBottom: 10,
+      },
+      android: {
+        marginTop: 23,
+      }
+    })
   }, // End of mainText
 
   labelText: {
