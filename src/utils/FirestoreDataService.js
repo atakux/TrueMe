@@ -199,7 +199,7 @@ const fetchProfileImage = async (userId) => {
 
     // Get the profile image URL from the document data
     const profileImageData = profileDocSnapshot.data();
-    if (profileImageData && profileImageData.banner) {
+    if (profileImageData && profileImageData.profileImg) {
       return profileImageData.profileImg;
     } else {
       console.log("DEBUG: Profile image URL not found in document");

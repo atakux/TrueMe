@@ -237,8 +237,8 @@ const styles = StyleSheet.create({
       },
 
       android: {
-        bottom: -65,
-        right: 5,
+        bottom: 2,
+        
       },
     }),
   }, // End of selectProfileIcon
