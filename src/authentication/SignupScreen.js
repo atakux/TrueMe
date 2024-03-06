@@ -112,8 +112,8 @@ const SignupScreen = () => {
       });
 
       const routineRef = collection(FIRESTORE_DB, "users", user.uid, "routines");
-      await addDoc(routineRef, {
-        id: 0,
+      const routineDocRef = doc(routineRef, "0");
+      await setDoc(routineDocRef, {
         title: "Add Routine",
         days: [0, 1, 2, 3, 4, 5, 6],
         steps: [],
