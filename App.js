@@ -12,6 +12,9 @@ import AddRoutine from './src/components/RoutinesScreens/AddRoutine';
 import Routine from './src/components/RoutinesScreens/Routine';
 import EditRoutine from './src/components/RoutinesScreens/EditRoutine';
 import EditAccount from './src/components/AccountSettings/EditAccount';
+import GetStarted from './src/components/SkinScreens/GetStarted';
+import DiagnosticScreen from './src/components/SkinScreens/DiagnosticScreen';
+import ResultScreen from './src/components/SkinScreens/ResultScreen';
 import TabBar from './src/utils/TabBar';
 
 const Stack = createStackNavigator();
@@ -31,6 +34,9 @@ export default function App() {
           <Stack.Screen name="Routine" component={Routine} options={{headerShown: false}}/>
           <Stack.Screen name="EditRoutine" component={EditRoutine} options={{headerShown: false}}/>
           <Stack.Screen name="EditAccount" component={EditAccount} options={{headerShown: false}}/>
+          <Stack.Screen name="GetStarted" component={GetStarted} options={{headerShown: false}}/>
+          <Stack.Screen name="DiagnosticScreen" component={DiagnosticScreen} options={{headerShown: false}}/>
+          <Stack.Screen name="ResultScreen" component={ResultScreen} options={{headerShown: false}}/>
         </Stack.Navigator>
       </NavigationContainer>
       <StatusBar style="auto" />

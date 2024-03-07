@@ -199,10 +199,10 @@ const ProfileScreen = () => {
 
           {/* Skin Diagnostic Test and Results buttons */}
           <View style={{flexDirection: "row", justifyContent: "space-evenly", marginTop: 20}}>
-            <TouchableOpacity onPress={() => console.log('DEBUG: skin diagnostic clicked')} style={styles.buttons}>
+            <TouchableOpacity onPress={() => navigation.navigate('GetStarted')} style={styles.buttons}>
               <Text style={styles.buttonText}>Skin Diagnostic Test</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => console.log('DEBUG: Skin Diagnostic results clicked')} style={styles.buttons}>
+            <TouchableOpacity onPress={() => navigation.navigate('ResultScreen')} style={styles.buttons}>
               <Text style={styles.buttonText}>Skin Diagnostic Results</Text>
             </TouchableOpacity>
           </View>

@@ -13,6 +13,7 @@ const Tab = createBottomTabNavigator();
 function TabBar() {
     return (
       <Tab.Navigator
+        initialRouteName="Home"
         screenOptions= {({ route }) => ({
             tabBarIcon: ({ focused }) => {
                 // Icon filled vs outlined depending on route
