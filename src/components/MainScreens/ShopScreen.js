@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Animated, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
@@ -15,23 +15,31 @@ const ShopScreen = () => {
   const user = useAuth();
   const [activeTab, setActiveTab] = useState('Button 1'); // Initial active tab
   const [skincareProducts, setSkincareProducts] = useState([]); // State to store fetched skincare products
+  const [makeupProducts, setMakeupProducts] = useState([]); // State to store fetched makeup products
   const axios = require('axios');
+  
+  const scrollY = useRef(new Animated.Value(0)).current;
+  
 
 //////////////////////////////////////////////////////////////
-// BE CAREFUL WITH THIS, API COSTS MONEY, DO NOT LOOP
+// BE CAREFUL WITH THIS, API COSTS MONEY, DO NOT LOOP, TURN OFF WHEN NOT NEEDED FOR TESTING
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const data = await fetchAmazonProductData("iphone");
-  //       setSkincareProducts(data.data); // Update state with fetched data
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchAmazonProductData("Skincare");
+        setSkincareProducts(data.data); // Update state with fetched data
 
-  //   fetchData();
-  // }, []);
+        const data1 = await fetchAmazonProductData("Makeup");
+        setMakeupProducts(data1.data); // Update state with fetched data
+
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
 /////////////////////////////////////////////////////////////
 
@@ -55,25 +63,59 @@ const ShopScreen = () => {
     setActiveTab(buttonName);
   };
 
+  const ProductItem = ({ imageUrl }) => {
+    return (
+      <View style={styles.productItemContainer}>
+        <Image
+          source={{ uri: imageUrl }}
+          style={styles.productimage}
+        />
+      </View>
+    );
+  };
+
+  const headerHeight = scrollY.interpolate({
+    inputRange: [0, 400], // Change 200 to the height you want your header to collapse to
+    outputRange: [460, 170], // Change 50 to the collapsed height of the header
+    extrapolate: 'clamp',
+  });
+  
+
+  const scale = scrollY.interpolate({
+    inputRange: [0, 300], // Change 200 to the height at which you want the animation to complete
+    outputRange: [1, 0.5], // Initial scale: 1, Scale to: 0.5
+    extrapolate: 'clamp', // Clamp values to avoid going beyond specified input range
+  });
+
+  const opacity = scrollY.interpolate({
+    inputRange: [0, 300], // Change 200 to the height at which you want the animation to complete
+    outputRange: [1, 0], // Initial opacity: 1, Opacity to: 0
+    extrapolate: 'clamp', // Clamp values to avoid going beyond specified input range
+  });
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <SafeAreaView>
+
+  <View style={{ flex: 1 }}>
 
 
+    {/* <Animated.View style={{ height: headerHeight, justifyContent: 'center', alignItems: 'center' }}> */}
+      
 
-        <View style={styles.imageContainer}>
+      <View style={{flex: 1, paddingTop: 50}}>
+        <Animated.View style={[styles.imageContainer, { transform: [{ scale }], opacity }]}>
           <Image
-            source={require('../../../assets/images/shop-backdrop.jpg')} // Change the path to your image
+            source={require('../../../assets/images/shop-backdrop.jpg')}
             style={styles.image}
-            resizeMode="cover" // You can adjust resizeMode as per your requirement
+            resizeMode="cover"
           />
           <View style={styles.overlay}>
             <Text style={styles.overlayText}> {'\n \n'} Find your next {'\n'}skincare product</Text>
             <Text style={styles.mainText}> Your Skin Profile: </Text>
           </View>
-        </View>
+        </Animated.View>
+      </View>
 
-      
+      <Animated.View style={{ height: headerHeight, justifyContent: 'flex-end', alignItems: 'center'}}>
 
         <View style={styles.textContainer}>
           <Text style={styles.titleText}> {'\n'}Products For You </Text>
@@ -94,7 +136,7 @@ const ShopScreen = () => {
           </TouchableOpacity>
           {/* Add more tabs as needed */}
         </View>
-
+        
         {/* Search bar */}
         <View style={styles.searchContainer}>
           <TextInput
@@ -106,23 +148,61 @@ const ShopScreen = () => {
 
 
 
-        {/* Render content based on active tab */}
+    </Animated.View>
+  
+    <ScrollView
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: false })}
+        scrollEventThrottle={16}
+      >
+
+
         {activeTab === 'Button 1' && (
-          <View style={styles.tabContent}>
+          <View style={styles.tabContentContainer}>
             {skincareProducts.slice(0, 10).map(product => (
-              <Text key={product.asin}>{product.title}</Text>
+              <View key={product.asin} style={styles.productContainer}>
+
+                <ProductItem imageUrl={product.image} />
+
+                <View style={styles.productTextContainer}>
+                  <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}{'\n'}</Text>
+                  <Text style={styles.productPrice}>{product.price}</Text>
+                  <Text style={styles.productRating}>Rating: {product.stars}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+        
+        {activeTab === 'Button 2' && (
+          <View style={styles.tabContentContainer}>
+            {makeupProducts.slice(0, 10).map(product => (
+              <View key={product.asin} style={styles.productContainer}>
+
+                <ProductItem imageUrl={product.image} />
+
+                <View style={styles.productTextContainer}>
+                  <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}{'\n'}</Text>
+                  <Text style={styles.productPrice}>{product.price}</Text>
+                  <Text style={styles.productRating}>Rating: {product.stars}</Text>
+                </View>
+              </View>
             ))}
           </View>
         )}
 
-        {activeTab === 'Button 2' && <View style={styles.tabContent}><Text>Makeup Products go Here</Text></View>}
+        {/* {activeTab === 'Button 1' && <View style={styles.tabContent}><Text>Skincare Products go Here</Text></View>} */}
+        {/* {activeTab === 'Button 2' && <View style={styles.tabContent}><Text>Makeup Products go Here</Text></View>} */}
 
-
-
-      </SafeAreaView>
     </ScrollView>
+  </View>
   );
 };
+
+
+
+
+
+
 
 // Styles
 
@@ -132,6 +212,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAFAFA",
     alignItems: 'center',
     paddingBottom: 50,
+    paddingTop: 50,
   }, // End of container
 
   mainText: {
@@ -215,6 +296,48 @@ const styles = StyleSheet.create({
     fontFamily: 'Sofia-Sans',
   },
 
+  tabContentContainer: {
+    minHeight: 375,
+    paddingBottom: 75,
+    marginTop: 10,
+    overflow: 'scroll',
+  },
+
+  productContainer: {
+    flexDirection: 'row', // Arrange children horizontally
+    alignItems: 'center', // Vertically center the items
+    backgroundColor: '#ffffff',
+    marginBottom: 10,
+    marginLeft: 7,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#cccccc',
+    width: 400,
+    height: 200,
+  },
+
+  productItemContainer: {
+    alignItems: 'left',
+  },
+
+  productTextContainer: {
+    flex: 1, // Take remaining space
+    marginLeft: 10, // Add some spacing between the image and text
+  },
+
+  productimage: {
+    width: 125,
+    height: 125,
+    resizeMode: 'contain',
+  },
+
+  productTitle: {
+    fontSize: 18,
+    fontFamily: 'Sofia-Sans',
+    color: '#000000',
+    fontWeight: 'bold',
+  },
+
   activeTab: {
     backgroundColor: 'lightgray',
   },
@@ -224,7 +347,7 @@ const styles = StyleSheet.create({
   },
 
   tabContent: {
-    height: 645, // Set the height to your desired fixed size
+    minHeight: 3000 , // Set the height to your desired fixed size
     padding: 20,
     backgroundColor: '#f0f0f0',
     marginTop: 10,
@@ -235,6 +358,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginTop: 0,
     marginBottom: 10,
+    width: 400,
   },
   searchInput: {
     backgroundColor: '#fff',
