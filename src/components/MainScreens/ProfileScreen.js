@@ -134,52 +134,51 @@ const ProfileScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.imagesContainer}>
-  {loading ? ( // Conditionally rendering loading indicator
-    <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
-  ) : bannerImage ? (
-    <View style={styles.imageContainerBanner}>
-      <Image source={{ uri: bannerImage }} style={styles.imageBanner} />
-      <View>
-        {loading ? (
+        {loading ? ( // Conditionally rendering loading indicator
           <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
-        ) : profileImage ? (
-          <View style={styles.profileImageContainer}>
-            <Image source={{ uri: profileImage }} style={styles.profileImage} />
+        ) : bannerImage ? (
+          <View style={styles.imageContainerBanner}>
+            <Image source={{ uri: bannerImage }} style={styles.imageBanner} />
+            <View>
+              {loading ? (
+                <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
+              ) : profileImage ? (
+                <View style={styles.profileImageContainer}>
+                  <Image source={{ uri: profileImage }} style={styles.profileImage} />
+                </View>
+              ) : (
+                <TouchableOpacity onPress={pickProfileImage}>
+                  <View style={styles.profileImageContainer}>
+                    <Image source={require('../../../assets/icons/add-photo.png')} style={styles.selectProfileIcon}/>
+                  </View>
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
         ) : (
-          <TouchableOpacity onPress={pickProfileImage}>
-            <View style={styles.profileImageContainer}>
-              <Image source={require('../../../assets/icons/add-photo.png')} style={styles.selectProfileIcon}/>
-            </View>
-          </TouchableOpacity>
+          <View style={styles.selectBannerImageContainer}>
+            <TouchableOpacity onPress={pickBannerImage}>
+              <Image source={require('../../../assets/icons/select.png')} style={styles.selectBannerIcon} />
+              <Text style={styles.imageButtonText}>Select Banner Image</Text>
+            </TouchableOpacity>
+            {loading ? (
+              <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
+            ) : profileImage ? (
+              <TouchableOpacity onPress={pickProfileImage}>
+                <View style={styles.profileImageContainer}>
+                  <Image source={{ uri: profileImage }} style={styles.profileImage} />
+                </View>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity onPress={pickProfileImage}>
+                <View style={styles.profileImageContainer}>
+                  <Image source={require('../../../assets/icons/add-photo.png')} style={styles.selectProfileIcon}/>
+                </View>
+              </TouchableOpacity>
+            )}
+          </View>
         )}
       </View>
-    </View>
-  ) : (
-    <View style={styles.selectBannerImageContainer}>
-      <TouchableOpacity onPress={pickBannerImage}>
-        <Image source={require('../../../assets/icons/select.png')} style={styles.selectBannerIcon} />
-        <Text style={styles.imageButtonText}>Select Banner Image</Text>
-      </TouchableOpacity>
-      {loading ? (
-        <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
-      ) : profileImage ? (
-        <TouchableOpacity onPress={pickProfileImage}>
-          <View style={styles.profileImageContainer}>
-            <Image source={{ uri: profileImage }} style={styles.profileImage} />
-          </View>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity onPress={pickProfileImage}>
-          <View style={styles.profileImageContainer}>
-            <Image source={require('../../../assets/icons/add-photo.png')} style={styles.selectProfileIcon}/>
-          </View>
-        </TouchableOpacity>
-      )}
-    </View>
-  )}
-</View>
-
       
       <View>
         <Text style={styles.mainText}>{user.displayName}</Text>
@@ -209,7 +208,7 @@ const ProfileScreen = () => {
           </View>
         
           {/* About us buttos */}
-          <View style={{flexDirection: "row", justifyContent: "space-evenly", marginTop: 20}}>
+          <View style={{flexDirection: "row", justifyContent: "space-evenly", marginTop: 20, marginBottom: 30}}>
             <TouchableOpacity onPress={() => console.log('DEBUG: about us clicked')} style={styles.buttons}>
               <Text style={styles.buttonText}>About Us</Text>
             </TouchableOpacity>
