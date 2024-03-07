@@ -60,7 +60,7 @@ const originalWarn = console.warn;
 
 console.warn = (...args) => {
   const [firstArg] = args;
-  if (typeof firstArg === 'string' && firstArg.startsWith('Non-serializable values')) {
+  if (typeof firstArg === 'string' && firstArg.startsWith('Non-serializable values') || firstArg.startsWith('Key "cancelled" in the image picker')) {
     // Suppress the warning
     return;
   }
