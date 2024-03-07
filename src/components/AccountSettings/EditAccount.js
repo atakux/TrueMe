@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, SafeAreaView, View, Text, Modal, TouchableOpacity, Image, ActivityIndicator, Platform, TextInput, TouchableWithoutFeedback } from 'react-native';
 
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName, EmailAuthProvider } from 'firebase/auth';
 import { updateProfile, reauthenticateWithCredential, updatePassword } from 'firebase/auth'; // Import reauthenticateWithCredential and updatePassword from firebase auth
 
@@ -14,6 +14,8 @@ const EditAccount = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
   const user = useAuth();
+  const isFocused = useIsFocused(); 
+
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false); // Added loading state
 
@@ -40,14 +42,37 @@ const EditAccount = () => {
     setPasswordErrors([]);
   };
 
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true); // Set loading to true while fetching image
+      // Fetch the latest banner image URL for the user
+      const bannerImageUrl = await fetchBannerImage(user.uid);
+      if (bannerImageUrl) {
+        setBannerImage(bannerImageUrl);
+      }
+      // Fetch the latest profile image URL for the user
+      const profileImageUrl = await fetchProfileImage(user.uid);
+      if (profileImageUrl) {
+        setProfileImage(profileImageUrl);
+      }
+    } catch (error) {
+      console.error('Error fetching images: ', error);
+    } finally {
+      setLoading(false); // Set loading back to false after fetch completes
+    }
+  }, [user]);
 
   useEffect(() => {
     const loadAsyncData = async () => {
-        await loadFonts();
-        setFontLoaded(true);
+      await loadFonts();
+      setFontLoaded(true);
     };
-  
+
     loadAsyncData();
+
+    if (user) {
+      fetchData(); // Fetch data when user is available
+    }
 
     const fetchBanner = async () => {
       try {
@@ -83,7 +108,7 @@ const EditAccount = () => {
       fetchBanner(); // Fetch the banner image when user is available
       fetchProfile(); // Fetch the profile image when user is available
     }
-  }, [user]);
+  }, [user, fetchData, isFocused]);
 
   const pickBannerImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -271,42 +296,60 @@ const EditAccount = () => {
         </View>
 
         <View style={styles.imagesContainer}>
-            {loading ? (
-                <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
-            ) : bannerImage ? (
-                <View style={styles.imageContainerBanner}>
-                    <Image source={{ uri: bannerImage }} style={styles.imageBanner} />
-                    <TouchableOpacity style={styles.selectBannerImageTinyIconButton} onPress={pickBannerImage}>
-                        <Image source={require('../../../assets/icons/selectTiny.png')} style={styles.selectBannerIconTiny} />
+          {loading ? (
+            <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
+          ) : bannerImage ? (
+            <View style={styles.imageContainerBanner}>
+              <Image source={{ uri: bannerImage }} style={styles.imageBanner} />
+              <TouchableOpacity style={styles.selectBannerImageTinyIconButton} onPress={pickBannerImage}>
+                <Image source={require('../../../assets/icons/selectTiny.png')} style={styles.selectBannerIconTiny} />
+              </TouchableOpacity>
+              <View>
+                {loading ? (
+                  <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
+                ) : profileImage ? (
+                  <View style={styles.profileImageContainer}>
+                    <Image source={{ uri: profileImage }} style={styles.profileImage} />
+                    <TouchableOpacity style={styles.selectProfileImageTinyIconButton} onPress={pickProfileImage}>
+                      <Image source={require('../../../assets/icons/add-photoTiny.png')} style={styles.selectProfileIconTiny} />
                     </TouchableOpacity>
-                    <View>
-                        {loading ? (
-                            <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
-                        ) : profileImage ? (
-                            <View style={styles.profileImageContainer}>
-                                <Image source={{ uri: profileImage }} style={styles.profileImage} />
-                                <TouchableOpacity style={styles.selectProfileImageTinyIconButton} onPress={pickProfileImage}>
-                                    <Image source={require('../../../assets/icons/add-photoTiny.png')} style={styles.selectProfileIconTiny} />
-                                </TouchableOpacity>
-                            </View>
-                        ) : (
-                            <TouchableOpacity onPress={pickProfileImage}>
-                                <View style={styles.profileImageContainer}>
-                                    <Image source={require('../../../assets/icons/add-photo.png')} style={styles.selectProfileIcon}/>
-                                </View>
-                            </TouchableOpacity>
-                        )}
+                  </View>
+                ) : (
+                  <TouchableOpacity onPress={pickProfileImage}>
+                    <View style={styles.profileImageContainer}>
+                      <Image source={require('../../../assets/icons/add-photo.png')} style={styles.selectProfileIcon}/>
                     </View>
-                </View>
-            ) : (
-                <View style={styles.selectBannerImageContainer}>
-                    <TouchableOpacity onPress={pickBannerImage}>
-                        <Image source={require('../../../assets/icons/select.png')} style={styles.selectBannerIcon} />
-                        <Text style={styles.buttonText}>Select Banner Image</Text>
-                    </TouchableOpacity>
-                </View>
-            )}
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+        ) : (
+          <View style={styles.selectBannerImageContainer}>
+            <TouchableOpacity onPress={pickBannerImage}>
+              <Image source={require('../../../assets/icons/select.png')} style={styles.selectBannerIcon} />
+              <Text style={styles.buttonText}>Select Banner Image</Text>
+            </TouchableOpacity>
+            <View>
+              {loading ? (
+                <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
+              ) : profileImage ? (
+                <TouchableOpacity onPress={pickProfileImage}>
+                  <View style={styles.profileImageContainerSelect}>
+                    <Image source={{ uri: profileImage }} style={styles.profileImage} />
+                  </View>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity onPress={pickProfileImage}>
+                  <View style={styles.profileImageContainerSelect}>
+                    <Image source={require('../../../assets/icons/add-photo.png')} style={styles.selectProfileIcon}/>
+                  </View>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+          )}
         </View>
+
         
         <View>
           <View style={styles.inputContainer}>
@@ -585,6 +628,21 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   }, // End of loadingIndicator
 
+  // Profile Picture
+  profileImageContainerSelect: {
+    position: 'absolute',
+    width: 150,
+    height: 150,
+    borderRadius: 100,
+    borderColor: '#7FB876',
+    borderWidth: 1,
+    backgroundColor: '#EBF5F5',
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignSelf: "center",
+    top: 10,
+  }, // End of profileImageContainerSelect
+
   profileImageContainer: {
     position: 'absolute',
     width: 150,
@@ -659,6 +717,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: "center",
+
+    ...Platform.select({
+      ios: {
+        marginTop: 5,
+      },
+
+      android: {
+        marginTop: 35,
+      },
+    })
   }, // End of selectBannerImageContainer
 
   selectBannerIconTiny: {
