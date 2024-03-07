@@ -165,13 +165,13 @@ const ProfileScreen = () => {
               <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
             ) : profileImage ? (
               <TouchableOpacity onPress={pickProfileImage}>
-                <View style={styles.profileImageContainer}>
+                <View style={styles.profileImageContainerSelect}>
                   <Image source={{ uri: profileImage }} style={styles.profileImage} />
                 </View>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity onPress={pickProfileImage}>
-                <View style={styles.profileImageContainer}>
+                <View style={styles.profileImageContainerSelect}>
                   <Image source={require('../../../assets/icons/add-photo.png')} style={styles.selectProfileIcon}/>
                 </View>
               </TouchableOpacity>
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
   }, // End of loadingIndicator
 
   // Profile Picture
-  profileImageContainer: {
+  profileImageContainerSelect: {
     position: 'absolute',
     width: 150,
     height: 150,
@@ -310,6 +310,28 @@ const styles = StyleSheet.create({
       },
       android: {
         top: -5,
+      },
+    }),
+  }, // End of profileImageContainerSelect
+
+  profileImageContainer: {
+    position: 'absolute',
+    width: 150,
+    height: 150,
+    borderRadius: 100,
+    borderColor: '#7FB876',
+    borderWidth: 1,
+    backgroundColor: '#EBF5F5',
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignSelf: "center",
+
+    ...Platform.select({
+      ios: {
+        top: -80,
+      },
+      android: {
+        top: -80,
       },
     }),
   }, // End of profileImageContainer
