@@ -131,13 +131,25 @@ const styles = StyleSheet.create({
     },
 
     moreInfo: {
-        width: screenWidth - 250,
-        height: 250,
         alignSelf: "flex-start",
         backgroundColor: "#D4CCDD",
         borderRadius: 10,
-        margin: 30,
-        marginRight: 35,
+
+        ...Platform.select({
+            ios: {
+                width: screenWidth - 250,
+                height: 250,
+                margin: 30,
+                marginRight: 35,
+            },
+
+            android: {
+                width: screenWidth - 220,
+                height: 250,
+                margin: 20,
+                marginRight: 25,
+            }
+        })
     },
 
     moreInfoText: {
@@ -218,7 +230,15 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         justifyContent: 'center',
         alignItems: 'center',
-        marginHorizontal: 15,
+
+        ...Platform.select({
+            ios: {
+                marginHorizontal: 15,
+            },
+            android: {
+                marginHorizontal: 3,
+            }
+        }),
     },
 
     title: {
