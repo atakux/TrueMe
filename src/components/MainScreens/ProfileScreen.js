@@ -9,18 +9,19 @@ import { FIREBASE_AUTH } from "../../../firebase";
 
 import { loadFonts } from '../../utils/FontLoader'; 
 import { useAuth } from '../../utils/AuthContext';
-import { uploadBannerImage, fetchBannerImage, uploadProfileImage, fetchProfileImage } from '../../utils/FirestoreDataService'; // Import fetchLatestBannerImage function
-import * as ImagePicker from 'expo-image-picker';
+import { fetchBannerImage, fetchProfileImage } from '../../utils/FirestoreDataService';
 
 const ProfileScreen = () => {
   const auth = FIREBASE_AUTH;
-  const [fontLoaded, setFontLoaded] = useState(false);
-  const navigation = useNavigation();
-  const isFocused = useIsFocused(); // Hook to determine if screen is focused
   const user = useAuth();
+  const navigation = useNavigation();
+
+  const isFocused = useIsFocused(); 
+  const [fontLoaded, setFontLoaded] = useState(false);
+  const [loading, setLoading] = useState(false); // Added loading state
+  
   const [bannerImage, setBannerImage] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
-  const [loading, setLoading] = useState(false); // Added loading state
 
   const fetchData = useCallback(async () => {
     try {
@@ -59,7 +60,9 @@ const ProfileScreen = () => {
   };
 
   const handleLogout = async () => {
+    // Handle logout logic 
     try {
+      setLoading(true);
       await signOut(
         auth,
         user
@@ -69,57 +72,10 @@ const ProfileScreen = () => {
 
       navigation.navigate('LaunchScreen')
     } catch (error) {
+      setLoading(false);
       console.error('Error signing out: ', error);
-    }
-  };
-
-  const pickBannerImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [10, 10],
-      quality: 1,
-      canceled: false
-    });
-  
-    console.log(result);
-  
-    if (!result.canceled) {
-      setLoading(true); // Set loading to true while uploading image
-      setBannerImage(result.assets[0].uri);
-      // Call uploadBannerImage function to save the image to Firestore
-      try {
-        await uploadBannerImage(user.uid, result.assets[0].uri);
-      } catch (error) {
-        console.error('Error uploading image: ', error);
-      } finally {
-        setLoading(false); // Set loading back to false after upload completes
-      }
-    }
-  };
-
-  const pickProfileImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [10, 10],
-      quality: 1,
-      canceled: false
-    });
-  
-    console.log(result);
-  
-    if (!result.canceled) {
-      setLoading(true); // Set loading to true while uploading image
-      setProfileImage(result.assets[0].uri);
-      // Call uploadBannerImage function to save the image to Firestore
-      try {
-        await uploadProfileImage(user.uid, result.assets[0].uri);
-      } catch (error) {
-        console.error('Error uploading image: ', error);
-      } finally {
-        setLoading(false); // Set loading back to false after upload completes
-      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -184,11 +140,8 @@ const ProfileScreen = () => {
             </TouchableOpacity>
           </View>
         
-          {/* Payment Information and About us buttons */}
+          {/* About us buttos */}
           <View style={{flexDirection: "row", justifyContent: "space-evenly", marginTop: 20}}>
-            <TouchableOpacity onPress={() => console.log('DEBUG: payment info clicked')} style={styles.buttons}>
-              <Text style={styles.buttonText}>Payment Information</Text>
-            </TouchableOpacity>
             <TouchableOpacity onPress={() => console.log('DEBUG: about us clicked')} style={styles.buttons}>
               <Text style={styles.buttonText}>About Us</Text>
             </TouchableOpacity>
@@ -223,7 +176,7 @@ const styles = StyleSheet.create({
         marginBottom: 100
       }
     })
-  },
+  }, // End of scrollView
 
   buttonsContainer: {
     flex: 1,

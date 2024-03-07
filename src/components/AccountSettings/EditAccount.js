@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, Modal, TouchableOpacity, Image, ActivityIndicator, Platform, TextInput, RefreshControlComponent } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, Modal, TouchableOpacity, Image, ActivityIndicator, Platform, TextInput, TouchableWithoutFeedback } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName, EmailAuthProvider } from 'firebase/auth';
@@ -15,10 +15,10 @@ const EditAccount = () => {
   const navigation = useNavigation();
   const user = useAuth();
   const [errors, setErrors] = useState([]);
+  const [loading, setLoading] = useState(false); // Added loading state
 
   const [bannerImage, setBannerImage] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
-  const [loading, setLoading] = useState(false); // Added loading state
   
   const [editingDisplayName, setEditingDisplayName] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState('');
@@ -37,6 +37,7 @@ const EditAccount = () => {
   // Function to toggle modal visibility
   const toggleEditPasswordModal = () => {
     setIsEditPasswordModalVisible(!isEditPasswordModalVisible);
+    setPasswordErrors([]);
   };
 
 
@@ -158,6 +159,8 @@ const EditAccount = () => {
       setPWLoading(true);
 
       if (newPassword === '' && confirmPassword === '' && currentPassword === '') {
+        setPasswordErrors(['Please enter new password or cancel']);
+        setLoading(false);
         return;
       } else if (newPassword !== confirmPassword) {
         setPasswordErrors(['New password & confirm password must match']);
@@ -256,7 +259,7 @@ const EditAccount = () => {
         <View style={styles.closeButtonContainer}>
           <Text style={styles.mainText}>Edit Account</Text>
           <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-              <Image source={require('../../../assets/icons/close.png')} style={styles.closeButtonImage} />
+              <Image source={require('../../../assets/icons/close.png')} style={styles.closeIcon} />
           </TouchableOpacity>
 
           {/* Error Message */}
@@ -370,54 +373,56 @@ const EditAccount = () => {
           transparent={true}
           visible={isEditPasswordModalVisible}
           onRequestClose={toggleEditPasswordModal}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              {PWLoading ? (
-                <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
-              ) : (
-                <View>
-                  {/* Error Message */}
-                  {passwordErrors.map((error, index) => (
-                      <Text key={index} style={styles.errorMessage}>
-                          {" ▸ " + error}
-                      </Text>
-                  ))}
+          <TouchableWithoutFeedback onPress={() => setIsEditPasswordModalVisible(false)}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                {PWLoading ? (
+                  <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
+                ) : (
+                  <View>
+                    {/* Error Message */}
+                    {passwordErrors.map((error, index) => (
+                        <Text key={index} style={styles.errorMessage}>
+                            {" ▸ " + error}
+                        </Text>
+                    ))}
 
-                  <Text style={styles.labelText}>Current Password</Text>
-                  <TextInput
-                    style={styles.pwInputText}
-                    placeholder="Enter current password"
-                    secureTextEntry={true}
-                    onChangeText={setCurrentPassword}
-                    value={currentPassword}
-                  />
-                  <Text style={styles.labelText}>New Password</Text>
-                  <TextInput
-                    style={styles.pwInputText}
-                    placeholder="Enter new password"
-                    secureTextEntry={true}
-                    onChangeText={setNewPassword}
-                    value={newPassword}
-                  />
-                  <Text style={styles.labelText}>Confirm New Password</Text>
-                  <TextInput
-                    style={styles.pwInputText}
-                    placeholder="Confirm new password"
-                    secureTextEntry={true}
-                    onChangeText={setConfirmPassword}
-                    value={confirmPassword}
-                  />
+                    <Text style={styles.labelText}>Current Password</Text>
+                    <TextInput
+                      style={styles.pwInputText}
+                      placeholder="Enter current password"
+                      secureTextEntry={true}
+                      onChangeText={setCurrentPassword}
+                      value={currentPassword}
+                    />
+                    <Text style={styles.labelText}>New Password</Text>
+                    <TextInput
+                      style={styles.pwInputText}
+                      placeholder="Enter new password"
+                      secureTextEntry={true}
+                      onChangeText={setNewPassword}
+                      value={newPassword}
+                    />
+                    <Text style={styles.labelText}>Confirm New Password</Text>
+                    <TextInput
+                      style={styles.pwInputText}
+                      placeholder="Confirm new password"
+                      secureTextEntry={true}
+                      onChangeText={setConfirmPassword}
+                      value={confirmPassword}
+                    />
 
-                  <TouchableOpacity style={styles.savePasswordButton} onPress={handleUpdatePassword}>
-                    <Text style={styles.savePasswordButtonText}>Save</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.cancelButton} onPress={toggleEditPasswordModal}>
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
+                    <TouchableOpacity style={styles.savePasswordButton} onPress={handleUpdatePassword}>
+                      <Text style={styles.savePasswordButtonText}>Save</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.cancelButton} onPress={toggleEditPasswordModal}>
+                      <Text style={styles.cancelButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
             </View>
-          </View>
+          </TouchableWithoutFeedback>
         </Modal>
 
         <View style={styles.bottomPanel}>
@@ -472,7 +477,7 @@ const styles = StyleSheet.create({
   closeButtonContainer: {
     width: "100%",
     marginTop: 20,
-  },
+  }, // End of closeButtonContainer
 
   closeButton: {
     position: 'absolute', 
@@ -506,7 +511,7 @@ const styles = StyleSheet.create({
         height: 325,
       },
     }),
-  },
+  }, // End of imagesContainer
 
   errorMessage: {
     fontSize: 14,
@@ -544,7 +549,7 @@ const styles = StyleSheet.create({
     textAlign: "left",
     paddingTop: 10,
     paddingLeft: 10
-  },
+  }, // End of labelText
 
   inputText: {
     fontSize: 20,
@@ -565,6 +570,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#64BBA1",
     padding: 5,
+    paddingLeft: 10,
   }, // End of inputText
 
   previousText: {
@@ -572,7 +578,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Sofia-Sans',
     color: '#7FB876',
     textAlign: "left",
-  },
+  }, // End of previousText
 
   loadingIndicator: {
     marginTop: 100,
@@ -768,34 +774,35 @@ const styles = StyleSheet.create({
   }, // End of editIcon
 
   editButton: {
-    backgroundColor: '#64BBA1',
+    backgroundColor: '#804396',
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 24,
+    alignItems: 'center',
     alignSelf: 'center',
     marginTop: 20,
-  },
+  }, // End of editButton
 
   editButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontFamily: 'Sofia-Sans',
     textAlign: 'center',
-  },
+  }, // End of editButtonText
 
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
+  }, // End of modalContainer
 
   modalContent: {
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
     padding: 20,
     width: '80%',
-  },
+  }, // End of modalContent
 
   modalTitle: {
     fontSize: 20,
@@ -803,38 +810,37 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 20,
     textAlign: 'center',
-  },
+  }, // End of modalTitle
 
   savePasswordButton: {
-    backgroundColor: '#64BBA1',
+    backgroundColor: '#804396',
     borderRadius: 8,
     paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingHorizontal: 40,
     alignSelf: 'center',
-    margin: 10,
-  },
+    margin: 15,
+    marginBottom: 5,
+  }, // End of savePasswordButton
+
   savePasswordButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: 'Sofia-Sans',
     textAlign: 'center',
-  },
+  }, // End of savePasswordButton
 
-  cancelButton: {
-    backgroundColor: '#CCCCCC',
+  cancelButton: {    
     borderRadius: 8,
     paddingVertical: 12,
-    paddingHorizontal: 24,
     alignSelf: 'center',
-    marginBottom: 10,
-  },
+  }, // End of cancelButton
 
   cancelButtonText: {
-    color: '#333333',
-    fontSize: 16,
+    color: '#804396',
+    fontSize: 17,
     fontFamily: 'Sofia-Sans',
     textAlign: 'center',
-  },
+  }, // End of cancelButton
 
 
 }); // End of Stylesheet
