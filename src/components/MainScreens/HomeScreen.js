@@ -66,7 +66,7 @@ const HomeScreen = () => {
   };
 
   const handleCameraClick = () => {
-    console.log("DEBUG: Camera clicked");
+    navigation.navigate('GetStarted');
   };
   
   // Function to refresh the Swiper component when a routine is deleted

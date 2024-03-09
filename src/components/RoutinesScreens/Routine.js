@@ -239,16 +239,16 @@ const styles = StyleSheet.create({
         width: '90%',
         margin: 10,
         marginHorizontal: 20
-      },
+    },
   
-      statusBarFill: {
+    statusBarFill: {
         height: '100%',
         backgroundColor: '#64BBA1',
         borderRadius: 50,
         width: '100%',
-      },
+    },
   
-      statusBarText: {
+    statusBarText: {
         fontSize: 18,
         fontFamily: 'Sofia-Sans',
         color: '#000000',
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
         margin: 5,
         marginTop: 30,
         marginLeft: 20
-      },
+    },
 
     loadingIndicator: {
         marginTop: 300,
