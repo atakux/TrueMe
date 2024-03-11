@@ -88,7 +88,7 @@ const ShopScreen = () => {
   });
 
   const opacity = scrollY.interpolate({
-    inputRange: [0, 300], // Change 200 to the height at which you want the animation to complete
+    inputRange: [0, 400], // Change 200 to the height at which you want the animation to complete
     outputRange: [1, 0], // Initial opacity: 1, Opacity to: 0
     extrapolate: 'clamp', // Clamp values to avoid going beyond specified input range
   });
