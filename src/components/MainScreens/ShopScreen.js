@@ -137,7 +137,13 @@ const ShopScreen = () => {
             style={styles.searchInput}
             placeholder="Search..."
             onChangeText={(text) => setSearchQuery(text)} // Update searchQuery state with user input
+            value={searchQuery} // Bind the value of the TextInput to the state
           />
+          {searchQuery !== '' && (
+            <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearButton}>
+            <Text style={styles.clearButtonText}>X</Text>
+          </TouchableOpacity>
+          )}
         </View>
       </Animated.View>
   
@@ -305,6 +311,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     fontWeight: 'bold',
   },
+
+  clearButton: {
+    position: 'absolute',
+    right: 25,
+    top: '50%',
+    transform: [{ translateY: -15 }],
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  clearButtonText: {
+    color: '#333', // Change the color of the X icon
+    fontSize: 20, // Adjust the font size of the X icon
+    fontWeight: 'bold', // Make the X icon bold
+  },
+  
+  
 });
 
 export default ShopScreen;
