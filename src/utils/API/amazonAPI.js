@@ -10,7 +10,7 @@ async function fetchAmazonProductData(keyword) {
       country: 'US'
     },
     headers: {
-      'X-RapidAPI-Key': '',
+      'X-RapidAPI-Key': 'a10775d76emshc5661dda24ba8d4p18181bjsn0425c5258680',
       'X-RapidAPI-Host': 'amazon-product-data6.p.rapidapi.com'
     }
   };

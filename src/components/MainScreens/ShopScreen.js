@@ -9,6 +9,7 @@ import { useAuth } from '../../utils/AuthContext';
 import fetchAmazonProductData from '../../utils/API/amazonAPI';
 
 
+
 const ShopScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
@@ -16,14 +17,13 @@ const ShopScreen = () => {
   const [activeTab, setActiveTab] = useState('Button 1'); // Initial active tab
   const [skincareProducts, setSkincareProducts] = useState([]); // State to store fetched skincare products
   const [makeupProducts, setMakeupProducts] = useState([]); // State to store fetched makeup products
+  const [searchQuery, setSearchQuery] = useState(''); // State to manage search query
   const axios = require('axios');
   
   const scrollY = useRef(new Animated.Value(0)).current;
   
 
-//////////////////////////////////////////////////////////////
-// BE CAREFUL WITH THIS, API COSTS MONEY, DO NOT LOOP, TURN OFF WHEN NOT NEEDED FOR TESTING
-
+  // Fetch data from API
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -41,9 +41,7 @@ const ShopScreen = () => {
     fetchData();
   }, []);
 
-/////////////////////////////////////////////////////////////
-
-
+  // Load fonts and check user authentication
   useEffect(() => {
     const loadAsyncData = async () => {
       await loadFonts();
@@ -53,16 +51,19 @@ const ShopScreen = () => {
     loadAsyncData();
   }, []);
 
-  if (!fontLoaded || !user) {
-    // Font is still loading or user not logged in, you can return a loading indicator or null
-    return null;
-  }
-
+  // Function to handle button click
   const handleButtonClick = (buttonName) => {
-    // Handle button click here
     setActiveTab(buttonName);
   };
 
+  // Function to filter products based on search query
+  const filterProducts = (products, query) => {
+    return products.filter(product =>
+      product.title.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  // Rendered product item
   const ProductItem = ({ imageUrl }) => {
     return (
       <View style={styles.productItemContainer}>
@@ -74,33 +75,29 @@ const ShopScreen = () => {
     );
   };
 
+  // Interpolated header height
   const headerHeight = scrollY.interpolate({
-    inputRange: [0, 400], // Change 200 to the height you want your header to collapse to
-    outputRange: [460, 170], // Change 50 to the collapsed height of the header
+    inputRange: [0, 400],
+    outputRange: [460, 170],
     extrapolate: 'clamp',
   });
-  
 
+  // Interpolated scale
   const scale = scrollY.interpolate({
-    inputRange: [0, 300], // Change 200 to the height at which you want the animation to complete
-    outputRange: [1, 0.5], // Initial scale: 1, Scale to: 0.5
-    extrapolate: 'clamp', // Clamp values to avoid going beyond specified input range
+    inputRange: [0, 300],
+    outputRange: [1, 0.5],
+    extrapolate: 'clamp',
   });
 
+  // Interpolated opacity
   const opacity = scrollY.interpolate({
-    inputRange: [0, 400], // Change 200 to the height at which you want the animation to complete
-    outputRange: [1, 0], // Initial opacity: 1, Opacity to: 0
-    extrapolate: 'clamp', // Clamp values to avoid going beyond specified input range
+    inputRange: [0, 400],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
   });
 
   return (
-
-  <View style={{ flex: 1 }}>
-
-
-    {/* <Animated.View style={{ height: headerHeight, justifyContent: 'center', alignItems: 'center' }}> */}
-      
-
+    <View style={{ flex: 1 }}>
       <View style={{flex: 1, paddingTop: 50}}>
         <Animated.View style={[styles.imageContainer, { transform: [{ scale }], opacity }]}>
           <Image
@@ -116,7 +113,6 @@ const ShopScreen = () => {
       </View>
 
       <Animated.View style={{ height: headerHeight, justifyContent: 'flex-end', alignItems: 'center'}}>
-
         <View style={styles.textContainer}>
           <Text style={styles.titleText}> {'\n'}Products For You </Text>
         </View>
@@ -134,35 +130,26 @@ const ShopScreen = () => {
           >
             <Text style={[styles.tabText, activeTab === 'Button 2' && styles.activeTabText]}>Makeup</Text>
           </TouchableOpacity>
-          {/* Add more tabs as needed */}
         </View>
         
-        {/* Search bar */}
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
             placeholder="Search..."
-            onChangeText={(text) => console.log(text)} // Handle text change
+            onChangeText={(text) => setSearchQuery(text)} // Update searchQuery state with user input
           />
         </View>
-
-
-
-    </Animated.View>
+      </Animated.View>
   
-    <ScrollView
+      <ScrollView
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: false })}
         scrollEventThrottle={16}
       >
-
-
         {activeTab === 'Button 1' && (
           <View style={styles.tabContentContainer}>
-            {skincareProducts.slice(0, 10).map(product => (
+            {filterProducts(skincareProducts, searchQuery).slice(0, 10).map(product => (
               <View key={product.asin} style={styles.productContainer}>
-
                 <ProductItem imageUrl={product.image} />
-
                 <View style={styles.productTextContainer}>
                   <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}{'\n'}</Text>
                   <Text style={styles.productPrice}>{product.price}</Text>
@@ -175,11 +162,9 @@ const ShopScreen = () => {
         
         {activeTab === 'Button 2' && (
           <View style={styles.tabContentContainer}>
-            {makeupProducts.slice(0, 10).map(product => (
+            {filterProducts(makeupProducts, searchQuery).slice(0, 10).map(product => (
               <View key={product.asin} style={styles.productContainer}>
-
                 <ProductItem imageUrl={product.image} />
-
                 <View style={styles.productTextContainer}>
                   <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}{'\n'}</Text>
                   <Text style={styles.productPrice}>{product.price}</Text>
@@ -189,18 +174,10 @@ const ShopScreen = () => {
             ))}
           </View>
         )}
-
-        {/* {activeTab === 'Button 1' && <View style={styles.tabContent}><Text>Skincare Products go Here</Text></View>} */}
-        {/* {activeTab === 'Button 2' && <View style={styles.tabContent}><Text>Makeup Products go Here</Text></View>} */}
-
-    </ScrollView>
-  </View>
+      </ScrollView>
+    </View>
   );
 };
-
-
-
-
 
 
 
@@ -208,104 +185,82 @@ const ShopScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
     backgroundColor: "#FAFAFA",
-    alignItems: 'center',
-    paddingBottom: 50,
     paddingTop: 50,
-  }, // End of container
-
-  mainText: {
-    fontSize: 18,
-    fontFamily: 'Sofia-Sans',
-    color: '#000000',
-    textAlign: "center",
-  }, // End of mainText
-
-  titleText: {
-    fontSize: 32,
-    fontFamily: 'Sofia-Sans',
-    color: '#000000',
-    textAlign: "center",
-  }, // End of mainText
-
-  buttons: {
-    width: 159,
-    height: 82,
-    backgroundColor: '#D0F2DA',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#7FB876',
-    justifyContent: 'center',
+    paddingBottom: 50,
     alignItems: 'center',
-  }, // End of buttons
-
+  },
+  text: {
+    fontFamily: 'Sofia-Sans',
+    color: '#000000',
+  },
+  mainText: {
+    ...this.text,
+    fontSize: 18,
+    textAlign: "center",
+  },
+  titleText: {
+    ...this.text,
+    fontSize: 32,
+    textAlign: "center",
+  },
   button: {
     backgroundColor: 'blue',
     padding: 10,
     borderRadius: 5,
   },
-
   buttonText: {
+    ...this.text,
     fontSize: 32,
-    fontFamily: 'Sofia-Sans',
     color: '#64BBA1',
     textAlign: "center",
-  }, // End of buttonText
-
+  },
   imageContainer: {
     alignItems: 'center',
-    height: 300, // Adjust the height of the image container as per your image size
-    width: 415,
+    height: 300,
+    width: '100%',
   },
-
   image: {
     flex: 1,
     width: '95%',
     height: '90%',
   },
-
   overlay: {
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
   },
-
   overlayText: {
+    ...this.text,
     fontSize: 32,
-    fontFamily: 'Sofia-Sans',
     color: '#64BBA1',
   },
-
   tabContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
     marginBottom: 20,
   },
-
   tabButton: {
     paddingVertical: 6,
     paddingHorizontal: 60,
+    marginHorizontal: 5,
+    backgroundColor: "white",
     borderRadius: 5,
-    borderWidth: 1,
     borderColor: 'black',
   },
-
   tabText: {
     fontWeight: 'bold',
     fontSize: 18,
-    fontFamily: 'Sofia-Sans',
+    ...this.text,
   },
-
   tabContentContainer: {
     minHeight: 375,
     paddingBottom: 75,
     marginTop: 10,
     overflow: 'scroll',
   },
-
   productContainer: {
-    flexDirection: 'row', // Arrange children horizontally
-    alignItems: 'center', // Vertically center the items
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#ffffff',
     marginBottom: 10,
     marginLeft: 7,
@@ -315,45 +270,26 @@ const styles = StyleSheet.create({
     width: 400,
     height: 200,
   },
-
-  productItemContainer: {
-    alignItems: 'left',
-  },
-
   productTextContainer: {
-    flex: 1, // Take remaining space
-    marginLeft: 10, // Add some spacing between the image and text
+    flex: 1,
+    marginLeft: 10,
   },
-
   productimage: {
     width: 125,
     height: 125,
     resizeMode: 'contain',
   },
-
   productTitle: {
     fontSize: 18,
-    fontFamily: 'Sofia-Sans',
-    color: '#000000',
+    ...this.text,
     fontWeight: 'bold',
   },
-
   activeTab: {
     backgroundColor: 'lightgray',
   },
-
   activeTabText: {
     color: 'black',
   },
-
-  tabContent: {
-    minHeight: 3000 , // Set the height to your desired fixed size
-    padding: 20,
-    backgroundColor: '#f0f0f0',
-    marginTop: 10,
-    overflow: 'scroll', // Enable scrolling if content exceeds container size
-  },
-
   searchContainer: {
     paddingHorizontal: 15,
     marginTop: 0,
