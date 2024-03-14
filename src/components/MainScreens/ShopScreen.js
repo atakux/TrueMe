@@ -178,7 +178,6 @@ const ShopScreen = () => {
           <View style={styles.tabContentContainer}>
             {filterProducts(skincareProducts, searchQuery).slice(0, visibleProducts).map(product => (
               <View key={product.asin} style={styles.productContainer}>
-
                 <ProductItem imageUrl={product.image} />
 
                 <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
@@ -199,7 +198,6 @@ const ShopScreen = () => {
           <View style={styles.tabContentContainer}>
             {filterProducts(makeupProducts, searchQuery).slice(0, visibleProducts).map(product => (
               <View key={product.asin} style={styles.productContainer}>
-
                 <ProductItem imageUrl={product.image} />
 
 
