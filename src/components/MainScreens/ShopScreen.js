@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Animated, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Animated, Platform, Modal, Button, Linking,TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
@@ -19,6 +19,9 @@ const ShopScreen = () => {
   const [makeupProducts, setMakeupProducts] = useState([]); // State to store fetched makeup products
   const [searchQuery, setSearchQuery] = useState(''); // State to manage search query
   const axios = require('axios');
+  const [visibleProducts, setVisibleProducts] = useState(10); // State to keep track of the number of products displayed
+  const [modalVisible, setModalVisible] = useState({ visible: false, product: null });
+  
   
   const scrollY = useRef(new Animated.Value(0)).current;
   
@@ -96,6 +99,22 @@ const ShopScreen = () => {
     extrapolate: 'clamp',
   });
 
+  // Function to handle scrolling to the bottom of the ScrollView
+  const handleScrollEnd = ({ layoutMeasurement, contentOffset, contentSize }) => {
+    const paddingToBottom = 20;
+    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom) {
+      // If scrolled to the bottom, increment the number of visible products by 10
+      setVisibleProducts(prevVisibleProducts => prevVisibleProducts + 10);
+    }
+  };
+
+  const handleLinkPress = () => {
+    if (modalVisible.product && modalVisible.product.url) {
+      Linking.openURL(modalVisible.product.url);
+    }
+  };
+  
+
   return (
     <View style={{ flex: 1 }}>
       <View style={{flex: 1, paddingTop: 50}}>
@@ -147,41 +166,82 @@ const ShopScreen = () => {
         </View>
       </Animated.View>
   
-      <ScrollView
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: false })}
-        scrollEventThrottle={16}
-      >
+  <ScrollView
+    onScroll={Animated.event(
+      [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+      { useNativeDriver: false }
+    )}
+    onScrollEndDrag={({ nativeEvent }) => handleScrollEnd(nativeEvent)}
+    scrollEventThrottle={16}
+  >
         {activeTab === 'Button 1' && (
           <View style={styles.tabContentContainer}>
-            {filterProducts(skincareProducts, searchQuery).slice(0, 10).map(product => (
+            {filterProducts(skincareProducts, searchQuery).slice(0, visibleProducts).map(product => (
               <View key={product.asin} style={styles.productContainer}>
+
                 <ProductItem imageUrl={product.image} />
-                <View style={styles.productTextContainer}>
-                  <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}{'\n'}</Text>
-                  <Text style={styles.productPrice}>{product.price}</Text>
-                  <Text style={styles.productRating}>Rating: {product.stars}</Text>
-                </View>
+
+                <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
+                  <View style={styles.productTextContainer}>
+                    <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}{'\n'}</Text>
+                    <Text style={styles.productPrice}>{product.price}</Text>
+                    <Text style={styles.productRating}>Rating: {product.stars}</Text>
+                  </View>
+                </TouchableOpacity>
+
+                
               </View>
             ))}
           </View>
         )}
-        
+
         {activeTab === 'Button 2' && (
           <View style={styles.tabContentContainer}>
-            {filterProducts(makeupProducts, searchQuery).slice(0, 10).map(product => (
+            {filterProducts(makeupProducts, searchQuery).slice(0, visibleProducts).map(product => (
               <View key={product.asin} style={styles.productContainer}>
+
                 <ProductItem imageUrl={product.image} />
-                <View style={styles.productTextContainer}>
-                  <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}{'\n'}</Text>
-                  <Text style={styles.productPrice}>{product.price}</Text>
-                  <Text style={styles.productRating}>Rating: {product.stars}</Text>
-                </View>
+
+
+                <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
+
+                  <View style={styles.productTextContainer}>
+                    <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}{'\n'}</Text>
+                    <Text style={styles.productPrice}>{product.price}</Text>
+                    <Text style={styles.productRating}>Rating: {product.stars}</Text>
+                  </View>
+
+                </TouchableOpacity>
               </View>
             ))}
           </View>
         )}
       </ScrollView>
+      
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={modalVisible.visible}
+      onRequestClose={() => setModalVisible({ visible: false, product: null })}
+    >
+      <TouchableWithoutFeedback onPress={() => setModalVisible({ visible: false, product: null })}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            {modalVisible.product && (
+              <TouchableOpacity onPress={handleLinkPress}>
+                <Text style={{ color: 'blue' }}>{modalVisible.product.url}</Text>
+              </TouchableOpacity>
+            )}
+            <Button title="Close Modal" onPress={() => setModalVisible({ visible: false, product: null })} />
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
+
+
     </View>
+
+    
   );
 };
 
@@ -259,10 +319,15 @@ const styles = StyleSheet.create({
     ...this.text,
   },
   tabContentContainer: {
-    minHeight: 375,
-    paddingBottom: 75,
-    marginTop: 10,
-    overflow: 'scroll',
+    ...Platform.select({
+      ios: {
+        minHeight: 375,
+        paddingBottom: 75,
+        marginTop: 10,
+        overflow: 'scroll',
+      },
+    }),
+    
   },
   productContainer: {
     flexDirection: 'row',
@@ -273,20 +338,24 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#cccccc',
-    width: 400,
+    width: "96%",
     height: 200,
   },
   productTextContainer: {
     flex: 1,
     marginLeft: 10,
+    marginTop: 30,
+    width: 225,
   },
   productimage: {
     width: 125,
     height: 125,
     resizeMode: 'contain',
+    marginLeft: 10,
+    marginTop: 10,
   },
   productTitle: {
-    fontSize: 18,
+    fontSize: 16,
     ...this.text,
     fontWeight: 'bold',
   },
@@ -329,6 +398,25 @@ const styles = StyleSheet.create({
     fontSize: 20, // Adjust the font size of the X icon
     fontWeight: 'bold', // Make the X icon bold
   },
+
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    width: '100%',
+    height: '100%',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '90%',
+    height: '40%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
   
   
 });
