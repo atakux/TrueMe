@@ -26,7 +26,7 @@ const ShopScreen = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
   
 
-  // Fetch data from API
+  // Fetch data from Amazon API
   useEffect(() => {
     const fetchData = async () => {
       try {
