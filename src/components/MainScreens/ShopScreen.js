@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Animated, Platform, Modal, ActivityIndicator, Button, Linking,TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Animated, Modal, ActivityIndicator, Button, Linking,TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
 import { loadFonts } from '../../utils/FontLoader';
 import { useAuth } from '../../utils/AuthContext';
@@ -10,6 +9,7 @@ import fetchAmazonProductData from '../../utils/API/amazonAPI';
 
 
 const ShopScreen = () => {
+  const axios = require('axios');
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
   const user = useAuth();
@@ -19,33 +19,32 @@ const ShopScreen = () => {
   const [makeupProducts, setMakeupProducts] = useState([]); // State to store fetched makeup products
 
   const [searchQuery, setSearchQuery] = useState(''); // State to manage search query
-  const axios = require('axios');
   const [visibleProducts, setVisibleProducts] = useState(10); // State to keep track of the number of products displayed
-  const [modalVisible, setModalVisible] = useState({ visible: false, product: null });
+  const [modalVisible, setModalVisible] = useState({ visible: false, product: null }); // State to manage modal visibility
 
-  const [loadingSkincare, setLoadingSkincare] = useState(true);
-  const [loadingMakeup, setLoadingMakeup] = useState(true);
+  const [loadingSkincare, setLoadingSkincare] = useState(true); // State to track skincare loading state
+  const [loadingMakeup, setLoadingMakeup] = useState(true); // State to track makeup loading state
   
-  const scrollY = useRef(new Animated.Value(0)).current;
+  const scrollY = useRef(new Animated.Value(0)).current; // Scroll value for animation
   
 
   // Fetch data from Amazon API
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchAmazonProductData("Skincare");
-        setSkincareProducts(data.data); // Update state with fetched data
+
+        const skincareData = await fetchAmazonProductData("Skincare");
+        setSkincareProducts(skincareData.data); // Update state with fetched skincare products data
         setLoadingSkincare(false);
 
-        const data1 = await fetchAmazonProductData("Makeup");
-        setMakeupProducts(data1.data); // Update state with fetched data
+        const makeupData = await fetchAmazonProductData("Makeup");
+        setMakeupProducts(makeupData.data); // Update state with fetched makeup products data
         setLoadingMakeup(false);
 
       } catch (error) {
         console.error(error);
       }
     };
-
     fetchData();
   }, []);
 
@@ -59,7 +58,7 @@ const ShopScreen = () => {
     loadAsyncData();
   }, []);
 
-  // Function to handle button click
+  // Function to handle tab button click
   const handleButtonClick = (buttonName) => {
     setActiveTab(buttonName);
   };
@@ -71,10 +70,10 @@ const ShopScreen = () => {
     );
   };
 
-  // Rendered product item
-  const ProductItem = ({ imageUrl }) => {
+  // Render product image
+  const ProductImage = ({ imageUrl }) => {
     return (
-      <View style={styles.productItemContainer}>
+      <View style={styles.productImageContainer}>
         <Image
           source={{ uri: imageUrl }}
           style={styles.productimage}
@@ -83,28 +82,24 @@ const ShopScreen = () => {
     );
   };
 
-  // Interpolated header height
+  // Functions to handle collapsable header
   const headerHeight = scrollY.interpolate({
     inputRange: [0, 400],
     outputRange: [460, 170],
     extrapolate: 'clamp',
   });
-
-  // Interpolated scale
   const scale = scrollY.interpolate({
     inputRange: [0, 300],
     outputRange: [1, 0.5],
     extrapolate: 'clamp',
   });
-
-  // Interpolated opacity
   const opacity = scrollY.interpolate({
     inputRange: [0, 400],
     outputRange: [1, 0],
     extrapolate: 'clamp',
   });
 
-  // Function to handle scrolling to the bottom of the ScrollView
+  // Function to add more products when scrolled to the bottom
   const handleScrollEnd = ({ layoutMeasurement, contentOffset, contentSize }) => {
     const paddingToBottom = 20;
     if (layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom) {
@@ -113,15 +108,35 @@ const ShopScreen = () => {
     }
   };
 
+  // Function to open product URL
   const handleLinkPress = () => {
     if (modalVisible.product && modalVisible.product.url) {
       Linking.openURL(modalVisible.product.url);
     }
   };
-  
 
+  // Function to generate star rating visuals
+  function generateStars(rating) {
+    const maxRating = 5;
+    const filledStars = Math.floor(rating);
+    const emptyStars = maxRating - filledStars;
+    let stars = '';
+    for (let i = 0; i < filledStars; i++) {
+        stars += '★'; // Add filled star
+    }
+    for (let i = 0; i < emptyStars; i++) {
+        stars += '☆'; // Add empty star
+    }
+    return stars;
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  // Rendered Components
   return (
+
+    // Main View
     <View style={{ flex: 1 }}>
+      {/* Image + Text overlay */}
       <View style={{flex: 1, paddingTop: 50}}>
         <Animated.View style={[styles.imageContainer, { transform: [{ scale }], opacity }]}>
           <Image
@@ -136,27 +151,34 @@ const ShopScreen = () => {
         </Animated.View>
       </View>
 
+      {/* Products for you + Tabs + Search Bar */}
       <Animated.View style={{ height: headerHeight, justifyContent: 'flex-end', alignItems: 'center'}}>
 
+        {/* Products for you */}
         <View style={styles.textContainer}>
           <Text style={styles.titleText}> {'\n'}Products For You </Text>
         </View>
-
+        
+        {/* Tabs */}
         <View style={styles.tabContainer}>
+          
           <TouchableOpacity
             onPress={() => handleButtonClick("Button 1")}
             style={[styles.tabButton, activeTab === 'Button 1' && styles.activeTab]}
           >
             <Text style={[styles.tabText, activeTab === 'Button 1' && styles.activeTabText]}>Skincare</Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() => handleButtonClick("Button 2")}
             style={[styles.tabButton, activeTab === 'Button 2' && styles.activeTab]}
           >
             <Text style={[styles.tabText, activeTab === 'Button 2' && styles.activeTabText]}>Makeup</Text>
           </TouchableOpacity>
+
         </View>
         
+        {/* Search Bar */}
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
@@ -171,122 +193,127 @@ const ShopScreen = () => {
           )}
         </View>
         
+      {/* End of Products for you + Tabs + Search Bar */}
       </Animated.View>
+      {/* End of collapsable header */}
 
 
-  <View>
-    <ScrollView
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: false }
-        )}
-        onScrollEndDrag={({ nativeEvent }) => handleScrollEnd(nativeEvent)}
-        scrollEventThrottle={16}
-      >
-        {activeTab === 'Button 1' && (
-          <View style={styles.tabContentContainer}>
+
+
+
+      {/* Start of Products View */}
+      <View>
+        {/* Defining out scroll view */}
+        <ScrollView
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: false }
+          )}
+          onScrollEndDrag={({ nativeEvent }) => handleScrollEnd(nativeEvent)}
+          scrollEventThrottle={16}
+        >
+
+          {/* Tab 1: Skincare Products */}
+          {activeTab === 'Button 1' && (
+            <View style={styles.tabContentContainer}>
               {loadingSkincare && (
                 <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
               )}
-            {filterProducts(skincareProducts, searchQuery).slice(0, visibleProducts).map(product => (
-              <View key={product.asin} style={styles.productContainer}>
-                <ProductItem imageUrl={product.image} />
-                <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
-                  <View style={styles.productTextContainer}>
-                    <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}{'\n'}</Text>
-                    <Text style={styles.productPrice}>{product.price}</Text>
-                    <Text style={styles.productRating}>Rating: {product.stars}</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </View>
-        )}
-        {activeTab === 'Button 2' && (
-          <View style={styles.tabContentContainer}>
+              {filterProducts(skincareProducts, searchQuery).slice(0, visibleProducts).map(product => (
+                <View key={product.asin} style={styles.productContainer}>
+                  <ProductImage imageUrl={product.image} />
+                  <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
+                    <View style={styles.productTextContainer}>
+                      <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}</Text>
+                      <View style={{ flexDirection: 'row', marginVertical: 8}}>
+                        <Text style={{ color: '#008080' }}>{product.stars} </Text>
+                        <Text style={{ color: '#FFA500' }}>{generateStars(product.stars)}</Text>
+                        <Text style={{ color: "#808080" }}>{"("}{product.rating_count}{")"}</Text>
+                      </View>
+                      <Text style={{fontSize: 18}}>{product.price}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
+
+
+          {/* Tab 2: Makeup Products */}
+          {activeTab === 'Button 2' && (
+            <View style={styles.tabContentContainer}>
               {loadingMakeup && (
                 <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
               )}
-            {filterProducts(makeupProducts, searchQuery).slice(0, visibleProducts).map(product => (
-              <View key={product.asin} style={styles.productContainer}>
-                <ProductItem imageUrl={product.image} />
-                <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
-                  <View style={styles.productTextContainer}>
-                    <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}{'\n'}</Text>
-                    <Text style={styles.productPrice}>{product.price}</Text>
-                    <Text style={styles.productRating}>Rating: {product.stars}</Text>
+              {filterProducts(makeupProducts, searchQuery).slice(0, visibleProducts).map(product => (
+                <View key={product.asin} style={styles.productContainer}>
+                  <ProductImage imageUrl={product.image} />
+                  <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
+                    <View style={styles.productTextContainer}>
+                      <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}</Text>
+                      <View style={{ flexDirection: 'row', marginVertical: 8}}>
+                        <Text style={{ color: '#008080' }}>{product.stars} </Text>
+                        <Text style={{ color: '#FFA500' }}>{generateStars(product.stars)}</Text>
+                        <Text style={{ color: "#808080" }}>{"("}{product.rating_count}{")"}</Text>
+                      </View>
+                      <Text style={{fontSize: 18}}>{product.price}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
+        </ScrollView>
+      </View>
+
+
+      {/* Start of Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible.visible}
+        onRequestClose={() => setModalVisible({ visible: false, product: null })}
+      >
+        
+        <TouchableWithoutFeedback onPress={() => setModalVisible({ visible: false, product: null })}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              {modalVisible.product && (
+                <View>
+                  <Text style={styles.modalTitle}>{modalVisible.product.title}</Text>
+                  <Image source={{ uri: modalVisible.product.image }} style={styles.modalImage} />
+                  <TouchableOpacity onPress={handleLinkPress} style={styles.productPageButton}>
+                    <Text style={styles.productPageButtonText}>See Product Page</Text>
+                  </TouchableOpacity>
+                  <View style={{ flexDirection: 'row', marginVertical: 8}}>
+                    <Text style={{ color: '#008080' }}>{modalVisible.product.stars} </Text>
+                    <Text style={{ color: '#FFA500' }}>{generateStars(modalVisible.product.stars)}</Text>
+                    <Text style={{ color: "#808080" }}>{"("}{modalVisible.product.rating_count}{")"}</Text>
                   </View>
-                </TouchableOpacity>
-              </View>
-            ))}
+                  <Text style={{fontSize: 18}}>{modalVisible.product.price}</Text>
+                </View>
+              )}
+              <Button title="Close" onPress={() => setModalVisible({ visible: false, product: null })} />
+            </View>
           </View>
-        )}
-      </ScrollView>
-  </View>
-      
+        </TouchableWithoutFeedback>
 
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={modalVisible.visible}
-      onRequestClose={() => setModalVisible({ visible: false, product: null })}
-    >
-      <TouchableWithoutFeedback onPress={() => setModalVisible({ visible: false, product: null })}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+      {/* End of Modal */}
+      </Modal>
 
 
-            {modalVisible.product && (
-              <View>
-
-                <Text style={styles.modalTitle}>{modalVisible.product.title}</Text>
-                <Image source={{ uri: modalVisible.product.image }} style={styles.modalImage} />
-
-
-                <TouchableOpacity onPress={handleLinkPress} style={styles.productPageButton}>
-                  <Text style={styles.productPageButtonText}>See Product Page</Text>
-                </TouchableOpacity>
-
-                <Text style={styles.modalPrice}>{" \n"}Price: {modalVisible.product.price}</Text>
-                <Text style={styles.modalRating}>Rating: {modalVisible.product.stars}</Text>
-                <Text style={styles.modalAsin}>Product Number: {modalVisible.product.asin} {"\n "}</Text>
-
-              </View>
-            )}
-
-            <Button title="Close" onPress={() => setModalVisible({ visible: false, product: null })} />
-          </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </Modal>
-
+    {/* End of Main View */}
     </View>
-
-    
-
-
   );
 };
 
 
-
 // Styles
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FAFAFA",
-    paddingTop: 50,
-    paddingBottom: 50,
-    alignItems: 'center',
-  },
-  text: {
-    fontFamily: 'Sofia-Sans',
-    color: '#000000',
-  },
-  textContainer: {
-    alignItems: 'center',
-  },
+
+  loadingIndicator: {
+    marginTop: 10,
+  }, 
 
   mainText: {
     ...this.text,
@@ -294,48 +321,47 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: 'Sofia-Sans',
   },
+
+  textContainer: {
+    alignItems: 'center',
+  },
+
   titleText: {
     ...this.text,
     fontSize: 32,
     textAlign: "center",
     fontFamily: 'Sofia-Sans',
   },
-  button: {
-    backgroundColor: 'blue',
-    padding: 10,
-    borderRadius: 5,
-  },
-  buttonText: {
-    ...this.text,
-    fontSize: 32,
-    color: '#64BBA1',
-    textAlign: "center",
-    fontFamily: 'Sofia-Sans',
-  },
+
   imageContainer: {
     alignItems: 'center',
     height: 300,
     width: '100%',
   },
+
   image: {
     flex: 1,
     width: '95%',
     height: '90%',
   },
+
   overlay: {
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
   },
+
   overlayText: {
     ...this.text,
     fontSize: 32,
     color: '#64BBA1',
     fontFamily: 'Sofia-Sans',
   },
+
   tabContainer: {
     flexDirection: 'row',
     marginBottom: 20,
   },
+
   tabButton: {
     paddingVertical: 6,
     paddingHorizontal: 60,
@@ -344,6 +370,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderColor: 'black',
   },
+
   tabText: {
     fontWeight: 'bold',
     fontSize: 18,
@@ -357,10 +384,6 @@ const styles = StyleSheet.create({
     overflow: 'scroll',
   },
 
-  loadingIndicator: {
-    marginTop: 10,
-  }, 
-
   productContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -373,6 +396,7 @@ const styles = StyleSheet.create({
     width: "96%",
     height: 200,
   },
+
   productTextContainer: {
     flex: 1,
     marginLeft: 10,
@@ -380,6 +404,7 @@ const styles = StyleSheet.create({
     width: 225,
     fontFamily: 'Sofia-Sans',
   },
+
   productimage: {
     width: 125,
     height: 125,
@@ -387,24 +412,29 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginTop: 10,
   },
+
   productTitle: {
     fontSize: 16,
     ...this.text,
     fontWeight: 'bold',
     fontFamily: 'Sofia-Sans',
   },
+
   activeTab: {
     backgroundColor: 'lightgray',
   },
+
   activeTabText: {
     color: 'black',
   },
+
   searchContainer: {
     paddingHorizontal: 15,
     marginTop: 0,
     marginBottom: 10,
     width: 400,
   },
+
   searchInput: {
     backgroundColor: '#fff',
     borderWidth: 1,
@@ -427,10 +457,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   clearButtonText: {
-    color: '#333', // Change the color of the X icon
-    fontSize: 18, // Adjust the font size of the X icon
-    fontWeight: 'bold', // Make the X icon bold
+    color: '#333',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 
   modalContainer: {
@@ -441,6 +472,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+
   modalContent: {
     backgroundColor: '#fff',
     alignContent: 'center',
@@ -449,6 +481,7 @@ const styles = StyleSheet.create({
     width: '90%',
     height: 'auto',
   },
+
   modalImage: {
     width: 200,
     height: 200,
@@ -457,6 +490,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     alignSelf: 'center',
   },
+
   modalTitle: {
     fontSize: 15,
     fontWeight: 'bold',
@@ -464,34 +498,22 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontFamily: 'Sofia-Sans',
   },
-  modalDescription: {
-    fontSize: 12,
-    textAlign: 'center',
-    marginBottom: 10,
-    fontFamily: 'Sofia-Sans',
-  },
-  modalLink: {
-    fontSize: 12,
-    color: 'blue',
-    textDecorationLine: 'underline',
-    alignContent: 'center',
-    alignSelf: 'center',
-  },
+
   productPageButton: {
     backgroundColor: '#64BBA1',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
     marginTop: 10,
+    marginBottom: 5,
   },
+
   productPageButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  
-  
   
 });
 

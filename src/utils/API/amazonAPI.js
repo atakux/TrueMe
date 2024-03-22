@@ -1,6 +1,7 @@
 import axios from 'axios';
 import apiKeys from '../../../api_keys.js';
 
+// Function to fetch data from Amazon API
 async function fetchAmazonProductData(keyword) {
   const options = {
     method: 'GET',
@@ -23,7 +24,6 @@ async function fetchAmazonProductData(keyword) {
     throw error;
   }
 }
-
 export default fetchAmazonProductData;
 
 // export async function fetchAmazonProductDescriptionByASIN(asin) {
