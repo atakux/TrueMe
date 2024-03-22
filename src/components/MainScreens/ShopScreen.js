@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Animated, Platform, Modal, Button, Linking,TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Animated, Platform, Modal, ActivityIndicator, Button, Linking,TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 
@@ -22,7 +22,9 @@ const ShopScreen = () => {
   const axios = require('axios');
   const [visibleProducts, setVisibleProducts] = useState(10); // State to keep track of the number of products displayed
   const [modalVisible, setModalVisible] = useState({ visible: false, product: null });
-  
+
+  const [loadingSkincare, setLoadingSkincare] = useState(true);
+  const [loadingMakeup, setLoadingMakeup] = useState(true);
   
   const scrollY = useRef(new Animated.Value(0)).current;
   
@@ -33,9 +35,11 @@ const ShopScreen = () => {
       try {
         const data = await fetchAmazonProductData("Skincare");
         setSkincareProducts(data.data); // Update state with fetched data
+        setLoadingSkincare(false);
 
         const data1 = await fetchAmazonProductData("Makeup");
         setMakeupProducts(data1.data); // Update state with fetched data
+        setLoadingMakeup(false);
 
       } catch (error) {
         console.error(error);
@@ -166,23 +170,27 @@ const ShopScreen = () => {
           </TouchableOpacity>
           )}
         </View>
+        
       </Animated.View>
-  
-  <ScrollView
-    onScroll={Animated.event(
-      [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-      { useNativeDriver: false }
-    )}
-    onScrollEndDrag={({ nativeEvent }) => handleScrollEnd(nativeEvent)}
-    scrollEventThrottle={16}
-  >
+
+
+  <View>
+    <ScrollView
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false }
+        )}
+        onScrollEndDrag={({ nativeEvent }) => handleScrollEnd(nativeEvent)}
+        scrollEventThrottle={16}
+      >
         {activeTab === 'Button 1' && (
           <View style={styles.tabContentContainer}>
+              {loadingSkincare && (
+                <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
+              )}
             {filterProducts(skincareProducts, searchQuery).slice(0, visibleProducts).map(product => (
               <View key={product.asin} style={styles.productContainer}>
-
                 <ProductItem imageUrl={product.image} />
-
                 <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
                   <View style={styles.productTextContainer}>
                     <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}{'\n'}</Text>
@@ -190,36 +198,33 @@ const ShopScreen = () => {
                     <Text style={styles.productRating}>Rating: {product.stars}</Text>
                   </View>
                 </TouchableOpacity>
-
-                
               </View>
             ))}
           </View>
         )}
-
         {activeTab === 'Button 2' && (
           <View style={styles.tabContentContainer}>
+              {loadingMakeup && (
+                <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
+              )}
             {filterProducts(makeupProducts, searchQuery).slice(0, visibleProducts).map(product => (
               <View key={product.asin} style={styles.productContainer}>
-
                 <ProductItem imageUrl={product.image} />
-
-
                 <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
-
                   <View style={styles.productTextContainer}>
                     <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}{'\n'}</Text>
                     <Text style={styles.productPrice}>{product.price}</Text>
                     <Text style={styles.productRating}>Rating: {product.stars}</Text>
                   </View>
-
                 </TouchableOpacity>
               </View>
             ))}
           </View>
         )}
       </ScrollView>
+  </View>
       
+
     <Modal
       animationType="slide"
       transparent={true}
@@ -242,17 +247,12 @@ const ShopScreen = () => {
                   <Text style={styles.productPageButtonText}>See Product Page</Text>
                 </TouchableOpacity>
 
-
-
                 <Text style={styles.modalPrice}>{" \n"}Price: {modalVisible.product.price}</Text>
                 <Text style={styles.modalRating}>Rating: {modalVisible.product.stars}</Text>
                 <Text style={styles.modalAsin}>Product Number: {modalVisible.product.asin} {"\n "}</Text>
 
-
-
               </View>
             )}
-
 
             <Button title="Close" onPress={() => setModalVisible({ visible: false, product: null })} />
           </View>
@@ -260,10 +260,11 @@ const ShopScreen = () => {
       </TouchableWithoutFeedback>
     </Modal>
 
-
     </View>
 
     
+
+
   );
 };
 
@@ -285,9 +286,8 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  
+
   mainText: {
     ...this.text,
     fontSize: 18,
@@ -349,17 +349,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     ...this.text,
   },
+
   tabContentContainer: {
-    ...Platform.select({
-      ios: {
-        minHeight: 375,
-        paddingBottom: 75,
-        marginTop: 10,
-        overflow: 'scroll',
-      },
-    }),
-    
+    minHeight: 375,
+    paddingBottom: 75,
+    marginTop: 10,
+    overflow: 'scroll',
   },
+
+  loadingIndicator: {
+    marginTop: 10,
+  }, 
+
   productContainer: {
     flexDirection: 'row',
     alignItems: 'center',
