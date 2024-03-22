@@ -6,8 +6,7 @@ import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 import { loadFonts } from '../../utils/FontLoader';
 import { useAuth } from '../../utils/AuthContext';
 
-import fetchAmazonProductData from '../../utils/API/amazonAPI';
-
+import { fetchAmazonProductData, fetchAmazonProductDescriptionByASIN } from '../../utils/API/amazonAPI';
 
 
 const ShopScreen = () => {
@@ -227,11 +226,25 @@ const ShopScreen = () => {
       <TouchableWithoutFeedback onPress={() => setModalVisible({ visible: false, product: null })}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
+
+
             {modalVisible.product && (
               <TouchableOpacity onPress={handleLinkPress}>
-                <Text style={{ color: 'blue' }}>{modalVisible.product.url}</Text>
+
+                <Text style={styles.modalTitle}>{modalVisible.product.title}</Text>
+                <Image source={{ uri: modalVisible.product.image }} style={styles.modalImage} />
+                <Text style={styles.modalLink}>{modalVisible.product.url}{"\n"}</Text>
+
+                <Text style={styles.modalPrice}>Price: {modalVisible.product.price}</Text>
+                <Text style={styles.modalRating}>Rating: {modalVisible.product.stars}</Text>
+                <Text style={styles.modalAsin}>Product Number: {modalVisible.product.asin}</Text>
+
+
+
               </TouchableOpacity>
             )}
+
+
             <Button title="Close Modal" onPress={() => setModalVisible({ visible: false, product: null })} />
           </View>
         </View>
@@ -410,11 +423,34 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: '#fff',
     padding: 20,
-    borderRadius: 10,
     width: '90%',
-    height: '40%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    height: '65%',
+  },
+  modalImage: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
+    marginBottom: 10,
+    alignContent: 'center',
+    alignSelf: 'center',
+  },
+  modalTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  modalDescription: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  modalLink: {
+    fontSize: 12,
+    color: 'blue',
+    textDecorationLine: 'underline',
+    alignContent: 'center',
+    alignSelf: 'center',
   },
   
   
