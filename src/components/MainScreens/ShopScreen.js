@@ -6,7 +6,7 @@ import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
 import { loadFonts } from '../../utils/FontLoader';
 import { useAuth } from '../../utils/AuthContext';
 
-import { fetchAmazonProductData, fetchAmazonProductDescriptionByASIN } from '../../utils/API/amazonAPI';
+import fetchAmazonProductData from '../../utils/API/amazonAPI';
 
 
 const ShopScreen = () => {
@@ -14,8 +14,10 @@ const ShopScreen = () => {
   const navigation = useNavigation();
   const user = useAuth();
   const [activeTab, setActiveTab] = useState('Button 1'); // Initial active tab
+
   const [skincareProducts, setSkincareProducts] = useState([]); // State to store fetched skincare products
   const [makeupProducts, setMakeupProducts] = useState([]); // State to store fetched makeup products
+
   const [searchQuery, setSearchQuery] = useState(''); // State to manage search query
   const axios = require('axios');
   const [visibleProducts, setVisibleProducts] = useState(10); // State to keep track of the number of products displayed
@@ -131,6 +133,7 @@ const ShopScreen = () => {
       </View>
 
       <Animated.View style={{ height: headerHeight, justifyContent: 'flex-end', alignItems: 'center'}}>
+
         <View style={styles.textContainer}>
           <Text style={styles.titleText}> {'\n'}Products For You </Text>
         </View>
@@ -229,23 +232,29 @@ const ShopScreen = () => {
 
 
             {modalVisible.product && (
-              <TouchableOpacity onPress={handleLinkPress}>
+              <View>
 
                 <Text style={styles.modalTitle}>{modalVisible.product.title}</Text>
                 <Image source={{ uri: modalVisible.product.image }} style={styles.modalImage} />
-                <Text style={styles.modalLink}>{modalVisible.product.url}{"\n"}</Text>
 
-                <Text style={styles.modalPrice}>Price: {modalVisible.product.price}</Text>
+
+                <TouchableOpacity onPress={handleLinkPress} style={styles.productPageButton}>
+                  <Text style={styles.productPageButtonText}>See Product Page</Text>
+                </TouchableOpacity>
+
+
+
+                <Text style={styles.modalPrice}>{" \n"}Price: {modalVisible.product.price}</Text>
                 <Text style={styles.modalRating}>Rating: {modalVisible.product.stars}</Text>
-                <Text style={styles.modalAsin}>Product Number: {modalVisible.product.asin}</Text>
+                <Text style={styles.modalAsin}>Product Number: {modalVisible.product.asin} {"\n "}</Text>
 
 
 
-              </TouchableOpacity>
+              </View>
             )}
 
 
-            <Button title="Close Modal" onPress={() => setModalVisible({ visible: false, product: null })} />
+            <Button title="Close" onPress={() => setModalVisible({ visible: false, product: null })} />
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -274,15 +283,22 @@ const styles = StyleSheet.create({
     fontFamily: 'Sofia-Sans',
     color: '#000000',
   },
+  textContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
   mainText: {
     ...this.text,
     fontSize: 18,
     textAlign: "center",
+    fontFamily: 'Sofia-Sans',
   },
   titleText: {
     ...this.text,
     fontSize: 32,
     textAlign: "center",
+    fontFamily: 'Sofia-Sans',
   },
   button: {
     backgroundColor: 'blue',
@@ -294,6 +310,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     color: '#64BBA1',
     textAlign: "center",
+    fontFamily: 'Sofia-Sans',
   },
   imageContainer: {
     alignItems: 'center',
@@ -313,6 +330,7 @@ const styles = StyleSheet.create({
     ...this.text,
     fontSize: 32,
     color: '#64BBA1',
+    fontFamily: 'Sofia-Sans',
   },
   tabContainer: {
     flexDirection: 'row',
@@ -359,6 +377,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginTop: 30,
     width: 225,
+    fontFamily: 'Sofia-Sans',
   },
   productimage: {
     width: 125,
@@ -371,6 +390,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     ...this.text,
     fontWeight: 'bold',
+    fontFamily: 'Sofia-Sans',
   },
   activeTab: {
     backgroundColor: 'lightgray',
@@ -399,7 +419,7 @@ const styles = StyleSheet.create({
     right: 25,
     top: '50%',
     transform: [{ translateY: -15 }],
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    backgroundColor: 'rgba(0, 0, 0, 0)',
     borderRadius: 15,
     width: 30,
     height: 30,
@@ -408,7 +428,7 @@ const styles = StyleSheet.create({
   },
   clearButtonText: {
     color: '#333', // Change the color of the X icon
-    fontSize: 20, // Adjust the font size of the X icon
+    fontSize: 18, // Adjust the font size of the X icon
     fontWeight: 'bold', // Make the X icon bold
   },
 
@@ -422,9 +442,11 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: '#fff',
+    alignContent: 'center',
+    justifyContent: 'center',
     padding: 20,
     width: '90%',
-    height: '65%',
+    height: 'auto',
   },
   modalImage: {
     width: 200,
@@ -439,11 +461,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 10,
+    fontFamily: 'Sofia-Sans',
   },
   modalDescription: {
     fontSize: 12,
     textAlign: 'center',
     marginBottom: 10,
+    fontFamily: 'Sofia-Sans',
   },
   modalLink: {
     fontSize: 12,
@@ -451,6 +475,19 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     alignContent: 'center',
     alignSelf: 'center',
+  },
+  productPageButton: {
+    backgroundColor: '#64BBA1',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  productPageButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   
   
