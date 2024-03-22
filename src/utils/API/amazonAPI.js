@@ -1,4 +1,5 @@
 import axios from 'axios';
+import apiKeys from '../../../api_keys.js';
 
 async function fetchAmazonProductData(keyword) {
   const options = {
@@ -10,7 +11,7 @@ async function fetchAmazonProductData(keyword) {
       country: 'US'
     },
     headers: {
-      'X-RapidAPI-Key': '3098662391msh7f644e04d0b1cfbp19277cjsn521252c9be41',
+      'X-RapidAPI-Key': apiKeys['X-RapidAPI-Key'],
       'X-RapidAPI-Host': 'amazon-product-data6.p.rapidapi.com'
     }
   };
@@ -34,7 +35,7 @@ export default fetchAmazonProductData;
 //       country: 'US'
 //     },
 //     headers: {
-//       'X-RapidAPI-Key': '3098662391msh7f644e04d0b1cfbp19277cjsn521252c9be41',
+//       'X-RapidAPI-Key': apiKeys['X-RapidAPI-Key'],
 //       'X-RapidAPI-Host': 'amazon-product-data6.p.rapidapi.com'
 //     }
 //   };
