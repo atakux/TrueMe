@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Animated, Modal, ActivityIndicator, Button, Linking,TouchableWithoutFeedback } from 'react-native';
+import { Platform, Keyboard, StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Animated, Modal, ActivityIndicator, Button, Linking,TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { debounce } from 'lodash';
 
 import { loadFonts } from '../../utils/FontLoader';
 import { useAuth } from '../../utils/AuthContext';
 
 import fetchAmazonProductData from '../../utils/API/amazonAPI';
 
-
-const ShopScreen = () => {
+const ShopScreen = ({ setIsTyping }) => {
   const axios = require('axios');
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
@@ -26,8 +26,17 @@ const ShopScreen = () => {
   const [loadingMakeup, setLoadingMakeup] = useState(true); // State to track makeup loading state
   
   const scrollY = useRef(new Animated.Value(0)).current; // Scroll value for animation
-  
+  const scrollViewRef = useRef(null);
 
+  const debouncedSetIsTyping = debounce(setIsTyping, -1000); // Debounce setIsTyping function
+
+  // Function to scroll to top of screen
+  const scrollToTop = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ y: 0, animated: true });
+    }
+  };
+  
   // Fetch data from Amazon API
   useEffect(() => {
     const fetchData = async () => {
@@ -48,6 +57,23 @@ const ShopScreen = () => {
     fetchData();
   }, []);
 
+  // Remove TabBar when user is typing in search bar
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => debouncedSetIsTyping(true) // Use debounced setIsTyping function
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => debouncedSetIsTyping(false) // Use debounced setIsTyping function
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, [debouncedSetIsTyping]);
+
   // Load fonts and check user authentication
   useEffect(() => {
     const loadAsyncData = async () => {
@@ -61,6 +87,7 @@ const ShopScreen = () => {
   // Function to handle tab button click
   const handleButtonClick = (buttonName) => {
     setActiveTab(buttonName);
+    scrollToTop();
   };
 
   // Function to filter products based on search query
@@ -183,7 +210,9 @@ const ShopScreen = () => {
           <TextInput
             style={styles.searchInput}
             placeholder="Search..."
-            onChangeText={(text) => setSearchQuery(text)} // Update searchQuery state with user input
+            onChangeText={(text) => {
+              setSearchQuery(text); // Update searchQuery state with user input
+            }}
             value={searchQuery} // Bind the value of the TextInput to the state
           />
           {searchQuery !== '' && (
@@ -198,9 +227,6 @@ const ShopScreen = () => {
       {/* End of collapsable header */}
 
 
-
-
-
       {/* Start of Products View */}
       <View>
         {/* Defining out scroll view */}
@@ -211,6 +237,7 @@ const ShopScreen = () => {
           )}
           onScrollEndDrag={({ nativeEvent }) => handleScrollEnd(nativeEvent)}
           scrollEventThrottle={16}
+          ref={scrollViewRef}
         >
 
           {/* Tab 1: Skincare Products */}
@@ -290,10 +317,14 @@ const ShopScreen = () => {
                     <Text style={{ color: '#FFA500' }}>{generateStars(modalVisible.product.stars)}</Text>
                     <Text style={{ color: "#808080" }}>{"("}{modalVisible.product.rating_count}{")"}</Text>
                   </View>
-                  <Text style={{fontSize: 18}}>{modalVisible.product.price}</Text>
+                  <Text style={{fontSize: 18, marginBottom: 5}}>{modalVisible.product.price}</Text>
                 </View>
               )}
-              <Button title="Close" onPress={() => setModalVisible({ visible: false, product: null })} />
+
+              <TouchableOpacity onPress={() => setModalVisible({ visible: false, product: null })}>
+                <Text style={styles.closeButton}>Close</Text>
+              </TouchableOpacity>
+
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -301,12 +332,10 @@ const ShopScreen = () => {
       {/* End of Modal */}
       </Modal>
 
-
     {/* End of Main View */}
     </View>
   );
 };
-
 
 // Styles
 const styles = StyleSheet.create({
@@ -314,6 +343,14 @@ const styles = StyleSheet.create({
   loadingIndicator: {
     marginTop: 10,
   }, 
+
+  closeButton: {
+    ...this.text,
+    fontSize: 18,
+    textAlign: "center",
+    fontFamily: 'Sofia-Sans',
+    color: "#007AFF",
+  },
 
   mainText: {
     ...this.text,
@@ -360,15 +397,34 @@ const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: 'row',
     marginBottom: 20,
+
+    ...Platform.select({
+      ios: {
+        marginHorizontal: 10,
+      },
+      android: {
+        marginHorizontal: 10,
+      }
+    })
   },
 
   tabButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 60,
-    marginHorizontal: 5,
     backgroundColor: "white",
     borderRadius: 5,
     borderColor: 'black',
+
+    ...Platform.select({
+      ios: {
+        paddingVertical: 6,
+        paddingHorizontal: 55,
+        marginHorizontal: 5,
+      },
+      android: {
+        paddingVertical: 6,
+        paddingHorizontal: 45,
+        marginHorizontal: 5,
+      }
+    })
   },
 
   tabText: {
@@ -388,21 +444,42 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ffffff',
-    marginBottom: 10,
-    marginLeft: 7,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#cccccc',
-    width: "96%",
-    height: 200,
+
+    ...Platform.select({
+      ios: {
+        marginBottom: 10,
+        marginLeft: 7,
+        width: "96%",
+        height: 200,
+      },
+      android: {
+        marginBottom: 10,
+        marginLeft: 7,
+        width: "96%",
+        height: 200,
+      }
+    })
   },
 
   productTextContainer: {
     flex: 1,
-    marginLeft: 10,
-    marginTop: 30,
-    width: 225,
     fontFamily: 'Sofia-Sans',
+
+    ...Platform.select({
+      ios: {
+        marginLeft: 10,
+        marginTop: 30,
+        width: 225,
+      },
+      android: {
+        marginLeft: 10,
+        marginTop: 25,
+        width: 200,
+      }
+    })
   },
 
   productimage: {
@@ -429,10 +506,20 @@ const styles = StyleSheet.create({
   },
 
   searchContainer: {
-    paddingHorizontal: 15,
-    marginTop: 0,
-    marginBottom: 10,
-    width: 400,
+    ...Platform.select({
+      ios: {
+        paddingHorizontal: 15,
+        marginTop: 0,
+        marginBottom: 10,
+        width: 400,
+      },
+      android: {
+        paddingHorizontal: 15,
+        marginTop: 0,
+        marginBottom: 10,
+        width: 375,
+      }
+    })
   },
 
   searchInput: {

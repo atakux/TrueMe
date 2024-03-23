@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, StyleSheet } from 'react-native';
 
@@ -11,6 +12,8 @@ const Tab = createBottomTabNavigator();
 
 // TabBar
 function TabBar() {
+    const [isTyping, setIsTyping] = useState(false);
+
     return (
       <Tab.Navigator
         initialRouteName="Home"
@@ -30,14 +33,20 @@ function TabBar() {
             },
 
             headerShown: false,
-            tabBarStyle: {...styles.tabBar},
             tabBarShowLabel: false,
+            tabBarStyle: {
+                ...(isTyping ? { display: 'none' } : {}), // Hide tab bar when isTyping is true
+                ...styles.tabBar
+              },              
 
         })}
       >
         {/* Screens that tabs navigate to */}
         <Tab.Screen name="Home" component={HomeScreen} options={{headerShown: false}} />
-        <Tab.Screen name="Shop" component={ShopScreen} options={{headerShown: false}} />
+        <Tab.Screen
+            name="Shop"
+            children={() => <ShopScreen setIsTyping={setIsTyping} />} // Pass setIsTyping to ShopScreen
+        />        
         <Tab.Screen name="Discover" component={DiscoverScreen} options={{headerShown: false}} />
         <Tab.Screen name="Profile" component={ProfileScreen} options={{headerShown: false}} />
       </Tab.Navigator>

@@ -63,10 +63,11 @@ const styles = StyleSheet.create({
     probably have to do navigation.setOptions() in some of the screens
 */
 const originalWarn = console.warn;
+const originalError = console.error;
 
 console.warn = (...args) => {
   const [firstArg] = args;
-  if (typeof firstArg === 'string' && firstArg.startsWith('Non-serializable values') || firstArg.startsWith('Key "cancelled" in the image picker')) {
+  if (typeof firstArg === 'string' && firstArg.startsWith('Non-serializable values') || firstArg.startsWith('Key "cancelled" in the image picker') || firstArg.startsWith('Encountered two children with the same key')) {
     // Suppress the warning
     return;
   }
@@ -74,9 +75,21 @@ console.warn = (...args) => {
   originalWarn.apply(console, args);
 };
 
+console.error = (...args) => {
+  const [firstArg] = args;
+  if (typeof firstArg === 'string' && firstArg.startsWith('AxiosError')) {
+    // Suppress the warning
+    return;
+  }
+  // For other warnings, call the original console.warn()
+  originalError.apply(console, args);
+};
+
 import { LogBox } from 'react-native';
 
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
   'Key "cancelled" in the image picker result is deprecated and will be removed in SDK 48, use "canceled" instead',
+  'Encountered two children with the same key',
+  'Request failed with status code 429',
 ]);
