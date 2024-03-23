@@ -1,5 +1,4 @@
 import axios from 'axios';
-import apiKeys from '../../../api_keys.js';
 
 // Function to fetch data from Amazon API
 async function fetchAmazonProductData(keyword) {
@@ -12,7 +11,7 @@ async function fetchAmazonProductData(keyword) {
       country: 'US'
     },
     headers: {
-      'X-RapidAPI-Key': apiKeys['X-RapidAPI-Key'],
+      'X-RapidAPI-Key': process.env.API_KEY,
       'X-RapidAPI-Host': 'amazon-product-data6.p.rapidapi.com'
     }
   };
