@@ -3,9 +3,6 @@
 # dependencies
 node_modules/
 
-# API Keys
-api_keys.js
-
 # Expo
 .expo/
 dist/
@@ -33,6 +30,7 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
 
 # typescript
 *.tsbuildinfo
