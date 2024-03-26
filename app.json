@@ -3,7 +3,6 @@
     "name": "TrueMe",
     "slug": "trueme",
     "version": "1.0.0",
-    "versionCode": 4,
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
