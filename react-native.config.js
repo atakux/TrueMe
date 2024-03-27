@@ -4,7 +4,4 @@ module.exports = {
       android: {},
     },
     assets: ['./assets/fonts'],
-    dependencies: {
-      ...require('expo-dev-client/dependencies'),
-    },
-  };
+};
