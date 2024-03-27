@@ -6,6 +6,7 @@ import { onAuthStateChanged, getDisplayName, EmailAuthProvider } from 'firebase/
 import { updateProfile, reauthenticateWithCredential, updatePassword } from 'firebase/auth'; // Import reauthenticateWithCredential and updatePassword from firebase auth
 
 import { loadFonts } from '../../utils/FontLoader'; 
+import { EditPasswordInput } from '../../utils/PasswordInput';
 import { useAuth } from '../../utils/AuthContext';
 import { uploadBannerImage, fetchBannerImage, uploadProfileImage, fetchProfileImage, updateUsernameInFirestore } from '../../utils/FirestoreDataService'; // Import fetchLatestBannerImage function
 import * as ImagePicker from 'expo-image-picker';
@@ -431,28 +432,21 @@ const EditAccount = () => {
                     ))}
 
                     <Text style={styles.labelText}>Current Password</Text>
-                    <TextInput
-                      style={styles.pwInputText}
-                      placeholder="Enter current password"
-                      secureTextEntry={true}
-                      onChangeText={setCurrentPassword}
-                      value={currentPassword}
+                    <EditPasswordInput 
+                      value={currentPassword} onChangeText={setCurrentPassword} 
+                      placeholder={"Enter current password"} 
                     />
+
                     <Text style={styles.labelText}>New Password</Text>
-                    <TextInput
-                      style={styles.pwInputText}
-                      placeholder="Enter new password"
-                      secureTextEntry={true}
-                      onChangeText={setNewPassword}
-                      value={newPassword}
+                    <EditPasswordInput
+                      value={newPassword} onChangeText={setNewPassword}
+                      placeholder={"Enter new password"}
                     />
+
                     <Text style={styles.labelText}>Confirm New Password</Text>
-                    <TextInput
-                      style={styles.pwInputText}
-                      placeholder="Confirm new password"
-                      secureTextEntry={true}
-                      onChangeText={setConfirmPassword}
-                      value={confirmPassword}
+                    <EditPasswordInput
+                      value={confirmPassword} onChangeText={setConfirmPassword}
+                      placeholder={"Confirm new password"}
                     />
 
                     <TouchableOpacity style={styles.savePasswordButton} onPress={handleUpdatePassword}>
@@ -599,21 +593,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Sofia-Sans',
     color: '#000000',
     textAlign: "left",
-  }, // End of inputText
-
-  pwInputText: {
-    fontSize: 20,
-    fontFamily: 'Sofia-Sans',
-    color: '#000000',
-    textAlign: "left",
-    marginTop: 5,
-    marginBottom: 10,
-    marginLeft: 10,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: "#64BBA1",
-    padding: 5,
-    paddingLeft: 10,
   }, // End of inputText
 
   previousText: {
@@ -868,8 +847,8 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
-    padding: 20,
-    width: '80%',
+    padding: 15,
+    width: '90%',
   }, // End of modalContent
 
   modalTitle: {

@@ -13,12 +13,13 @@ import {
   Keyboard
 } from "react-native";
 
+import { signInWithEmailAndPassword } from "firebase/auth";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
 import { loadFonts } from '../utils/FontLoader'; 
 import { FIREBASE_AUTH } from "../../firebase";
-import { signInWithEmailAndPassword, updateProfile } from "firebase/auth";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PasswordInputLogin } from '../utils/PasswordInput';
 
 
 const dismissKeyboard = () => {
@@ -126,7 +127,6 @@ const LoginScreen = () => {
               </Text>
           ))}
 
-
           {/* Email input */}
           <TextInput
             style={styles.input}
@@ -138,13 +138,7 @@ const LoginScreen = () => {
           />
 
           {/* Password input */}
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            value={password}
-            secureTextEntry={true}
-            onChangeText={setPassword}
-          />
+          <PasswordInputLogin value={password} onChangeText={setPassword} />
 
           {/* Login button */}
           {/* Loading indicator */}

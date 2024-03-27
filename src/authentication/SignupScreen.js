@@ -5,20 +5,19 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
   TouchableWithoutFeedback,
   Keyboard
 } from "react-native";
 
 import { useNavigation } from '@react-navigation/native';
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, setDoc, collection, addDoc } from "firebase/firestore";
 
 import { loadFonts } from '../utils/FontLoader'; 
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../firebase";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { PasswordInputSignup } from '../utils/PasswordInput';
 
 const dismissKeyboard = () => {
   Keyboard.dismiss();
@@ -165,7 +164,6 @@ const SignupScreen = () => {
               </Text>
           ))}
 
-
           {/* Username input */}
           <TextInput
             style={styles.input}
@@ -186,24 +184,10 @@ const SignupScreen = () => {
           />
 
           {/* Password input */}
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            autoCapitalize="none"
-            value={password}
-            secureTextEntry={true}
-            onChangeText={setPassword} // update password
-          />
+          <PasswordInputSignup value={password} onChangeText={setPassword} placeholder={"Password"}/>
 
           {/* Confirm password input */}
-          <TextInput
-            style={styles.input}
-            placeholder="Confirm Password"
-            autoCapitalize="none"
-            value={confirmPassword}
-            secureTextEntry={true}
-            onChangeText={setConfPassword} // update confirm password
-          />
+          <PasswordInputSignup value={confirmPassword} onChangeText={setConfPassword} placeholder={"Confirm password"}/>
 
           {/* Sign up button */}
           {/* Loading indicator */}
