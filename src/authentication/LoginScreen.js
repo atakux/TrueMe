@@ -18,6 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import { loadFonts } from '../utils/FontLoader'; 
 import { FIREBASE_AUTH } from "../../firebase";
 import { signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const dismissKeyboard = () => {
@@ -79,6 +80,7 @@ const LoginScreen = () => {
       const user = userCredential.user;
 
       console.log("DEBUG: Signed in with:", user.displayName);
+      await AsyncStorage.setItem('user', JSON.stringify(user));
 
       setLoading(false);
 

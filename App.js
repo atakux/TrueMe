@@ -1,9 +1,10 @@
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { AuthProvider } from './src/utils/AuthContext';
+import { AuthProvider, useAuth } from './src/utils/AuthContext';
 
 import LaunchScreen from './src/authentication/LaunchScreen';
 import LoginScreen from './src/authentication/LoginScreen';
@@ -19,24 +20,41 @@ import TabBar from './src/utils/TabBar';
 
 const Stack = createStackNavigator();
 
-// TODO: figure out how to store user login info to store previous session
-
 export default function App() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const storedUser = await AsyncStorage.getItem('user');
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
+      } catch (error) {
+        console.error('Error retrieving user from storage:', error);
+      }
+    };
+
+    checkUser();
+  }, []);
+
   return (
-    <AuthProvider>
+    <AuthProvider user = {user}>
       <NavigationContainer style={styles.container}>
         <Stack.Navigator>
-          <Stack.Screen name="LaunchScreen" component={LaunchScreen} options={{headerShown: false}}/>
-          <Stack.Screen name="LoginScreen" component={LoginScreen} options={{headerShown: false}}/>
-          <Stack.Screen name="SignupScreen" component={SignupScreen} options={{headerShown: false}}/>
-          <Stack.Screen name="HomeScreen" component={TabBar} options={{headerShown: false}}/>
-          <Stack.Screen name="AddRoutine" component={AddRoutine} options={{headerShown: false}}/>
-          <Stack.Screen name="Routine" component={Routine} options={{headerShown: false}}/>
-          <Stack.Screen name="EditRoutine" component={EditRoutine} options={{headerShown: false}}/>
-          <Stack.Screen name="EditAccount" component={EditAccount} options={{headerShown: false}}/>
-          <Stack.Screen name="GetStarted" component={GetStarted} options={{headerShown: false}}/>
-          <Stack.Screen name="DiagnosticScreen" component={DiagnosticScreen} options={{headerShown: false}}/>
-          <Stack.Screen name="ResultScreen" component={ResultScreen} options={{headerShown: false}}/>
+          { user ? <Stack.Screen name="HomeScreenLoggedIn" component={TabBar} options={{ headerShown: false }} /> : (
+            <Stack.Screen name="LaunchScreen" component={LaunchScreen} options={{ headerShown: false }} />
+          )}
+          <Stack.Screen name="HomeScreen" component={TabBar} options={{ headerShown: false }} />
+          <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="SignupScreen" component={SignupScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="AddRoutine" component={AddRoutine} options={{ headerShown: false }} />
+          <Stack.Screen name="Routine" component={Routine} options={{ headerShown: false }} />
+          <Stack.Screen name="EditRoutine" component={EditRoutine} options={{ headerShown: false }} />
+          <Stack.Screen name="EditAccount" component={EditAccount} options={{ headerShown: false }} />
+          <Stack.Screen name="GetStarted" component={GetStarted} options={{ headerShown: false }} />
+          <Stack.Screen name="DiagnosticScreen" component={DiagnosticScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="ResultScreen" component={ResultScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
       <StatusBar style="auto" />

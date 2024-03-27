@@ -6,6 +6,7 @@ import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { signOut } from 'firebase/auth';
 
 import { FIREBASE_AUTH } from "../../../firebase";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { loadFonts } from '../../utils/FontLoader'; 
 import { useAuth } from '../../utils/AuthContext';
@@ -70,9 +71,10 @@ const ProfileScreen = () => {
         user
       );
 
+      await AsyncStorage.removeItem('user');
       console.log("DEBUG:", user.displayName, 'signed out');
 
-      navigation.navigate('LaunchScreen')
+      navigation.navigate('LoginScreen')
     } catch (error) {
       setLoading(false);
       console.error('Error signing out: ', error);
