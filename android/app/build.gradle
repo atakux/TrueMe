@@ -84,6 +84,7 @@ android {
     namespace 'com.trueme'
     defaultConfig {
         applicationId 'com.trueme'
+        compileSdkVersion rootProject.ext.compileSdkVersion
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 5
