@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, Image, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { Camera } from 'expo-camera';
 
 import { loadFonts } from '../../utils/FontLoader';
 import { useAuth } from '../../utils/AuthContext';
 
 const DiagnosticScreen = () => {
     const navigation = useNavigation();
-    const [loading, setLoading] = useState(false);
     const [fontLoaded, setFontLoaded] = useState(false);
-    const user = useAuth();
+    const [hasPermission, setHasPermission] = useState(null);
+    const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
 
     useEffect(() => {
         const loadAsyncData = async () => {
@@ -21,8 +22,27 @@ const DiagnosticScreen = () => {
         loadAsyncData();
     }, []);
 
-    if (!fontLoaded) {
-        return null;
+    useEffect(() => {
+        (async () => {
+            const { status } = await Camera.requestPermissionsAsync();
+            setHasPermission(status === 'granted');
+        })();
+    }, []);
+
+    if (!fontLoaded || hasPermission === null) {
+        return null; // You may want to display a loading indicator here
+    }
+
+    if (!hasPermission) {
+        return <Text>No access to camera</Text>;
+    }
+
+    const toggleCameraType = () => {
+        setCameraType(
+            cameraType === Camera.Constants.Type.back
+                ? Camera.Constants.Type.front
+                : Camera.Constants.Type.back
+        );
     };
 
     return (
@@ -34,8 +54,14 @@ const DiagnosticScreen = () => {
                 <Text style={styles.title}>Skin Diagnostic Test</Text>
             </View>
 
-        </SafeAreaView>
+            <View style={{ flex: 1 }}>
+                <Camera style={{ flex: 1 }} type={cameraType} />
+            </View>
 
+            <TouchableOpacity style={styles.cameraToggleButton} onPress={toggleCameraType}>
+                <Text style={styles.cameraToggleText}>Toggle Camera</Text>
+            </TouchableOpacity>
+        </SafeAreaView>
     );
 };
 
@@ -43,16 +69,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-    },
-
-    midContainer: {
-        marginTop: 200,
-        alignSelf: 'center',
-    },
-
-    buttonContainer: {
-        marginTop: 50,
-        alignSelf: 'center',
     },
 
     header: {
@@ -89,6 +105,21 @@ const styles = StyleSheet.create({
                 marginHorizontal: 30,
             }
         }),
+    },
+
+    cameraToggleButton: {
+        position: 'absolute',
+        bottom: 20,
+        alignSelf: 'center',
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 5,
+    },
+
+    cameraToggleText: {
+        color: '#fff',
+        fontSize: 16,
     },
 });
 
