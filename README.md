@@ -8,7 +8,7 @@
 *TrueMe* aims to assist users in their skincare and beauty journey. Users will be able to easily discover new products that are recommended to them based on their skin condition. *TrueMe* will utilize facial recognition to achieve this. In addition, the user will have control over their automated suggestions with filters in order to further provide personalization. *TrueMe* will also allow users to create their own daily routines as well as receive recommended routines.
 
 # Installation
- [![Get it on Google Play](https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png)](https://play.google.com/store/apps/details?id=com.trueme&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1)
+<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" width="250"/>
 
 [*insert apple app store link here when its available*]
 
