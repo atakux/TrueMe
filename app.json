@@ -41,8 +41,8 @@
         },
         "expo-media-library",
         {
-          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
-          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
+          "photosPermission": "Allow TrueMe to access your photos.",
+          "savePhotosPermission": "Allow TrueMe to save photos.",
           "isAccessMediaLocationEnabled": true
         }
       ]
