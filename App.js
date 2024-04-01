@@ -85,7 +85,10 @@ const originalError = console.error;
 
 console.warn = (...args) => {
   const [firstArg] = args;
-  if (typeof firstArg === 'string' && firstArg.startsWith('Non-serializable values') || firstArg.startsWith('Key "cancelled" in the image picker') || firstArg.startsWith('Encountered two children with the same key')) {
+  if (typeof firstArg === 'string' && firstArg.startsWith('Non-serializable values') || 
+             firstArg.startsWith('Key "cancelled" in the image picker') || 
+             firstArg.startsWith('Encountered two children with the same key') || 
+             firstArg.startsWith('Sending \'onAnimatedValueUpdate\' with no listeners registered.')) {
     // Suppress the warning
     return;
   }
@@ -110,4 +113,5 @@ LogBox.ignoreLogs([
   'Key "cancelled" in the image picker result is deprecated and will be removed in SDK 48, use "canceled" instead',
   'Encountered two children with the same key',
   'Request failed with status code 429',
+  "Sending 'onAnimatedValueUpdate' with no listeners registered.",
 ]);
