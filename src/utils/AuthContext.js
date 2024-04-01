@@ -6,9 +6,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  console.log('Before useState:'); // Add this line
+  // console.log('Before useState:'); // Debug
   const [user, setUser] = useState(null);
-  console.log('After useState, user:', user); // Add this line
+  // console.log('After useState, user:', user); // Debug
 
 
   useEffect(() => {
