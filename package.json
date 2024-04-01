@@ -21,6 +21,7 @@
     "expo": "^49.0.22",
     "expo-font": "~11.4.0",
     "expo-image-picker": "~14.3.2",
+    "expo-media-library": "^15.9.1",
     "expo-splash-screen": "~0.20.5",
     "expo-status-bar": "~1.6.0",
     "expo-system-ui": "~2.4.0",

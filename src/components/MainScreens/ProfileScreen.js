@@ -12,6 +12,8 @@ import { loadFonts } from '../../utils/FontLoader';
 import { useAuth } from '../../utils/AuthContext';
 
 import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
+
 import { fetchBannerImage, fetchProfileImage, uploadProfileImage, uploadBannerImage } from '../../utils/FirestoreDataService';
 
 const ProfileScreen = () => {
@@ -25,6 +27,8 @@ const ProfileScreen = () => {
   
   const [bannerImage, setBannerImage] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
+
+  const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
 
   const fetchData = useCallback(async () => {
     try {
@@ -84,51 +88,59 @@ const ProfileScreen = () => {
   };
 
   const pickBannerImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [10, 10],
-      quality: 1,
-      canceled: false
-    });
-  
-    console.log(result);
-  
-    if (!result.canceled) {
-      setLoading(true); // Set loading to true while uploading image
-      setBannerImage(result.assets[0].uri);
-      // Call uploadBannerImage function to save the image to Firestore
-      try {
-        await uploadBannerImage(user.uid, result.assets[0].uri);
-      } catch (error) {
-        console.error('Error uploading image: ', error);
-      } finally {
-        setLoading(false); // Set loading back to false after upload completes
+    if (permissionResponse.status !== 'granted') {
+      await requestPermission();
+    } else {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [10, 10],
+        quality: 1,
+        canceled: false
+      });
+    
+      console.log(result);
+    
+      if (!result.canceled) {
+        setLoading(true); // Set loading to true while uploading image
+        setBannerImage(result.assets[0].uri);
+        // Call uploadBannerImage function to save the image to Firestore
+        try {
+          await uploadBannerImage(user.uid, result.assets[0].uri);
+        } catch (error) {
+          console.error('Error uploading image: ', error);
+        } finally {
+          setLoading(false); // Set loading back to false after upload completes
+        }
       }
     }
-  };
+    };
 
   const pickProfileImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [10, 10],
-      quality: 1,
-      canceled: false
-    });
-  
-    console.log(result);
-  
-    if (!result.canceled) {
-      setLoading(true); // Set loading to true while uploading image
-      setProfileImage(result.assets[0].uri);
-      // Call uploadBannerImage function to save the image to Firestore
-      try {
-        await uploadProfileImage(user.uid, result.assets[0].uri);
-      } catch (error) {
-        console.error('Error uploading image: ', error);
-      } finally {
-        setLoading(false); // Set loading back to false after upload completes
+    if (permissionResponse.status !== 'granted') {
+      await requestPermission();
+    } else {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [10, 10],
+        quality: 1,
+        canceled: false
+      });
+    
+      console.log(result);
+    
+      if (!result.canceled) {
+        setLoading(true); // Set loading to true while uploading image
+        setProfileImage(result.assets[0].uri);
+        // Call uploadBannerImage function to save the image to Firestore
+        try {
+          await uploadProfileImage(user.uid, result.assets[0].uri);
+        } catch (error) {
+          console.error('Error uploading image: ', error);
+        } finally {
+          setLoading(false); // Set loading back to false after upload completes
+        }
       }
     }
   };

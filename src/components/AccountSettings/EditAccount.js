@@ -10,6 +10,7 @@ import { EditPasswordInput } from '../../utils/PasswordInput';
 import { useAuth } from '../../utils/AuthContext';
 import { uploadBannerImage, fetchBannerImage, uploadProfileImage, fetchProfileImage, updateUsernameInFirestore } from '../../utils/FirestoreDataService'; // Import fetchLatestBannerImage function
 import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
 
 const EditAccount = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
@@ -36,6 +37,8 @@ const EditAccount = () => {
   const [isEditPasswordModalVisible, setIsEditPasswordModalVisible] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [PWLoading, setPWLoading] = useState(false);
+
+  const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
 
   // Function to toggle modal visibility
   const toggleEditPasswordModal = () => {
@@ -112,51 +115,60 @@ const EditAccount = () => {
   }, [user, fetchData, isFocused]);
 
   const pickBannerImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [10, 10],
-      quality: 1,
-      canceled: false
-    });
-  
-    console.log(result);
-  
-    if (!result.canceled) {
-      setLoading(true); // Set loading to true while uploading image
-      setBannerImage(result.assets[0].uri);
-      // Call uploadBannerImage function to save the image to Firestore
-      try {
-        await uploadBannerImage(user.uid, result.assets[0].uri);
-      } catch (error) {
-        console.error('Error uploading image: ', error);
-      } finally {
-        setLoading(false); // Set loading back to false after upload completes
+
+    if (permissionResponse.status !== 'granted') {
+      await requestPermission();
+    } else {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [10, 10],
+        quality: 1,
+        canceled: false
+      });
+    
+      console.log(result);
+    
+      if (!result.canceled) {
+        setLoading(true); // Set loading to true while uploading image
+        setBannerImage(result.assets[0].uri);
+        // Call uploadBannerImage function to save the image to Firestore
+        try {
+          await uploadBannerImage(user.uid, result.assets[0].uri);
+        } catch (error) {
+          console.error('Error uploading image: ', error);
+        } finally {
+          setLoading(false); // Set loading back to false after upload completes
+        }
       }
     }
   };
 
   const pickProfileImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [10, 10],
-      quality: 1,
-      canceled: false
-    });
-  
-    console.log(result);
-  
-    if (!result.canceled) {
-      setLoading(true); // Set loading to true while uploading image
-      setProfileImage(result.assets[0].uri);
-      // Call uploadBannerImage function to save the image to Firestore
-      try {
-        await uploadProfileImage(user.uid, result.assets[0].uri);
-      } catch (error) {
-        console.error('Error uploading image: ', error);
-      } finally {
-        setLoading(false); // Set loading back to false after upload completes
+    if (permissionResponse.status !== 'granted') {
+      await requestPermission();
+    } else {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [10, 10],
+        quality: 1,
+        canceled: false
+      });
+    
+      console.log(result);
+    
+      if (!result.canceled) {
+        setLoading(true); // Set loading to true while uploading image
+        setProfileImage(result.assets[0].uri);
+        // Call uploadBannerImage function to save the image to Firestore
+        try {
+          await uploadProfileImage(user.uid, result.assets[0].uri);
+        } catch (error) {
+          console.error('Error uploading image: ', error);
+        } finally {
+          setLoading(false); // Set loading back to false after upload completes
+        }
       }
     }
   };
