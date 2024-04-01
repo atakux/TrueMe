@@ -120,7 +120,7 @@ const EditAccount = () => {
       await requestPermission();
     } else {
       let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [10, 10],
         quality: 1,
@@ -149,7 +149,7 @@ const EditAccount = () => {
       await requestPermission();
     } else {
       let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [10, 10],
         quality: 1,
