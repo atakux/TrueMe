@@ -16,7 +16,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.trueme"
+      "bundleIdentifier": "com.trueme",
+      "buildNumber": 2
     },
     "android": {
       "adaptiveIcon": {
