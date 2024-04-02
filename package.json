@@ -18,6 +18,7 @@
     "@react-navigation/stack": "^6.3.20",
     "axios": "^1.6.8",
     "cocoapods": "^0.0.0",
+    "eas-cli": "^7.6.2",
     "expo": "^49.0.22",
     "expo-font": "~11.4.0",
     "expo-image-picker": "~14.3.2",
