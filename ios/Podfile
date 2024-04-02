@@ -42,6 +42,7 @@ target 'TrueMe' do
   use_expo_modules!
   config = use_native_modules!
 
+  use_frameworks! :linkage => :static
   use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
   use_frameworks! :linkage => ENV['USE_FRAMEWORKS'].to_sym if ENV['USE_FRAMEWORKS']
   pod 'RNFBApp', :path => '../node_modules/@react-native-firebase/app'
@@ -56,7 +57,7 @@ target 'TrueMe' do
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/..",
     # Note that if you have use_frameworks! enabled, Flipper will not work if enabled
-    :flipper_configuration => flipper_config
+    # :flipper_configuration => flipper_config
   )
 
   post_install do |installer|
