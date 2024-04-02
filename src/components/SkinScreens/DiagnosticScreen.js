@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, Image, Animated, Easing } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Camera } from 'expo-camera';
@@ -15,6 +15,7 @@ const DiagnosticScreen = () => {
     const [capturedPhotoUri, setCapturedPhotoUri] = useState(null);
     const [isTakingPhoto, setIsTakingPhoto] = useState(false);
     const cameraRef = useRef(null);
+    const glowValue = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         const loadAsyncData = async () => {
@@ -32,13 +33,30 @@ const DiagnosticScreen = () => {
         })();
     }, []);
 
-    if (!fontLoaded || hasPermission === null) {
-        return null; // You may want to display a loading indicator here
-    }
+    useEffect(() => {
+        if (fontLoaded && hasPermission) {
+            startGlowAnimation();
+        }
+    }, [fontLoaded, hasPermission]); // Start animation once font and permission are loaded
 
-    if (!hasPermission) {
-        return <Text>No access to camera</Text>;
-    }
+    const startGlowAnimation = () => {
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(glowValue, {
+                    toValue: 1,
+                    duration: 1000,
+                    easing: Easing.inOut(Easing.quad),
+                    useNativeDriver: true,
+                }),
+                Animated.timing(glowValue, {
+                    toValue: 0,
+                    duration: 1000,
+                    easing: Easing.inOut(Easing.quad),
+                    useNativeDriver: true,
+                }),
+            ])
+        ).start();
+    };
 
     const toggleCameraType = () => {
         setCameraType(
@@ -78,30 +96,35 @@ const DiagnosticScreen = () => {
                 ) : (
                     <Camera style={{ flex: 1 }} type={cameraType} ref={cameraRef}>
                         {/* Transparent image overlay */}
-                        <Image
+                        <Animated.Image
                             source={require('../../../assets/images/head_outline.png')}
-                            style={{
-                                width: 450,
-                                height: 450,
-                                resizeMode: 'cover',
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: [{ translateX: -225 }, { translateY: -225 }], // Adjust for half of image width and height
-                            }}
+                            style={[
+                                styles.overlayImage,
+                                {
+                                    opacity: glowValue.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [0.2, 0.8],
+                                    }),
+                                },
+                            ]}
                         />
                     </Camera>
                 )}
             </View>
 
-            <TouchableOpacity style={styles.takePhotoButton} onPress={takePhoto} disabled={isTakingPhoto}>
-                <Text style={styles.takePhotoButtonText}>Take Photo</Text>
-            </TouchableOpacity>
+            <View style={styles.bottomBar}>
+                <TouchableOpacity onPress={takePhoto} disabled={isTakingPhoto}>
+                    <Image source={require('../../../assets/icons/click_camera.png')} style={styles.takePhotoIcon} />
+                </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity style={styles.cameraToggleButton} onPress={toggleCameraType}>
-                <Text style={styles.cameraToggleText}>Toggle Camera</Text>
-            </TouchableOpacity>
-            
+
+            <View style={styles.cameraToggleContainer}>
+                <TouchableOpacity onPress={toggleCameraType}>
+                    <Image source={require('../../../assets/icons/camera_flip.png')} style={styles.cameraToggleIcon} />
+                </TouchableOpacity>
+            </View>
+
         </SafeAreaView>
     );
 };
@@ -148,14 +171,23 @@ const styles = StyleSheet.create({
         }),
     },
 
-    takePhotoButton: {
+    bottomBar: {
         position: 'absolute',
-        bottom: 20,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 1.0)',
+        paddingVertical: 12,
+    },
+
+    takePhotoIcon: {
+        width: 80,
+        height: 80,
         alignSelf: 'center',
-        backgroundColor: 'rgba(0,0,0,0.6)',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 5,
+        // Add any additional styles for the icon here
     },
 
     takePhotoButtonText: {
@@ -163,19 +195,35 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
 
-    cameraToggleButton: {
+    cameraToggleContainer: {
         position: 'absolute',
-        bottom: 80,
-        alignSelf: 'center',
-        backgroundColor: 'rgba(0,0,0,0.6)',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 5,
+        bottom: 0,
+        left: "75%",
+        right: 0,
+        flexDirection: 'row',
+        justifyContent: 'right',
+        alignItems: 'center',
+        paddingVertical: 12,
+    },
+
+    cameraToggleIcon: {
+        width: 70,
+        height: 70,
     },
 
     cameraToggleText: {
         color: '#fff',
         fontSize: 16,
+    },
+
+    overlayImage: {
+        width: 450,
+        height: 450,
+        resizeMode: 'cover',
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: [{ translateX: -225 }, { translateY: -225 }], // Adjust for half of image width and height
     },
 });
 
