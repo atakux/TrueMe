@@ -4,37 +4,30 @@ import Swiper from 'react-native-deck-swiper';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { useNavigation } from '@react-navigation/native';
-import { onAuthStateChanged, getDisplayName } from 'firebase/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { loadFonts } from '../../utils/FontLoader'; 
 import { useAuth } from '../../utils/AuthContext';
 import { fetchDailyRoutines } from '../../utils/FirestoreDataService'; 
 import { RoutineProvider } from '../../utils/RoutineContext';
+import { AuthProvider } from '../../utils/AuthContext';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const user = useAuth();
   const currentDay = new Date().getDay();
 
+  console.log("DEBUG: User", user);
+
   const [fontLoaded, setFontLoaded] = useState(false);
   const [dailyRoutines, setDailyRoutines] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load fonts
-    const loadAsyncData = async () => {
-      await loadFonts();
-      setFontLoaded(true);
-    };
-
-    loadAsyncData();
-
     // Fetch daily routines function
     const fetchRoutines = async () => {
       try {
         const routines = await fetchDailyRoutines(user.uid);
-        setDailyRoutines(routines.filter(routine => routine.days === undefined || routine.days.includes(currentDay) || routine.id !== undefined));
+        setDailyRoutines(routines.filter(routine => routine.days === undefined || routine.days.includes(currentDay) || routine.id === undefined));
         setLoading(false);
         console.log("DEBUG: Fetched daily routines:", routines);
       } catch (error) {
@@ -42,20 +35,27 @@ const HomeScreen = () => {
         setLoading(false);
       }
     };
-
-    // Fetch daily routines only if user is logged in
-    if (user) {
-      fetchRoutines();
-    }
-
+  
+    // Execute the async functions
+    const loadData = async () => {
+      await loadFonts();
+      setFontLoaded(true);
+      
+      if (user) {
+        await fetchRoutines();
+      }
+    };
+  
+    loadData();
+  
     // Refresh daily routines when navigation is focused
-    const unsubscribe = navigation.addListener('focus', () => {
-      fetchRoutines();
+    const unsubscribe = navigation.addListener('focus', async () => {
+      await fetchRoutines();
     });
-
+  
     return unsubscribe;
-
-  }, [user, navigation, setDailyRoutines, fetchDailyRoutines]);
+  }, [user, navigation, currentDay, setFontLoaded, setDailyRoutines, fetchDailyRoutines]);
+  
 
   if (!user) {
     // User not logged in

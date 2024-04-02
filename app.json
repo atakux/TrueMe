@@ -38,7 +38,9 @@
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you customize your profile."
-        },
+        }
+      ],
+      [
         "expo-media-library",
         {
           "photosPermission": "Allow TrueMe to access your photos.",

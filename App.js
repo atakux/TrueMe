@@ -42,8 +42,19 @@ export default function App() {
     <AuthProvider user = {user}>
       <NavigationContainer style={styles.container}>
         <Stack.Navigator>
-          { user ? <Stack.Screen name="HomeScreenLoggedIn" component={TabBar} options={{ headerShown: false }} /> : (
-            <Stack.Screen name="LaunchScreen" component={LaunchScreen} options={{ headerShown: false }} />
+          {/* If the user is already logged in, navigate to the HomeScreen directly */}
+          {user ? (
+            <Stack.Screen
+              name="HomeScreenLoggedIn"
+              component={TabBar}
+              options={{ headerShown: false }}
+            />
+          ) : (
+            <Stack.Screen
+              name="LaunchScreen"
+              component={LaunchScreen}
+              options={{ headerShown: false }}
+            />
           )}
           <Stack.Screen name="HomeScreen" component={TabBar} options={{ headerShown: false }} />
           <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />

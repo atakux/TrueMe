@@ -17,7 +17,6 @@ export const AuthProvider = ({ children }) => {
         if (authUser) {
           setUser(authUser);
           await AsyncStorage.setItem('user', JSON.stringify(authUser)); // Store user data
-          console.log('User data stored in AsyncStorage:', JSON.stringify(authUser));
         } else {
           setUser(null);
           await AsyncStorage.removeItem('user'); // Remove user data
