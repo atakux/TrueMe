@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -12,6 +12,9 @@ const DiagnosticScreen = () => {
     const [fontLoaded, setFontLoaded] = useState(false);
     const [hasPermission, setHasPermission] = useState(null);
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
+    const [capturedPhotoUri, setCapturedPhotoUri] = useState(null);
+    const [isTakingPhoto, setIsTakingPhoto] = useState(false);
+    const cameraRef = useRef(null);
 
     useEffect(() => {
         const loadAsyncData = async () => {
@@ -45,6 +48,21 @@ const DiagnosticScreen = () => {
         );
     };
 
+    const takePhoto = async () => {
+        console.log('Taking photo...');
+        if (cameraRef.current && !isTakingPhoto) {
+            setIsTakingPhoto(true);
+            try {
+                const photo = await cameraRef.current.takePictureAsync();
+                console.log('Photo captured:', photo);
+                setCapturedPhotoUri(photo.uri); // Store the URI of the captured photo
+            } catch (error) {
+                console.error('Error taking photo:', error);
+            }
+            setIsTakingPhoto(false);
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
@@ -55,12 +73,35 @@ const DiagnosticScreen = () => {
             </View>
 
             <View style={{ flex: 1 }}>
-                <Camera style={{ flex: 1 }} type={cameraType} />
+                {capturedPhotoUri ? (
+                    <Image source={{ uri: capturedPhotoUri }} style={{ flex: 1 }} resizeMode="contain" />
+                ) : (
+                    <Camera style={{ flex: 1 }} type={cameraType} ref={cameraRef}>
+                        {/* Transparent image overlay */}
+                        <Image
+                            source={require('../../../assets/images/head_outline.png')}
+                            style={{
+                                width: 450,
+                                height: 450,
+                                resizeMode: 'cover',
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: [{ translateX: -225 }, { translateY: -225 }], // Adjust for half of image width and height
+                            }}
+                        />
+                    </Camera>
+                )}
             </View>
+
+            <TouchableOpacity style={styles.takePhotoButton} onPress={takePhoto} disabled={isTakingPhoto}>
+                <Text style={styles.takePhotoButtonText}>Take Photo</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity style={styles.cameraToggleButton} onPress={toggleCameraType}>
                 <Text style={styles.cameraToggleText}>Toggle Camera</Text>
             </TouchableOpacity>
+            
         </SafeAreaView>
     );
 };
@@ -107,9 +148,24 @@ const styles = StyleSheet.create({
         }),
     },
 
-    cameraToggleButton: {
+    takePhotoButton: {
         position: 'absolute',
         bottom: 20,
+        alignSelf: 'center',
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 5,
+    },
+
+    takePhotoButtonText: {
+        color: '#fff',
+        fontSize: 16,
+    },
+
+    cameraToggleButton: {
+        position: 'absolute',
+        bottom: 80,
         alignSelf: 'center',
         backgroundColor: 'rgba(0,0,0,0.6)',
         paddingHorizontal: 20,
