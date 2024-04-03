@@ -95,7 +95,9 @@ const DiagnosticScreen = () => {
                     <Image source={{ uri: capturedPhotoUri }} style={{ flex: 1 }} resizeMode="contain" />
                 ) : (
                     <Camera style={{ flex: 1 }} type={cameraType} ref={cameraRef}>
-                        {/* Transparent image overlay */}
+
+
+                        {/* Oval image overlay */}
                         <Animated.Image
                             source={require('../../../assets/images/head_outline.png')}
                             style={[
@@ -108,9 +110,22 @@ const DiagnosticScreen = () => {
                                 },
                             ]}
                         />
+
+                        {/* Dotted outline */}
+                        <Image source={require('../../../assets/images/dotted_head_outline.png')}style={styles.overlaydottedImageIn}/>
+
+                        <Image source={require('../../../assets/images/dotted_head_outline.png')}style={styles.overlaydottedImageOut}/>
+                        
                     </Camera>
                 )}
             </View>
+
+            {/* Overlay Dialogue */}
+            <View style={styles.overlayDialogue}>
+                <Text style={styles.overlayText}>Line up your face with the frame and take a photo.</Text>
+            </View>
+
+
 
             <View style={styles.bottomBar}>
                 <TouchableOpacity onPress={takePhoto} disabled={isTakingPhoto}>
@@ -217,13 +232,54 @@ const styles = StyleSheet.create({
     },
 
     overlayImage: {
-        width: 450,
-        height: 450,
-        resizeMode: 'cover',
+        width: 400,
+        height: 400,
+        resizeMode: 'contain',
         position: 'absolute',
-        top: '50%',
+        top: '20%',
         left: '50%',
-        transform: [{ translateX: -225 }, { translateY: -225 }], // Adjust for half of image width and height
+        transform: [{ translateX: -200 }, { translateY: -50 }], // Adjust for half of image width
+    },
+    
+    overlaydottedImageIn: {
+        width: 600,
+        height: 600,
+        resizeMode: 'contain',
+        position: 'absolute',
+        top: '20%',
+        left: '50%',
+        opacity: 0.3,
+        transform: [{ translateX: -303 },  { translateY: -150 }], // Adjust for half of image width
+    },
+    
+    overlaydottedImageOut: {
+        width: 700,
+        height: 700,
+        resizeMode: 'contain',
+        position: 'absolute',
+        top: '20%',
+        left: '50%',
+        opacity: 0.3,
+        transform: [{ translateX: -354 }, { translateY: -200 }], // Adjust for half of image width
+    },
+    
+
+    overlayDialogue: {
+        position: 'absolute',
+        top: "85%",
+        left: "5%",
+        right: "5%",
+        bottom: "15%",
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        borderWidth: 1,
+        borderRadius: 20,
+    },
+
+    overlayText: {
+        color: '#fff',
+        fontSize: 24,
     },
 });
 
