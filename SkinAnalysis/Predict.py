@@ -1,5 +1,6 @@
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
+from tensorflow import keras
+from keras.models import load_model
+from keras.preprocessing import image
 import numpy as np
 
 # Load the trained model
