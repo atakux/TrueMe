@@ -16,13 +16,18 @@ img_array = img_array / 255.0  # Normalize pixel values
 
 # Predict the class
 prediction = model.predict(img_array)
-print(prediction)
 
 # Define class indices
-class_indices = {0: 'acne', 1: 'bags', 2: 'redness'}
+class_indices = {0: 'acne', 1: 'bags', 2: 'redness', 3: 'normal', 4: 'dry', 5: 'oily', 6: 'wrinkles', 7: 'pores', 8: 'puffy_eyes', 9: 'darkspots'}
+
+# Print the class index with the corresponding prediction
+for i, p in enumerate(prediction[0]):
+    print(f"{class_indices[i]}: {p} -> ({100 * p:.2f}%)")
+
 
 # Get predicted class label
 predicted_class_index = np.argmax(prediction)
 predicted_class = class_indices[predicted_class_index]
+
 
 print("Predicted class:", predicted_class)

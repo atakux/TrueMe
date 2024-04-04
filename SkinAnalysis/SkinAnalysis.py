@@ -15,6 +15,7 @@ input_shape = (img_width, img_height, 3)
 # Parameters
 epochs = 10
 batch_size = 32
+num_classes = 10
 
 # Create image data generators
 train_datagen = ImageDataGenerator(rescale=1./255)
@@ -23,7 +24,8 @@ train_generator = train_datagen.flow_from_directory(
     dataset_path,
     target_size=(img_width, img_height),
     batch_size=batch_size,
-    class_mode='categorical'
+    class_mode='categorical',
+    classes=['acne', 'bags', 'redness', 'normal', 'dry', 'oily', 'wrinkles', 'pores', 'puffy_eyes', 'darkspots']
 )
 
 # Define the model
@@ -38,7 +40,7 @@ model = Sequential([
     MaxPooling2D((2, 2)),
     Flatten(),
     Dense(512, activation='relu'),
-    Dense(3, activation='softmax')  # Assuming 3 classes: acne, bags, redness
+    Dense(num_classes, activation='softmax')  # Output layers will be 7 to match number of classes
 ])
 
 # Compile the model
