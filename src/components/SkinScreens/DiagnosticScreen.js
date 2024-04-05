@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, Image, Animated, Easing, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, Dimensions, Image, Animated, Easing, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Camera } from 'expo-camera';
@@ -20,6 +20,20 @@ const DiagnosticScreen = () => {
     const cameraRef = useRef(null);
     const glowValue = useRef(new Animated.Value(0)).current;
 
+    // Calculate the height based on the aspect ratio 9:16
+    const aspectRatio = 3 / 4;
+
+    // Define styles for the Camera component
+    const cameraStyles = StyleSheet.create({
+        cameraContainer: {
+            flex: 1,
+            alignSelf: 'center',
+            justifyContent: 'center',
+            alignItems: 'center',
+            aspectRatio: aspectRatio // This sets the aspect ratio dynamically
+        }
+    });
+
     useEffect(() => {
         const loadAsyncData = async () => {
             await loadFonts();
@@ -31,7 +45,7 @@ const DiagnosticScreen = () => {
 
     useEffect(() => {
         (async () => {
-            const { status } = await Camera.requestPermissionsAsync();
+            const { status } = await Camera.requestCameraPermissionsAsync();
             setHasPermission(status === 'granted');
         })();
     }, []);
@@ -120,7 +134,7 @@ const DiagnosticScreen = () => {
                 {capturedPhotoUri ? (
                     <Image source={{ uri: capturedPhotoUri }} style={{ flex: 1 }} resizeMode="contain" />
                 ) : (
-                    <Camera style={{ flex: 1 }} type={cameraType} ref={cameraRef}>
+                    <Camera style={ cameraStyles.cameraContainer } type={cameraType} ref={cameraRef}>
                         {/* Oval image overlay */}
                         <Animated.Image
                             source={require('../../../assets/images/head_outline.png')}
@@ -170,7 +184,7 @@ const DiagnosticScreen = () => {
                         <Image source={{ uri: capturedPhotoUri }} style={styles.modalPhoto} resizeMode="contain" />
                         <Text style={styles.modalText}>Do you want to retake the photo?</Text>
                         <View style={styles.modalButtonsContainer}>
-                            <TouchableOpacity style={styles.modalButton} onPress={handleRetake}>
+                            <TouchableOpacity style={styles.modalButtonRetake} onPress={handleRetake}>
                                 <Text style={styles.modalButtonText}>Retake</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.modalButton} onPress={handleUsePhoto}>
@@ -294,10 +308,8 @@ const styles = StyleSheet.create({
 
     overlayDialogue: {
         position: 'absolute',
-        top: "85%",
-        left: "5%",
-        right: "5%",
-        bottom: "15%",
+        top: '80%',
+        alignSelf: 'center',
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -307,7 +319,10 @@ const styles = StyleSheet.create({
 
     overlayText: {
         color: '#fff',
-        fontSize: 24,
+        fontSize: 20,
+        padding: 10,
+        textAlign: 'left',
+        fontFamily: 'Sofia-Sans',
     },
 
     modalContainer: {
@@ -343,6 +358,13 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
         padding: 10,
         backgroundColor: '#64BBA1',
+        borderRadius: 5,
+    },
+
+    modalButtonRetake: {
+        backgroundColor: '#804396',
+        marginHorizontal: 10,
+        padding: 10,
         borderRadius: 5,
     },
 
