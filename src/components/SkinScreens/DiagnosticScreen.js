@@ -12,7 +12,7 @@ const DiagnosticScreen = () => {
     const navigation = useNavigation();
     const [fontLoaded, setFontLoaded] = useState(false);
     const [hasPermission, setHasPermission] = useState(null);
-    const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
+    const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [capturedPhotoUri, setCapturedPhotoUri] = useState(null);
     const [isTakingPhoto, setIsTakingPhoto] = useState(false);
     const [showModal, setShowModal] = useState(false); // State for modal visibility
