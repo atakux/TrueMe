@@ -17,6 +17,7 @@ import GetStarted from './src/components/SkinScreens/GetStarted';
 import DiagnosticScreen from './src/components/SkinScreens/DiagnosticScreen';
 import ResultScreen from './src/components/SkinScreens/ResultScreen';
 import TabBar from './src/utils/TabBar';
+import LoadingAnalysis from './src/components/SkinScreens/LoadingAnalysis';
 
 const Stack = createStackNavigator();
 
@@ -64,6 +65,7 @@ export default function App() {
           <Stack.Screen name="EditRoutine" component={EditRoutine} options={{ headerShown: false }} />
           <Stack.Screen name="EditAccount" component={EditAccount} options={{ headerShown: false }} />
           <Stack.Screen name="GetStarted" component={GetStarted} options={{ headerShown: false }} />
+          <Stack.Screen name="LoadingAnalysis" component={LoadingAnalysis} options={{ headerShown: false }} />
           <Stack.Screen name="DiagnosticScreen" component={DiagnosticScreen} options={{ headerShown: false }} />
           <Stack.Screen name="ResultScreen" component={ResultScreen} options={{ headerShown: false }} />
         </Stack.Navigator>

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, Image, Animated, Easing } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, Image, Animated, Easing, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Camera } from 'expo-camera';
 
 import { loadFonts } from '../../utils/FontLoader';
 import { useAuth } from '../../utils/AuthContext';
+import * as FileSystem from 'expo-file-system';
 
 const DiagnosticScreen = () => {
     const navigation = useNavigation();
@@ -14,6 +15,8 @@ const DiagnosticScreen = () => {
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
     const [capturedPhotoUri, setCapturedPhotoUri] = useState(null);
     const [isTakingPhoto, setIsTakingPhoto] = useState(false);
+    const [showModal, setShowModal] = useState(false); // State for modal visibility
+
     const cameraRef = useRef(null);
     const glowValue = useRef(new Animated.Value(0)).current;
 
@@ -73,12 +76,35 @@ const DiagnosticScreen = () => {
             try {
                 const photo = await cameraRef.current.takePictureAsync();
                 console.log('Photo captured:', photo);
-                setCapturedPhotoUri(photo.uri); // Store the URI of the captured photo
+    
+                // Save the photo to the device's cache or file system
+                setCapturedPhotoUri(photo.uri); // Set captured photo URI
+                setShowModal(true); // Show modal after capturing the photo
+
             } catch (error) {
                 console.error('Error taking photo:', error);
             }
             setIsTakingPhoto(false);
         }
+    };
+
+    const handleRetake = () => {
+        setCapturedPhotoUri(null); // Reset captured photo URI
+        setShowModal(false); // Hide modal
+    };
+
+    const handleUsePhoto = () => {
+        // Pass the filename to your analysis function
+        analyzePhoto(capturedPhotoUri);
+        setShowModal(false); // Hide modal
+        navigation.navigate('LoadingAnalysis'); // Navigate to the loading screen
+    };
+
+    const analyzePhoto = async (filename) => {
+        console.log('Analyzing photo:', filename);
+
+        // Import and call analysis function here
+        // to access jpg file, use "filename"
     };
 
     return (
@@ -95,8 +121,6 @@ const DiagnosticScreen = () => {
                     <Image source={{ uri: capturedPhotoUri }} style={{ flex: 1 }} resizeMode="contain" />
                 ) : (
                     <Camera style={{ flex: 1 }} type={cameraType} ref={cameraRef}>
-
-
                         {/* Oval image overlay */}
                         <Animated.Image
                             source={require('../../../assets/images/head_outline.png')}
@@ -113,9 +137,7 @@ const DiagnosticScreen = () => {
 
                         {/* Dotted outline */}
                         <Image source={require('../../../assets/images/dotted_head_outline.png')}style={styles.overlaydottedImageIn}/>
-
                         <Image source={require('../../../assets/images/dotted_head_outline.png')}style={styles.overlaydottedImageOut}/>
-                        
                     </Camera>
                 )}
             </View>
@@ -125,14 +147,11 @@ const DiagnosticScreen = () => {
                 <Text style={styles.overlayText}>Line up your face with the frame and take a photo.</Text>
             </View>
 
-
-
             <View style={styles.bottomBar}>
                 <TouchableOpacity onPress={takePhoto} disabled={isTakingPhoto}>
                     <Image source={require('../../../assets/icons/click_camera.png')} style={styles.takePhotoIcon} />
                 </TouchableOpacity>
             </View>
-
 
             <View style={styles.cameraToggleContainer}>
                 <TouchableOpacity onPress={toggleCameraType}>
@@ -140,6 +159,27 @@ const DiagnosticScreen = () => {
                 </TouchableOpacity>
             </View>
 
+            {/* Modal for retake or use photo */}
+            <Modal
+                visible={showModal}
+                animationType="slide"
+                transparent={true}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Image source={{ uri: capturedPhotoUri }} style={styles.modalPhoto} resizeMode="contain" />
+                        <Text style={styles.modalText}>Do you want to retake the photo?</Text>
+                        <View style={styles.modalButtonsContainer}>
+                            <TouchableOpacity style={styles.modalButton} onPress={handleRetake}>
+                                <Text style={styles.modalButtonText}>Retake</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalButton} onPress={handleUsePhoto}>
+                                <Text style={styles.modalButtonText}>Use Photo</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 };
@@ -202,12 +242,6 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         alignSelf: 'center',
-        // Add any additional styles for the icon here
-    },
-
-    takePhotoButtonText: {
-        color: '#fff',
-        fontSize: 16,
     },
 
     cameraToggleContainer: {
@@ -224,11 +258,6 @@ const styles = StyleSheet.create({
     cameraToggleIcon: {
         width: 70,
         height: 70,
-    },
-
-    cameraToggleText: {
-        color: '#fff',
-        fontSize: 16,
     },
 
     overlayImage: {
@@ -262,7 +291,6 @@ const styles = StyleSheet.create({
         opacity: 0.3,
         transform: [{ translateX: -354 }, { translateY: -200 }], // Adjust for half of image width
     },
-    
 
     overlayDialogue: {
         position: 'absolute',
@@ -280,6 +308,48 @@ const styles = StyleSheet.create({
     overlayText: {
         color: '#fff',
         fontSize: 24,
+    },
+
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+
+    modalContent: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 20,
+        alignItems: 'center',
+    },
+
+    modalPhoto: {
+        width: 200, // Adjust according to your preference
+        height: 200, // Adjust according to your preference
+        marginBottom: 20,
+    },
+
+    modalText: {
+        fontSize: 18,
+        marginBottom: 20,
+    },
+
+    modalButtonsContainer: {
+        flexDirection: 'row',
+    },
+
+    modalButton: {
+        marginHorizontal: 10,
+        padding: 10,
+        backgroundColor: '#64BBA1',
+        borderRadius: 5,
+    },
+
+    modalButtonText: {
+        color: '#fff',
+        fontFamily: 'Sofia-Sans',
+        fontSize: 16,
     },
 });
 
