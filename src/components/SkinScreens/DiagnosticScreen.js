@@ -121,20 +121,20 @@ const DiagnosticScreen = () => {
             const formData = new FormData();
             formData.append('image', {
                 uri: filename,
-                name: 'photo.jpg', // Adjust the filename as needed
-                type: 'image/jpeg', // Adjust the image type as needed
+                name: 'photo.jpg',
+                type: 'image/jpeg',
             });
-
+    
             console.log('Form data:', formData);
     
-            const response = await fetch('http://127.0.0.1:5000/predict', {
+            const response = await fetch('https://trueme-python-server.onrender.com/predict', {
                 method: 'POST',
                 body: formData,
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-
+    
             console.log('Response:', response);
     
             if (!response.ok) {
@@ -143,10 +143,14 @@ const DiagnosticScreen = () => {
     
             const result = await response.json();
             console.log('Analysis result:', result);
+    
+            // Handle the analysis result here, update UI accordingly
         } catch (error) {
             console.error('Error analyzing photo:', error);
+            // Handle error, show error message to the user
         }
     };
+    
     
 
     return (
