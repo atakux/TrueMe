@@ -116,10 +116,38 @@ const DiagnosticScreen = () => {
 
     const analyzePhoto = async (filename) => {
         console.log('Analyzing photo:', filename);
+    
+        try {
+            const formData = new FormData();
+            formData.append('image', {
+                uri: filename,
+                name: 'photo.jpg', // Adjust the filename as needed
+                type: 'image/jpeg', // Adjust the image type as needed
+            });
 
-        // Import and call analysis function here
-        // to access jpg file, use "filename"
+            console.log('Form data:', formData);
+    
+            const response = await fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            console.log('Response:', response);
+    
+            if (!response.ok) {
+                throw new Error('Failed to analyze photo');
+            }
+    
+            const result = await response.json();
+            console.log('Analysis result:', result);
+        } catch (error) {
+            console.error('Error analyzing photo:', error);
+        }
     };
+    
 
     return (
         <SafeAreaView style={styles.container}>
