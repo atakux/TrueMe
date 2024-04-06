@@ -23,6 +23,7 @@ const HomeScreen = () => {
   const [skinResults, setSkinResults] = useState([]);
   const [skinType, setSkinType] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [healthySkinDisplayed, setHealthySkinDisplayed] = useState(false);
 
   useEffect(() => {
     // Fetch daily routines function
@@ -72,6 +73,14 @@ const HomeScreen = () => {
           } else {
               setSkinType('Combination');
           } 
+
+          if (!healthySkinDisplayed) {
+            const keys = Object.keys(skinResults);
+            const isHealthySkin = keys.every(key => skinResults[key] <= 0.05);
+            if (isHealthySkin) {
+              setHealthySkinDisplayed(true);
+            }
+          }
       } else {
           console.error("Error fetching skin analysis results.");
       }
@@ -87,7 +96,7 @@ const HomeScreen = () => {
     });
   
     return unsubscribe;
-  }, [user, navigation, currentDay, setFontLoaded, setDailyRoutines, fetchDailyRoutines, setSkinResults, getSkinAnalysisResults]);
+  }, [user, navigation, currentDay, setFontLoaded, setDailyRoutines, fetchDailyRoutines, setSkinResults, getSkinAnalysisResults, setSkinType, setLoading]);
   
 
   if (!user) {
@@ -182,19 +191,33 @@ const HomeScreen = () => {
                   </View>
                   <TouchableOpacity onPress={handleSkinResultContainerClick}>
                     <Text style={styles.skinDiagnostics}>Skin Diagnostic Results:</Text>
-                    {skinResults && Object.entries(skinResults)
+                    {Object.entries(skinResults)
                       .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
                       .sort(([, a], [, b]) => b - a) // Sorting based on prediction values
-                      .slice(0, 3)
-                      .sort()
-                      .map(([key], index) => (
-                        <View key={index}>
-                          <Text style={styles.resultsText}> •  {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</Text>
-                        </View>
-                      ))}
+                      .map(([key], index) => {
+                        const prediction = skinResults[key];
+                        if (prediction > 0.05) {
+                          // If the prediction is above 0.05, render the prediction text
+                          return (
+                            <View key={index}>
+                              <Text style={styles.resultsText}> • {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</Text>
+                            </View>
+                          );
+                        } else {
+                          // If the prediction is below or equal to 0.05, do not render
+                          return null;
+                        }
+                    })}
+                    {Object.entries(skinResults)
+                      .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
+                      .every(([, prediction]) => prediction <= 0.05) && (
+                      // If all predictions are below 0.05, display "Healthy Skin"
+                      <Text style={styles.resultsText}>Healthy Skin!!</Text>
+                    )}
                   </TouchableOpacity>
                 </>
               )}
+
             </View>
 
             {/* Daily Routines Container */}
