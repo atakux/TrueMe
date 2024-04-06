@@ -54,9 +54,6 @@ const ResultScreen = () => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                    <Image source={require('../../../assets/icons/back.png')} style={styles.backIcon}/>
-                </TouchableOpacity>
                 <Text style={styles.headerText}>Skin Diagnostic Results</Text>
                 <TouchableOpacity style={{alignSelf: "flex-end", paddingBottom: 5}} onPress={() => navigation.navigate('Home')}>
                     <Image source={require('../../../assets/icons/home-fill.png')} />
