@@ -224,7 +224,45 @@ const updateUsernameInFirestore = async (userId, newUsername) => {
   }
 };
 
+const saveSkinAnalysisResult = async (userId, result) => {
+  try {
+    // Reference to the user's document in Firestore
+    const userDocRef = doc(FIRESTORE_DB, "users", userId);
 
-export { fetchDailyRoutines, addRoutine, deleteRoutine, updateRoutine, 
-  uploadBannerImage, fetchBannerImage, uploadProfileImage, fetchProfileImage,
-  updateUsernameInFirestore };
+    // Check if the user document exists
+    const userDocSnapshot = await getDoc(userDocRef);
+    if (!userDocSnapshot.exists()) {
+      throw new Error(`User document with ID ${userId} does not exist.`);
+    }
+
+    // Create a new collection named 'skinAnalysis' for the user
+    const skinAnalysisCollectionRef = collection(FIRESTORE_DB, "users", userId, "skinAnalysisResults");
+
+    // Generate a unique ID for the document
+    const analysisDocRef = doc(skinAnalysisCollectionRef);
+
+    // Set the document data to the result
+    await setDoc(analysisDocRef, result);
+
+    console.log('Skin analysis result saved successfully.');
+  } catch (error) {
+    console.error('Error saving skin analysis result:', error);
+    throw error;
+  }
+};
+
+
+
+export { 
+fetchDailyRoutines, 
+addRoutine, 
+deleteRoutine, 
+updateRoutine, 
+uploadBannerImage, 
+fetchBannerImage, 
+uploadProfileImage, 
+fetchProfileImage,
+updateUsernameInFirestore,
+saveSkinAnalysisResult  // Export the new function
+};
+

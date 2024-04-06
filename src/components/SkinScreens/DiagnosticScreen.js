@@ -7,8 +7,11 @@ import { Camera } from 'expo-camera';
 import { loadFonts } from '../../utils/FontLoader';
 import { useAuth } from '../../utils/AuthContext';
 import * as FileSystem from 'expo-file-system';
+import { saveSkinAnalysisResult } from '../../utils/FirestoreDataService';
+
 
 const DiagnosticScreen = () => {
+    const user = useAuth();
     const navigation = useNavigation();
     const [fontLoaded, setFontLoaded] = useState(false);
     const [hasPermission, setHasPermission] = useState(null);
@@ -143,6 +146,8 @@ const DiagnosticScreen = () => {
     
             const result = await response.json();
             console.log('Analysis result:', result);
+
+            await saveSkinAnalysisResult(user.uid, result);
     
             // Handle the analysis result here, update UI accordingly
         } catch (error) {
