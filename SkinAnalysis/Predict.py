@@ -1,6 +1,8 @@
 from tensorflow import keras
 from keras.models import load_model
 from keras.preprocessing import image
+import PIL
+from PIL import Image
 import numpy as np
 
 def predict(image_path):
