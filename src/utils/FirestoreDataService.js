@@ -235,10 +235,18 @@ const saveSkinAnalysisResult = async (userId, result) => {
       throw new Error(`User document with ID ${userId} does not exist.`);
     }
 
-    // Create a new collection named 'skinAnalysis' for the user
+    // Reference to the skin analysis collection
     const skinAnalysisCollectionRef = collection(FIRESTORE_DB, "users", userId, "skinAnalysisResults");
 
-    // Generate a unique ID for the document
+    // Delete the existing skin analysis document if it exists
+    const existingAnalysisQuery = query(skinAnalysisCollectionRef);
+    const existingAnalysisSnapshot = await getDocs(existingAnalysisQuery);
+    existingAnalysisSnapshot.forEach(async (doc) => {
+      await deleteDoc(doc.ref);
+      console.log('Existing skin analysis document deleted.');
+    });
+
+    // Create a new document for the skin analysis result
     const analysisDocRef = doc(skinAnalysisCollectionRef);
 
     // Set the document data to the result
