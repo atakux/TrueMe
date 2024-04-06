@@ -23,12 +23,8 @@ const ResultScreen = () => {
             setFontLoaded(true);
             const skinAnalysisResults = await getSkinAnalysisResults(user.uid);
             if (skinAnalysisResults) {
-                console.log("DEBUG: Skin analysis results:", skinAnalysisResults);
-                console.log("DEBUG: Skin analysis results predictions:", skinAnalysisResults[0].prediction);
-                console.log("DEBUG: Skin analysis results predictions acne:", skinAnalysisResults[0].prediction.acne); 
+                console.log("DEBUG: Skin analysis results:", skinAnalysisResults[0].prediction);
                 setResults(skinAnalysisResults[0].prediction);
-
-                console.log("DEBUG: Results:", results);
 
                 // Determine skin type
                 const normal = skinAnalysisResults[0].prediction.normal;
