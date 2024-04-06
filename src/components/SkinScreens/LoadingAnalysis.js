@@ -13,12 +13,12 @@ const FacialAnalysisLoadingScreen = () => {
                 // Loop through checklist items
                 for (let i = 0; i < checklistItems.length; i++) {
                     // Wait for 1 second per task
-                    await new Promise(resolve => setTimeout(resolve, 1350));
+                    await new Promise(resolve => setTimeout(resolve, 2000));
                     // Update currentIndex
                     setCurrentIndex(i);
                 }
 
-                await new Promise(resolve => setTimeout(resolve, 1500)); 
+                await new Promise(resolve => setTimeout(resolve, 2000)); 
 
                 // Once all tasks are completed, navigate to the result screen
                 navigation.navigate('ResultScreen');

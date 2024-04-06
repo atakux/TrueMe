@@ -101,7 +101,7 @@ console.warn = (...args) => {
   if (typeof firstArg === 'string' && firstArg.startsWith('Non-serializable values') || 
              firstArg.startsWith('Key "cancelled" in the image picker') || 
              firstArg.startsWith('Encountered two children with the same key') || 
-             firstArg.startsWith('Sending \'onAnimatedValueUpdate\' with no listeners registered.')) {
+             firstArg.startsWith('Sending `onAnimatedValueUpdate` with no listeners registered.')) {
     // Suppress the warning
     return;
   }
@@ -111,11 +111,22 @@ console.warn = (...args) => {
 
 console.error = (...args) => {
   const [firstArg] = args;
-  if (typeof firstArg === 'string' && firstArg.startsWith('AxiosError')) {
+  if (typeof firstArg === 'string' && firstArg.startsWith('AxiosError') || 
+             firstArg.startsWith('There was a problem sending log messages')) {
     // Suppress the warning
     return;
   }
   // For other warnings, call the original console.warn()
+  originalError.apply(console, args);
+};
+
+console.error = (...args) => {
+  const [firstArg] = args;
+  if (typeof firstArg === 'string' && firstArg.startsWith('There was a problem sending log messages')) {
+    // Suppress the error
+    return;
+  }
+  // For other errors, call the original console.error()
   originalError.apply(console, args);
 };
 
@@ -126,5 +137,7 @@ LogBox.ignoreLogs([
   'Key "cancelled" in the image picker result is deprecated and will be removed in SDK 48, use "canceled" instead',
   'Encountered two children with the same key',
   'Request failed with status code 429',
-  "Sending 'onAnimatedValueUpdate' with no listeners registered.",
+  "Sending `onAnimatedValueUpdate` with no listeners registered.",
+  "There was a problem sending log messages to your development environment [PrettyFormatPluginError: value.hasOwnProperty is not a function (it is undefined)]",
+  "PrettyFormatPluginError: value.hasOwnProperty is not a function (it is undefined)",
 ]);
