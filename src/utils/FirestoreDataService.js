@@ -256,7 +256,7 @@ const getSkinAnalysisResults = async (userId) => {
     const skinAnalysisCollectionRef = collection(FIRESTORE_DB, "users", userId, "skinAnalysisResults");
     const skinAnalysisSnapshot = await getDocs(skinAnalysisCollectionRef);
     const skinAnalysisResults = skinAnalysisSnapshot.docs.map(doc => doc.data());
-    console.log("DEBUG: Skin analysis results:", skinAnalysisResults);
+    // console.log("DEBUG: Skin analysis results:", skinAnalysisResults); // Debugging line
     return skinAnalysisResults;
   } catch (error) {
     console.error("Error fetching skin analysis results:", error);
