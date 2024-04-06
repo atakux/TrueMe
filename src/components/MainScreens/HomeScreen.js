@@ -184,12 +184,13 @@ const HomeScreen = () => {
               ) : (
                 // If there are skin results, display top 3 greatest results
                 <>
-                  {/* Container Title */}
-                  <View style={styles.textContainer}>
-                    <Text style={styles.mainText}>Your Skin Type:</Text>
-                    <Text style={styles.skinType}> {skinType} Skin</Text>
-                  </View>
                   <TouchableOpacity onPress={handleSkinResultContainerClick}>
+                    {/* Container Title */}
+                    <View style={styles.textContainer}>
+                      <Text style={styles.mainText}>Your Skin Type:</Text>
+                      <Text style={styles.skinType}> {skinType} Skin</Text>
+                    </View>
+                  
                     <Text style={styles.skinDiagnostics}>Skin Diagnostic Results:</Text>
                     {Object.entries(skinResults)
                       .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
