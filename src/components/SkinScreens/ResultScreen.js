@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import { loadFonts } from '../../utils/FontLoader';
 import { useAuth } from '../../utils/AuthContext';
+import { getSkinAnalysisResults } from '../../utils/FirestoreDataService';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -12,19 +13,42 @@ const ResultScreen = () => {
     const navigation = useNavigation();
     const [loading, setLoading] = useState(false);
     const [fontLoaded, setFontLoaded] = useState(false);
+    const [results, setResults] = useState(null);
+    const [skinType, setSkinType] = useState(null);
     const user = useAuth();
 
     useEffect(() => {
         const loadAsyncData = async () => {
             await loadFonts();
             setFontLoaded(true);
+            const skinAnalysisResults = await getSkinAnalysisResults(user.uid);
+            if (skinAnalysisResults) {
+                console.log("DEBUG: Skin analysis results:", skinAnalysisResults[0].prediction);
+                setResults(skinAnalysisResults[0].prediction);
+
+                // Determine skin type
+                const normal = skinAnalysisResults[0].prediction.normal;
+                const dry = skinAnalysisResults[0].prediction.dry;
+                const oily = skinAnalysisResults[0].prediction.oily;
+                if (dry > normal && dry > oily) {
+                    setSkinType('Dry');
+                } else if (oily > normal && oily > dry) {
+                    setSkinType('Oily');
+                } else if (normal > dry && normal > oily) {
+                    setSkinType('Normal');
+                } else {
+                    setSkinType('Combination');
+                } 
+            } else {
+                console.error("Error fetching skin analysis results.");
+            }
         };
 
         loadAsyncData();
-    }, []);
+    }, [ user, getSkinAnalysisResults, setResults, setSkinType ]);
 
-    if (!fontLoaded) {
-        return null;
+    if (!fontLoaded || !results) {
+        return <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator}/>;
     };
 
     return (
@@ -43,6 +67,7 @@ const ResultScreen = () => {
                 <Text style={styles.title}>Your Results</Text>
                 <View style={styles.resultsContainer}>
                     <Text style={styles.resultText}>Your Skin Type:</Text>
+                    <Text style={styles.skinType}>{skinType}</Text>
                 </View>
             </View>
 
@@ -54,13 +79,13 @@ const ResultScreen = () => {
                     </TouchableOpacity>
                 </View>
                 <ScrollView style={styles.scrollView}>
-                    {[...Array(10)].map((_, index) => (
+                    {Object.keys(results).sort().map((key, index) => (  
                         <View key={index}>
                             <View style={styles.details}>
-                                <Text style={styles.detailsText}>Detail</Text>
+                                <Text style={styles.detailsText}>{key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</Text>
                                 <View style={styles.statusBarContainer}>
                                     <View style={styles.statusBar}>
-                                        <View style={[styles.statusBarFill, { width: '50%' }]} />
+                                        <View style={[styles.statusBarFill, { width: (parseFloat(results[key]) * 200) + '%' }]} />
                                     </View>
                                 </View>
                             </View>
@@ -68,9 +93,6 @@ const ResultScreen = () => {
                     ))}
                 </ScrollView>
             </View>
-
-            
-
         </SafeAreaView>
 
     );
@@ -81,6 +103,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
+
+    loadingIndicator: {
+        marginTop: 300,
+      },
 
     resultsContainer: {
         height: screenWidth - 150,
@@ -111,12 +137,20 @@ const styles = StyleSheet.create({
         flex: 1,
         flexGrow: 1,
         marginRight: 20,
-        marginBottom: 200,
+        marginBottom: 300,
     },
 
     results: {
         marginTop: 20,
         marginBottom: 10,
+    },
+
+    skinType: {
+        fontSize: 32,
+        fontFamily: 'Sofia-Sans',
+        letterSpacing: 5,
+        marginTop: 20,
+        marginLeft: 20,
     },
 
     buttonContainer: {
@@ -201,15 +235,15 @@ const styles = StyleSheet.create({
         textAlign: "left",
         alignSelf: "flex-start",
     },
-
+    
     statusBarContainer : {
-        width: '80%',
         flexDirection: 'row',
-
-        padding: 5,
-        marginBottom: 20,
-
-        alignSelf: "flex-start",
+        borderRadius: 10,
+        width: '80%',
+        paddingLeft: 10,
+        paddingRight: 10, 
+        paddingBottom: 10,
+        paddingTop: 10,
     },
 
     backButton: {
@@ -258,6 +292,7 @@ const styles = StyleSheet.create({
         color: '#000000',
         textAlign: 'left',
         alignSelf: 'flex-start',
+        letterSpacing: 2,
     },
 });
 

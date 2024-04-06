@@ -1,5 +1,5 @@
 import { FIRESTORE_DB, FIREBASE_STORAGE } from "../../firebase";
-import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc, getDoc, setDoc } from "firebase/firestore";
+import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc, getDoc, setDoc, query, where } from "firebase/firestore";
 import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 import "firebase/compat/storage";
 
@@ -224,7 +224,65 @@ const updateUsernameInFirestore = async (userId, newUsername) => {
   }
 };
 
+const saveSkinAnalysisResult = async (userId, result) => {
+  try {
+    // Reference to the user's document in Firestore
+    const userDocRef = doc(FIRESTORE_DB, "users", userId);
 
-export { fetchDailyRoutines, addRoutine, deleteRoutine, updateRoutine, 
-  uploadBannerImage, fetchBannerImage, uploadProfileImage, fetchProfileImage,
-  updateUsernameInFirestore };
+    // Check if the user document exists
+    const userDocSnapshot = await getDoc(userDocRef);
+    if (!userDocSnapshot.exists()) {
+      throw new Error(`User document with ID ${userId} does not exist.`);
+    }
+
+    // Reference to the skin analysis collection
+    const skinAnalysisCollectionRef = collection(FIRESTORE_DB, "users", userId, "skinAnalysisResults");
+
+    // Delete the existing skin analysis document if it exists
+    const existingAnalysisQuery = query(skinAnalysisCollectionRef);
+    const existingAnalysisSnapshot = await getDocs(existingAnalysisQuery);
+    existingAnalysisSnapshot.forEach(async (doc) => {
+      await deleteDoc(doc.ref);
+      console.log('Existing skin analysis document deleted.');
+    });
+
+    // Create a new document for the skin analysis result
+    const analysisDocRef = doc(skinAnalysisCollectionRef);
+
+    // Set the document data to the result
+    await setDoc(analysisDocRef, result);
+
+    console.log('Skin analysis result saved successfully.');
+  } catch (error) {
+    console.error('Error saving skin analysis result:', error);
+    throw error;
+  }
+};
+
+const getSkinAnalysisResults = async (userId) => {
+  try {
+    const skinAnalysisCollectionRef = collection(FIRESTORE_DB, "users", userId, "skinAnalysisResults");
+    const skinAnalysisSnapshot = await getDocs(skinAnalysisCollectionRef);
+    const skinAnalysisResults = skinAnalysisSnapshot.docs.map(doc => doc.data());
+    // console.log("DEBUG: Skin analysis results:", skinAnalysisResults); // Debugging line
+    return skinAnalysisResults;
+  } catch (error) {
+    console.error("Error fetching skin analysis results:", error);
+    throw error;
+  }
+};
+
+export { 
+  fetchDailyRoutines, 
+  addRoutine, 
+  deleteRoutine, 
+  updateRoutine, 
+  uploadBannerImage, 
+  fetchBannerImage, 
+  uploadProfileImage, 
+  fetchProfileImage,
+  updateUsernameInFirestore,
+  saveSkinAnalysisResult,
+  getSkinAnalysisResults
+};
+

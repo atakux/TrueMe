@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import { loadFonts } from '../../utils/FontLoader'; 
 import { useAuth } from '../../utils/AuthContext';
-import { fetchDailyRoutines } from '../../utils/FirestoreDataService'; 
+import { fetchDailyRoutines, getSkinAnalysisResults } from '../../utils/FirestoreDataService'; 
 import { RoutineProvider } from '../../utils/RoutineContext';
 import { AuthProvider } from '../../utils/AuthContext';
 
@@ -20,7 +20,10 @@ const HomeScreen = () => {
 
   const [fontLoaded, setFontLoaded] = useState(false);
   const [dailyRoutines, setDailyRoutines] = useState([]);
+  const [skinResults, setSkinResults] = useState([]);
+  const [skinType, setSkinType] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [healthySkinDisplayed, setHealthySkinDisplayed] = useState(false);
 
   useEffect(() => {
     // Fetch daily routines function
@@ -35,6 +38,44 @@ const HomeScreen = () => {
         setLoading(false);
       }
     };
+
+    // Fetch skin analysis results
+    const fetchSkinResults = async () => {
+      try {
+        const results = await getSkinAnalysisResults(user.uid);
+        setSkinResults(results[0].prediction);
+
+        if (results) {
+          // Determine skin type
+          const normal = results[0].prediction.normal;
+          const dry = results[0].prediction.dry;
+          const oily = results[0].prediction.oily;
+          if (dry > normal && dry > oily) {
+              setSkinType('Dry');
+          } else if (oily > normal && oily > dry) {
+              setSkinType('Oily');
+          } else if (normal > dry && normal > oily) {
+              setSkinType('Normal');
+          } else {
+              setSkinType('Combination');
+          } 
+
+          if (!healthySkinDisplayed) {
+            const keys = Object.keys(skinResults);
+            const isHealthySkin = keys.every(key => skinResults[key] <= 0.05);
+            if (isHealthySkin) {
+              setHealthySkinDisplayed(true);
+            }
+          }
+        } else {
+            console.error("Error fetching skin analysis results.");
+        }
+
+        console.log("DEBUG: Fetched skin analysis results:", results);
+      } catch (error) {
+        console.log("DEBUG: Error fetching skin analysis results:", error);
+      }
+    };
   
     // Execute the async functions
     const loadData = async () => {
@@ -43,6 +84,7 @@ const HomeScreen = () => {
       
       if (user) {
         await fetchRoutines();
+        await fetchSkinResults();
       }
     };
   
@@ -51,10 +93,11 @@ const HomeScreen = () => {
     // Refresh daily routines when navigation is focused
     const unsubscribe = navigation.addListener('focus', async () => {
       await fetchRoutines();
+      await fetchSkinResults();
     });
   
     return unsubscribe;
-  }, [user, navigation, currentDay, setFontLoaded, setDailyRoutines, fetchDailyRoutines]);
+  }, [user, navigation, currentDay, setFontLoaded, setDailyRoutines, fetchDailyRoutines, setSkinResults, getSkinAnalysisResults, setSkinType, setLoading]);
   
 
   if (!user) {
@@ -69,6 +112,10 @@ const HomeScreen = () => {
 
   const handleCameraClick = () => {
     navigation.navigate('GetStarted');
+  };
+
+  const handleSkinResultContainerClick = () => {
+    navigation.navigate('ResultScreen');
   };
   
   // Function to refresh the Swiper component when a routine is deleted
@@ -120,17 +167,59 @@ const HomeScreen = () => {
 
             {/* Skin Diagnostic Container */}
             <View style={styles.skinResultContainer}>
-              {/* Container Title */}
-              <View style={styles.textContainer}>
-                <Text style={styles.mainText}>Skin Diagnostic Results</Text>
-                <Text style={styles.textStyle}>Start your journey to healthy skin here!</Text>
-              </View>
-              
-              {/* Camera Button */}
-              <TouchableOpacity onPress={handleCameraClick}>
-                <Image source={require('../../../assets/icons/large_camera.png')} style={styles.cameraButton}/>
-                <Text style={styles.cameraButtonText}>Click to scan your face</Text>
-              </TouchableOpacity>
+              {/* Display skin analysis results */}
+              {skinResults.length === 0 ? (
+                // If there are no skin results, show camera icon
+                <>
+                  {/* Container Title */}
+                  <View style={styles.textContainer}>
+                    <Text style={styles.mainText}>Skin Diagnostic Results</Text>
+                    <Text style={styles.textStyle}>Start your journey to healthy skin here!</Text>
+                  </View>
+                  
+                  <TouchableOpacity onPress={handleCameraClick}>
+                    <Image source={require('../../../assets/icons/large_camera.png')} style={styles.cameraButton}/>
+                    <Text style={styles.cameraButtonText}>Click to scan your face</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                // If there are skin results, display top 3 greatest results
+                <>
+                  <TouchableOpacity onPress={handleSkinResultContainerClick}>
+                    {/* Container Title */}
+                    <View style={styles.textContainer}>
+                      <Text style={styles.mainText}>Your Skin Type:</Text>
+                      <Text style={styles.skinType}> {skinType} Skin</Text>
+                    </View>
+                  
+                    <Text style={styles.skinDiagnostics}>Skin Diagnostic Results:</Text>
+                    {Object.entries(skinResults)
+                      .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
+                      .sort(([, a], [, b]) => b - a) // Sorting based on prediction values
+                      .map(([key], index) => {
+                        const prediction = skinResults[key];
+                        if (prediction > 0.05) {
+                          // If the prediction is above 0.05, render the prediction text
+                          return (
+                            <View key={index}>
+                              <Text style={styles.resultsText}> • {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</Text>
+                            </View>
+                          );
+                        } else {
+                          // If the prediction is below or equal to 0.05, do not render
+                          return null;
+                        }
+                    })}
+                    {Object.entries(skinResults)
+                      .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
+                      .every(([, prediction]) => prediction <= 0.05) && (
+                      // If all predictions are below 0.05, display "Healthy Skin"
+                      <Text style={styles.resultsText}>Healthy Skin!!</Text>
+                    )}
+                  </TouchableOpacity>
+                </>
+              )}
+
             </View>
 
             {/* Daily Routines Container */}
@@ -495,6 +584,29 @@ const styles = StyleSheet.create({
       color: '#000000',
       textAlign: "center",
     }, // End of textStyle
+
+    skinType: {
+      fontSize: 28,
+      fontFamily: 'Sofia-Sans',
+      color: '#000000',
+      textAlign: "left",
+    }, // End of skinType
+
+    skinDiagnostics: {
+      fontSize: 24,
+      fontFamily: 'Sofia-Sans',
+      color: '#000000',
+      textAlign: "left",
+      marginBottom: 10
+    },
+
+    resultsText: {
+      fontSize: 16,
+      fontFamily: 'Sofia-Sans',
+      color: '#000000',
+      textAlign: "left",
+      margin: 5,
+    },
   
     buttons: {
       width: 159,
