@@ -46,7 +46,7 @@ const HomeScreen = () => {
         setSkinResults(results[0].prediction);
         console.log("DEBUG: Fetched skin analysis results:", results);
       } catch (error) {
-        console.error("DEBUG: Error fetching skin analysis results:", error);
+        console.log("DEBUG: Error fetching skin analysis results:", error);
       }
     };
   
