@@ -14,7 +14,7 @@ import { useAuth } from '../../utils/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 
-import { fetchBannerImage, fetchProfileImage, uploadProfileImage, uploadBannerImage } from '../../utils/FirestoreDataService';
+import { fetchBannerImage, fetchProfileImage, uploadProfileImage, uploadBannerImage, getSkinAnalysisResults } from '../../utils/FirestoreDataService';
 
 const ProfileScreen = () => {
   const auth = FIREBASE_AUTH;
@@ -27,6 +27,7 @@ const ProfileScreen = () => {
   
   const [bannerImage, setBannerImage] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
+  const [skinAnalysisData, setSkinAnalysisData] = useState(null); 
 
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
 
@@ -42,6 +43,12 @@ const ProfileScreen = () => {
       const profileImageUrl = await fetchProfileImage(user.uid);
       if (profileImageUrl) {
         setProfileImage(profileImageUrl);
+      }
+
+      // Fetch skin analysis data
+      const analysisData = await getSkinAnalysisResults(user.uid);
+      if (analysisData && analysisData.length > 0) {
+        setSkinAnalysisData(analysisData);
       }
     } catch (error) {
       console.error('Error fetching images: ', error);
@@ -145,6 +152,15 @@ const ProfileScreen = () => {
     }
   };
 
+  // Function to handle navigation based on skin analysis data
+  const handleNavigation = () => {
+    if (skinAnalysisData && skinAnalysisData.length > 0) {
+      navigation.navigate('ResultScreen');
+    } else {
+      navigation.navigate('GetStarted');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.imagesContainer}>
@@ -216,7 +232,7 @@ const ProfileScreen = () => {
             <TouchableOpacity onPress={() => navigation.navigate('GetStarted')} style={styles.buttons}>
               <Text style={styles.buttonText}>Skin Diagnostic Test</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('ResultScreen')} style={styles.buttons}>
+            <TouchableOpacity onPress={handleNavigation} style={styles.buttons}>
               <Text style={styles.buttonText}>Skin Diagnostic Results</Text>
             </TouchableOpacity>
           </View>
