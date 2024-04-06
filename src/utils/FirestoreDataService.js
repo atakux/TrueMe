@@ -1,5 +1,5 @@
 import { FIRESTORE_DB, FIREBASE_STORAGE } from "../../firebase";
-import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc, getDoc, setDoc } from "firebase/firestore";
+import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc, getDoc, setDoc, query, where } from "firebase/firestore";
 import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 import "firebase/compat/storage";
 
@@ -251,18 +251,30 @@ const saveSkinAnalysisResult = async (userId, result) => {
   }
 };
 
-
+const getSkinAnalysisResults = async (userId) => {
+  try {
+    const skinAnalysisCollectionRef = collection(FIRESTORE_DB, "users", userId, "skinAnalysisResults");
+    const skinAnalysisSnapshot = await getDocs(skinAnalysisCollectionRef);
+    const skinAnalysisResults = skinAnalysisSnapshot.docs.map(doc => doc.data());
+    console.log("DEBUG: Skin analysis results:", skinAnalysisResults);
+    return skinAnalysisResults;
+  } catch (error) {
+    console.error("Error fetching skin analysis results:", error);
+    throw error;
+  }
+};
 
 export { 
-fetchDailyRoutines, 
-addRoutine, 
-deleteRoutine, 
-updateRoutine, 
-uploadBannerImage, 
-fetchBannerImage, 
-uploadProfileImage, 
-fetchProfileImage,
-updateUsernameInFirestore,
-saveSkinAnalysisResult  // Export the new function
+  fetchDailyRoutines, 
+  addRoutine, 
+  deleteRoutine, 
+  updateRoutine, 
+  uploadBannerImage, 
+  fetchBannerImage, 
+  uploadProfileImage, 
+  fetchProfileImage,
+  updateUsernameInFirestore,
+  saveSkinAnalysisResult,
+  getSkinAnalysisResults
 };
 

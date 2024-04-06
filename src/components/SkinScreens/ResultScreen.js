@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import { loadFonts } from '../../utils/FontLoader';
 import { useAuth } from '../../utils/AuthContext';
+import { getSkinAnalysisResults } from '../../utils/FirestoreDataService';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -18,6 +19,7 @@ const ResultScreen = () => {
         const loadAsyncData = async () => {
             await loadFonts();
             setFontLoaded(true);
+            getSkinAnalysisResults(user.uid);
         };
 
         loadAsyncData();
