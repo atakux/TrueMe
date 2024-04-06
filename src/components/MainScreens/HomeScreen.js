@@ -44,26 +44,12 @@ const HomeScreen = () => {
       try {
         const results = await getSkinAnalysisResults(user.uid);
         setSkinResults(results[0].prediction);
-        console.log("DEBUG: Fetched skin analysis results:", results);
-      } catch (error) {
-        console.log("DEBUG: Error fetching skin analysis results:", error);
-      }
-    };
-  
-    // Execute the async functions
-    const loadData = async () => {
-      await loadFonts();
-      setFontLoaded(true);
-      
-      if (user) {
-        await fetchRoutines();
-        await fetchSkinResults();
 
-        if (skinResults) {
+        if (results) {
           // Determine skin type
-          const normal = skinResults.normal;
-          const dry = skinResults.dry;
-          const oily = skinResults.oily;
+          const normal = results[0].prediction.normal;
+          const dry = results[0].prediction.dry;
+          const oily = results[0].prediction.oily;
           if (dry > normal && dry > oily) {
               setSkinType('Dry');
           } else if (oily > normal && oily > dry) {
@@ -81,9 +67,24 @@ const HomeScreen = () => {
               setHealthySkinDisplayed(true);
             }
           }
-      } else {
-          console.error("Error fetching skin analysis results.");
+        } else {
+            console.error("Error fetching skin analysis results.");
+        }
+
+        console.log("DEBUG: Fetched skin analysis results:", results);
+      } catch (error) {
+        console.log("DEBUG: Error fetching skin analysis results:", error);
       }
+    };
+  
+    // Execute the async functions
+    const loadData = async () => {
+      await loadFonts();
+      setFontLoaded(true);
+      
+      if (user) {
+        await fetchRoutines();
+        await fetchSkinResults();
       }
     };
   
