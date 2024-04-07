@@ -18,6 +18,7 @@ import DiagnosticScreen from './src/components/SkinScreens/DiagnosticScreen';
 import ResultScreen from './src/components/SkinScreens/ResultScreen';
 import TabBar from './src/utils/TabBar';
 import LoadingAnalysis from './src/components/SkinScreens/LoadingAnalysis';
+import AppLoading from './src/components/MainScreens/AppLoading';
 
 const Stack = createStackNavigator();
 
@@ -68,6 +69,7 @@ export default function App() {
           <Stack.Screen name="LoadingAnalysis" component={LoadingAnalysis} options={{ headerShown: false }} />
           <Stack.Screen name="DiagnosticScreen" component={DiagnosticScreen} options={{ headerShown: false }} />
           <Stack.Screen name="ResultScreen" component={ResultScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="AppLoading" component={AppLoading} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
       <StatusBar style="auto" />
