@@ -8,6 +8,8 @@ import { useAuth } from '../../utils/AuthContext';
 
 import fetchAmazonProductData from '../../utils/API/amazonAPI';
 
+// ready to fix
+
 const ShopScreen = ({ setIsTyping }) => {
   const axios = require('axios');
   const [fontLoaded, setFontLoaded] = useState(false);
