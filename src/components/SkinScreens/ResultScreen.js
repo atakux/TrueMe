@@ -93,7 +93,7 @@ const ResultScreen = () => {
                                 <Text style={styles.detailsText}>{key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</Text>
                                 <View style={styles.statusBarContainer}>
                                     <View style={styles.statusBar}>
-                                        <View style={[styles.statusBarFill, { width: (parseFloat(results[key]) * 200) + '%' }]} />
+                                        <View style={[styles.statusBarFill, { width: (results[key] <= 0.30 ? (parseFloat(results[key]) * 200) : results[key] * 100) + '%' }]} />
                                     </View>
                                 </View>
                             </View>
@@ -101,6 +101,7 @@ const ResultScreen = () => {
                     ))}
                 </ScrollView>
             </View>
+
 
             {/* Modal */}
             <Modal
