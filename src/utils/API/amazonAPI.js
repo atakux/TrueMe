@@ -25,7 +25,7 @@ async function fetchAmazonProductData(keyword) {
       return response.data;
     } catch (error) {
       if (error.response && error.response.status === 429) {
-        console.error('Too many requests. Retrying after some time...');
+        // console.error('Too many requests. Retrying after some time...');
         retryCount++;
         await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds before retrying
       } else {

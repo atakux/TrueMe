@@ -421,8 +421,6 @@ const styles = StyleSheet.create({
 
   tabText: {
     fontSize: 16,
-    numberOfLines: 1, // Force text to be displayed in one line
-    ellipsizeMode: 'tail', // Truncate text if it overflows
   },
   activeTab: {
     backgroundColor: '#64BBA1',
