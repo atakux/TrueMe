@@ -9,7 +9,7 @@ const AppLoading = () => {
     const timer = setTimeout(() => {
       // Navigate to the next screen after 3 seconds (adjust as needed)
       navigation.navigate('HomeScreen');
-    }, 10000); // 10 seconds
+    }, 3000); // 10 seconds
 
     // Clear the timer when the component unmounts
     return () => clearTimeout(timer);
