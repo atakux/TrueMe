@@ -263,17 +263,16 @@ const DiscoverScreen = () => {
                 <Text style={[styles.filterButtonText, activeTab === 'Rating' && styles.filterButtonText]}>Rating</Text>
               </TouchableOpacity>
               
-              <Button
-                title="Close"
-                onPress={() => setFilterModalVisible(false)}
-                color="#fff" // Set the text color
+              <TouchableOpacity 
                 style={{ 
-                  backgroundColor: '#FF6347', // Set the background color
                   borderRadius: 10, // Set border radius for rounded corners
                   paddingHorizontal: 20, // Add horizontal padding
                   paddingVertical: 10, // Add vertical padding
                 }}
-              />
+                onPress={() => setFilterModalVisible(false)}
+                >
+                  <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Close</Text>
+                </TouchableOpacity>
             </View>
           </View>
         </Modal>
@@ -362,7 +361,9 @@ const DiscoverScreen = () => {
                     <Text style={{fontSize: 18}}>{modalVisible.product.price}</Text>
                   </View>
                 )}
-                <Button title="Close" onPress={() => setModalVisible({ visible: false, product: null })} />
+                <TouchableOpacity onPress={() => setModalVisible({ visible: false, product: null })}>
+                  <Text style={styles.closeButtonText}>Close</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </TouchableWithoutFeedback>
@@ -378,6 +379,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FAFAFA",
+  },
+
+  closeButtonText: {
+    color: '#64BBA1',
+    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 20,
   },
 
   tabContainer: {
@@ -421,8 +429,6 @@ const styles = StyleSheet.create({
 
   tabText: {
     fontSize: 16,
-    numberOfLines: 1, // Force text to be displayed in one line
-    ellipsizeMode: 'tail', // Truncate text if it overflows
   },
   activeTab: {
     backgroundColor: '#64BBA1',

@@ -27,12 +27,14 @@ const skincareRoutines = {
     },
   };
   
-  const generateSuggestedSkincareRoutine = (userSkinType) => {
+  const generateSuggestedSkincareRoutine = async (userSkinType) => {
+    console.log("DEBUG: userSkinType:", userSkinType);
     // Determine the user's skin type based on preferences or analysis
-    const selectedSkinType = userSkinType.toLowerCase();
+    const selectedSkinType = userSkinType;
+    console.log("DEBUG: Selected skin type:", selectedSkinType);
   
     // Select a skincare routine based on the user's skin type
-    const suggestedSkincareRoutine = skincareRoutines[selectedSkinType] || skincareRoutines.normal;
+    const suggestedSkincareRoutine = skincareRoutines[selectedSkinType];
   
     return suggestedSkincareRoutine;
   };

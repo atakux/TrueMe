@@ -18,7 +18,7 @@ const ResultScreen = () => {
     const [loading, setLoading] = useState(false);
     const [fontLoaded, setFontLoaded] = useState(false);
     const [results, setResults] = useState(null);
-    const [skinType, setSkinType] = useState(null);
+    const [skinType, setSkinType] = useState("");
     const [showModal, setShowModal] = useState(false); // State variable for modal visibility
     const [suggestedRoutine, setSuggestedRoutine] = useState(null); // State variable to store the suggested routine
     const user = useAuth();
@@ -47,17 +47,16 @@ const ResultScreen = () => {
                 }
 
                 // Generate suggested skincare routine
-                const generatedRoutine = generateSuggestedSkincareRoutine(skinType);
+                const generatedRoutine = await generateSuggestedSkincareRoutine(skinType.toLowerCase());
                 console.log("DEBUG: Generated routine:", generatedRoutine);
                 setSuggestedRoutine(generatedRoutine);
-                console.log("DEBUG: Suggested routine:", suggestedRoutine);
             } else {
                 console.error("Error fetching skin analysis results.");
             }
         };
 
         loadAsyncData();
-    }, [ user, getSkinAnalysisResults, skinType ]);
+    }, [ user, getSkinAnalysisResults, skinType, setSuggestedRoutine, setSkinType ]);
 
     if (!fontLoaded || !results || !suggestedRoutine) {
         return <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator}/>;
