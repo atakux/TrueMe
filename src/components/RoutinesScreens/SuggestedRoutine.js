@@ -143,10 +143,9 @@ const SuggestedRoutine = ({ route }) => {
                     {/* Accept and Decline buttons */}
                     <View style={styles.bottomPanel}>
                         <TouchableOpacity onPress={handleAccept}>
-                            <Text style={styles.button}>Accept</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => navigation.goBack()}>
-                            <Text style={styles.declineButton}>Decline</Text>
+                            <View style={styles.button}>
+                                <Text style={styles.buttonText}>Accept</Text>
+                            </View>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -315,14 +314,6 @@ const styles = StyleSheet.create({
         height: 20,
     }, // End of checkbox
 
-    bottomPanel: {
-        position: 'absolute',
-        bottom: 20,
-        right: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-    }, // End of bottomPanel
-
     icon: {
         width: 32,
         height: 32,
@@ -331,34 +322,38 @@ const styles = StyleSheet.create({
     }, // End of icon
 
     bottomPanel: {
-        position: 'absolute',
-        bottom: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
-    },
+        bottom: -200,
+        width: "110%",
+        backgroundColor: "#FFFFFF",
+        
+        // Border
+        borderRadius: 75,
+        borderWidth: 2,
+        borderBottomColor: "rgba(0, 0, 0, 0)",
+        borderLeftColor: "rgba(0, 0, 0, 0)",
+        borderRightColor: "rgba(0, 0, 0, 0)",
+        borderTopColor: "rgba(0, 0, 0, 0.1)",
+        
+        // Alignment
+        alignSelf: "center",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingTop: 15,
+    }, // End of bottomPanel  
     button: {
-        paddingHorizontal: 20,
-        paddingVertical: 10,
         backgroundColor: '#64BBA1',
-        borderRadius: 20,
+        borderRadius: 5,
         marginHorizontal: 10,
+        width: 200,
+    },
+    buttonText: {
         color: '#FFFFFF',
         fontSize: 16,
         fontFamily: 'Sofia-Sans',
-    },
-
-    declineButton: {
         paddingHorizontal: 20,
         paddingVertical: 10,
-        backgroundColor: '#9464BB',
-        borderRadius: 20,
-        marginHorizontal: 10,
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontFamily: 'Sofia-Sans',
-    },
+        textAlign: 'center',
+    }
 });
 
 export default SuggestedRoutine;
