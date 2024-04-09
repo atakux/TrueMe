@@ -29,9 +29,7 @@ const skincareRoutines = {
   
   const generateSuggestedSkincareRoutine = (userSkinType) => {
     // Determine the user's skin type based on preferences or analysis
-    if (userSkinType) {
-      const selectedSkinType = userSkinType.toLowerCase();
-    }
+    const selectedSkinType = userSkinType.toLowerCase();
   
     // Select a skincare routine based on the user's skin type
     const suggestedSkincareRoutine = skincareRoutines[selectedSkinType] || skincareRoutines.normal;
