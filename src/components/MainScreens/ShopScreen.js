@@ -2,11 +2,14 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Platform, Keyboard, StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Animated, Modal, ActivityIndicator, Button, Linking,TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { debounce } from 'lodash';
+import { getSkinAnalysisResults } from '../../utils/FirestoreDataService'; 
 
 import { loadFonts } from '../../utils/FontLoader';
 import { useAuth } from '../../utils/AuthContext';
 
 import fetchAmazonProductData from '../../utils/API/amazonAPI';
+
+// ready to fix
 
 const ShopScreen = ({ setIsTyping }) => {
   const axios = require('axios');
@@ -14,6 +17,7 @@ const ShopScreen = ({ setIsTyping }) => {
   const navigation = useNavigation();
   const user = useAuth();
   const [activeTab, setActiveTab] = useState('Button 1'); // Initial active tab
+  const [loading, setLoading] = useState(true);
 
   const [skincareProducts, setSkincareProducts] = useState([]); // State to store fetched skincare products
   const [makeupProducts, setMakeupProducts] = useState([]); // State to store fetched makeup products
@@ -30,32 +34,16 @@ const ShopScreen = ({ setIsTyping }) => {
 
   const debouncedSetIsTyping = debounce(setIsTyping, -1000); // Debounce setIsTyping function
 
+  const [skinResults, setSkinResults] = useState([]);
+  const [skinType, setSkinType] = useState(null);
+
   // Function to scroll to top of screen
   const scrollToTop = () => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({ y: 0, animated: true });
     }
   };
-  
-  // Fetch data from Amazon API
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
 
-        const skincareData = await fetchAmazonProductData("Skincare");
-        setSkincareProducts(skincareData.data); // Update state with fetched skincare products data
-        setLoadingSkincare(false);
-
-        const makeupData = await fetchAmazonProductData("Makeup");
-        setMakeupProducts(makeupData.data); // Update state with fetched makeup products data
-        setLoadingMakeup(false);
-
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, []);
 
   // Remove TabBar when user is typing in search bar
   useEffect(() => {
@@ -74,20 +62,87 @@ const ShopScreen = ({ setIsTyping }) => {
     };
   }, [debouncedSetIsTyping]);
 
-  // Load fonts and check user authentication
-  useEffect(() => {
-    const loadAsyncData = async () => {
-      await loadFonts();
-      setFontLoaded(true);
-    };
+  
 
-    loadAsyncData();
+  // Fetch data from Amazon API + Get Skin analysis results
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const results = await getSkinAnalysisResults(user.uid);
+        setSkinResults(results[0].prediction);
+    
+        // Once skin analysis results are available, fetch skincare data
+        fetchAmazonProductData(getHighProbabilityConditions(skinResults) + ' Skincare Products')
+          .then(skincareData => {
+            setSkincareProducts(skincareData.data); // Update state with fetched skincare products data
+            setLoadingSkincare(false);
+          })
+          .catch(error => {
+            console.error("Error fetching skincare data:", error);
+          });
+    
+        // Once skin analysis results are available, fetch makeup data
+        fetchAmazonProductData("Makeup")
+          .then(makeupData => {
+            setMakeupProducts(makeupData.data); // Update state with fetched makeup products data
+            setLoadingMakeup(false);
+          })
+
+
+        if (results) {
+          // Determine skin type
+          const normal = results[0].prediction.normal;
+          const dry = results[0].prediction.dry;
+          const oily = results[0].prediction.oily;
+          if (dry > normal && dry > oily) {
+              setSkinType('Dry');
+          } else if (oily > normal && oily > dry) {
+              setSkinType('Oily');
+          } else if (normal > dry && normal > oily) {
+              setSkinType('Normal');
+          } else {
+              setSkinType('Combination');
+          } 
+
+        } else {
+            console.error("Error fetching skin analysis results.");
+        }
+
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
   }, []);
+
+
+const getHighProbabilityConditions = (skinResults) => {
+  let highProbabilityConditions = '';
+
+  for (const condition in skinResults) {
+    if (skinResults.hasOwnProperty(condition) && skinResults[condition] > 0.05) {
+      if (highProbabilityConditions !== '') {
+        highProbabilityConditions += ' '; // Add space if it's not the first condition
+      }
+      highProbabilityConditions += condition;
+    }
+  }
+
+  return highProbabilityConditions;
+};
+
+    
 
   // Function to handle tab button click
   const handleButtonClick = (buttonName) => {
     setActiveTab(buttonName);
     scrollToTop();
+    console.log("CODE HERE")
+    console.log(getHighProbabilityConditions(skinResults))
+  };
+
+  const handleSkinResultContainerClick = () => {
+    navigation.navigate('ResultScreen');
   };
 
   // Function to filter products based on search query
@@ -173,7 +228,49 @@ const ShopScreen = ({ setIsTyping }) => {
           />
           <View style={styles.overlay}>
             <Text style={styles.overlayText}> {'\n \n'} Find your next {'\n'}skincare product</Text>
-            <Text style={styles.mainText}> Your Skin Profile: </Text>
+
+
+
+            {/* Skin Diagnostic Container */}
+            <View style={styles.skinResultContainer}>
+              {/* If there are skin results, display top 3 greatest results */}
+              <>
+                <TouchableOpacity onPress={handleSkinResultContainerClick}>
+                <Text style={styles.mainText}>Your Skin Profile:</Text>
+                  {/* Container Title */}
+                  <View style={styles.resultsWrapper}>
+
+                    <Text style={styles.resultsText}> • {skinType} Skin</Text>
+
+                    {Object.entries(skinResults)
+                      .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
+                      .sort(([, a], [, b]) => b - a) // Sorting based on prediction values
+                      .map(([key], index) => {
+                        const prediction = skinResults[key];
+                        if (prediction > 0.05) {
+                          // If the prediction is above 0.05, render the prediction text
+                          return (
+                            <View key={index}>
+                              <Text style={styles.resultsText}> • {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</Text>
+                            </View>
+                          );
+                        } else {
+                          // If the prediction is below or equal to 0.05, do not render
+                          return null;
+                        }
+                    })}
+                  
+
+                </View>
+                </TouchableOpacity>
+              </>
+            </View>
+
+
+
+
+
+
           </View>
         </Animated.View>
       </View>
@@ -235,6 +332,7 @@ const ShopScreen = ({ setIsTyping }) => {
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
             { useNativeDriver: false }
           )}
+          contentContainerStyle={{paddingBottom: 250}}
           onScrollEndDrag={({ nativeEvent }) => handleScrollEnd(nativeEvent)}
           scrollEventThrottle={16}
           ref={scrollViewRef}
@@ -600,6 +698,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+
+  skinDiagnostics: {
+    fontSize: 24,
+    fontFamily: 'Sofia-Sans',
+    color: '#000000',
+    textAlign: "left",
+    marginBottom: 10
+  },
+
+  resultsWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginTop: 0,
+  },
+
+  resultsText: {
+    fontSize: 16,
+    fontFamily: 'Sofia-Sans',
+    color: '#000000',
+    textAlign: "left",
+    margin: 5,
+  },
+  
+  skinResultContainer: {
+        width: 350,
+        height: 320,
+        borderRadius: 35,
+        alignSelf: "center",
   },
   
 });

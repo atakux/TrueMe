@@ -85,7 +85,7 @@ const LoginScreen = () => {
 
       setLoading(false);
 
-      navigation.navigate("HomeScreen");
+      navigation.navigate("AppLoading");
 
     } catch (error) {
       console.log(error);
