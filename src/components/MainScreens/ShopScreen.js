@@ -36,7 +36,6 @@ const ShopScreen = ({ setIsTyping }) => {
 
   const [skinResults, setSkinResults] = useState([]);
   const [skinType, setSkinType] = useState(null);
-  const [healthySkinDisplayed, setHealthySkinDisplayed] = useState(false);
 
   // Function to scroll to top of screen
   const scrollToTop = () => {
@@ -105,13 +104,6 @@ const ShopScreen = ({ setIsTyping }) => {
               setSkinType('Combination');
           } 
 
-          if (!healthySkinDisplayed) {
-            const keys = Object.keys(skinResults);
-            const isHealthySkin = keys.every(key => skinResults[key] <= 0.05);
-            if (isHealthySkin) {
-              setHealthySkinDisplayed(true);
-            }
-          }
         } else {
             console.error("Error fetching skin analysis results.");
         }
@@ -268,14 +260,6 @@ const getHighProbabilityConditions = (skinResults) => {
                         }
                     })}
                   
-
-
-                  {Object.entries(skinResults)
-                    .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
-                    .every(([, prediction]) => prediction <= 0.05) && (
-                    // If all predictions are below 0.05, display "Healthy Skin"
-                    <Text style={styles.resultsText}>Healthy Skin!!</Text>
-                  )}
 
                 </View>
                 </TouchableOpacity>
