@@ -16,8 +16,6 @@ const HomeScreen = () => {
   const user = useAuth();
   const currentDay = new Date().getDay();
 
-  console.log("DEBUG: User", user);
-
   const [fontLoaded, setFontLoaded] = useState(false);
   const [dailyRoutines, setDailyRoutines] = useState([]);
   const [skinResults, setSkinResults] = useState([]);
@@ -235,7 +233,7 @@ const HomeScreen = () => {
                         {item.title !== 'Add Routine' ? (
                           <View style={{justifyContent: 'space-between'}}>
 
-                            <View style={{flexDirection: 'row'}}>
+                            <View style={{flexDirection: 'row', flexWrap: 'wrap', }}>
                               
                               <View style={styles.leafIconContainer}>
                                 <Image source={require('../../../assets/icons/leaf-heart.png')}/>
@@ -505,6 +503,7 @@ const styles = StyleSheet.create({
     dailyRoutinesContainer: {
       flex: 1, 
       flexGrow: 1, 
+      flexWrap: "wrap",
       marginTop: 10,
 
       ...Platform.select({
@@ -644,6 +643,8 @@ const styles = StyleSheet.create({
     }, // End of cameraButtonText
 
     dailyRoutineItem: {
+      flex: 1,
+      flexDirection: 'row',
       backgroundColor: '#FFFFFF',
       borderRadius: 35,
       padding: 20,
@@ -658,7 +659,7 @@ const styles = StyleSheet.create({
     }, // End of dailyRoutineItem
   
     dailyRoutineText: {
-      fontSize: 22,
+      fontSize: 20,
       fontFamily: 'Sofia-Sans',
       color: '#000000',
       textAlign: "left",

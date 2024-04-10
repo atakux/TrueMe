@@ -12,6 +12,7 @@ import SignupScreen from './src/authentication/SignupScreen';
 import AddRoutine from './src/components/RoutinesScreens/AddRoutine';
 import Routine from './src/components/RoutinesScreens/Routine';
 import EditRoutine from './src/components/RoutinesScreens/EditRoutine';
+import SuggestedRoutine from './src/components/RoutinesScreens/SuggestedRoutine';
 import EditAccount from './src/components/AccountSettings/EditAccount';
 import GetStarted from './src/components/SkinScreens/GetStarted';
 import DiagnosticScreen from './src/components/SkinScreens/DiagnosticScreen';
@@ -63,6 +64,7 @@ export default function App() {
           <Stack.Screen name="AddRoutine" component={AddRoutine} options={{ headerShown: false }} />
           <Stack.Screen name="Routine" component={Routine} options={{ headerShown: false }} />
           <Stack.Screen name="EditRoutine" component={EditRoutine} options={{ headerShown: false }} />
+          <Stack.Screen name="SuggestedRoutine" component={SuggestedRoutine} options={{ headerShown: false }} />
           <Stack.Screen name="EditAccount" component={EditAccount} options={{ headerShown: false }} />
           <Stack.Screen name="GetStarted" component={GetStarted} options={{ headerShown: false }} />
           <Stack.Screen name="LoadingAnalysis" component={LoadingAnalysis} options={{ headerShown: false }} />

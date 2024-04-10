@@ -2,20 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { deleteRoutine, updateRoutine } from '../../utils/FirestoreDataService';
+import { addRoutine, fetchDailyRoutines } from '../../utils/FirestoreDataService';
 import { useAuth } from '../../utils/AuthContext';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Routine = ({ route }) => {
+const SuggestedRoutine = ({ route }) => {
     const navigation = useNavigation();
     const user = useAuth();
+    const [fontLoaded, setFontLoaded] = useState(false);
+    const [dailyRoutines, setDailyRoutines] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [accepted, setAccepted] = useState(false);
 
-    const { routine, refreshSwiper } = route.params;
+    const { routine } = route.params;
 
     const routineData = routine;
-    const routineId = routineData.id;
     const routineName = routineData.title;
     const routineDays = routineData.days;
     const routineSteps = routineData.steps;
@@ -23,11 +25,10 @@ const Routine = ({ route }) => {
     console.log("DEBUG: Route: ", route);
     console.log("DEBUG: Routine Data:", routineData);
 
-    const [completionStatus, setCompletionStatus] = useState(routineData.stepCompletionStatus || []);
-
     if (!routineData) {
         return <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator}/>;
     }
+
     // Array of day names
     const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -48,7 +49,25 @@ const Routine = ({ route }) => {
 
         // Cleanup function
         return () => clearInterval(intervalId);
-    }, []);
+
+    }, [user, navigation, setFontLoaded, setDailyRoutines, fetchDailyRoutines, setAccepted, accepted]);
+
+    useEffect(() => {
+        const fetchAcceptanceStatus = async () => {
+            try {
+                
+                const value = await AsyncStorage.getItem(`acceptedRoutine`);
+
+                setAccepted(value);
+                console.log("DEBUG: Acceptance Status: ", value);
+                    
+            } catch (error) {
+                console.error('Error fetching acceptance status:', error);
+            }
+        };
+    
+        fetchAcceptanceStatus();
+    }, [accepted, setAccepted]);
 
     // Function to render each day
     const renderDay = (dayIndex, dayNum, date) => {
@@ -75,108 +94,55 @@ const Routine = ({ route }) => {
                 <Text style={styles.mainText}>Steps:</Text>
                 {routineSteps.map((step, index) => (
                     <View key={index} style={styles.checklistItem}>
-                        <TouchableOpacity onPress={() => toggleCompletion(index)}>
-                            <View style={styles.checkbox}>
-                                {completionStatus[index] && <Image source={require('../../../assets/icons/check.png')} style={styles.checkboxImage} />}
-                            </View>
-                        </TouchableOpacity>
-                        <Text style={[styles.checklistText, completionStatus[index] && styles.completed]}>{step}</Text>
+                        <View style={styles.checkbox}/>
+                        <Text style={[styles.checklistText]}>{step}</Text>
                     </View>
                 ))}
             </View>
         );
     };
 
-    // Function to toggle completion status of step
-    const toggleCompletion = async (index) => {
+    useEffect(() => {
+        console.log("DEBUG: Accepted changed:", accepted);
+    }, [accepted]); // This useEffect will run whenever 'accepted' state changes
+    
+    const handleAccept = async () => {
+        setLoading(true);
         try {
-            const newStatus = [...completionStatus];
-            newStatus[index] = !newStatus[index];
-            setCompletionStatus(newStatus);
-            
-            // Update the completion status in Firestore
-            const updatedRoutine = { ...routineData };
-            updatedRoutine.stepCompletionStatus = newStatus;
-            await updateRoutine(user.uid, routineId, updatedRoutine);
+            await addRoutine(user.uid, routineData, updateDailyRoutines);
+
+            // Store acceptance status in AsyncStorage using the updated routineId
+            await AsyncStorage.setItem('acceptedRoutine', 'true');
+            setAccepted(true);
+
+            navigation.navigate('Home');
         } catch (error) {
-            console.error('Error toggling completion status:', error);
-        }
-    };
-
-    const handleEditRoutine = () => {
-        navigation.navigate('EditRoutine', { routineData, refreshSwiper });
-    };
-
-    // Function to reset step completion status to false
-    const resetCompletionStatus = () => {
-        const newStatus = new Array(routineSteps.length).fill(false);
-        setCompletionStatus(newStatus);
-        updateRoutineCompletionStatus(newStatus);
-    };
-
-    // Update the completion status in Firestore
-    const updateRoutineCompletionStatus = async (newStatus) => {
-        try {
-            const updatedRoutine = { ...routineData };
-            updatedRoutine.stepCompletionStatus = newStatus;
-            await updateRoutine(user.uid, routineId, updatedRoutine);
-        } catch (error) {
-            console.error('Error updating completion status:', error);
-        }
-    };
-
-    const calculateCompletion = () => {
-        const totalSteps = routineSteps.length;
-        const completedSteps = completionStatus.filter(status => status === true).length;
-        return (completedSteps / totalSteps) * 100;
-    };
-
-    // Function to handle routine deletion, asks for confirmation
-    const handleDeleteRoutine = () => {
-        Alert.alert(
-            'Confirm Delete',
-            `Are you sure you want to delete the routine '${routineName}'?`,
-            [
-                {
-                    text: 'Cancel',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Delete',
-                    onPress: () => processDeleteRoutine(routineId),
-                    style: 'destructive',
-                },
-            ]
-        );
-    };
-
-    // Function to delete routine
-    const processDeleteRoutine = async (routineId) => {
-        try {
-            setLoading(true);
-
-            console.log(`DEBUG: Deleting routine '${routineName}'`);
-            await deleteRoutine(user.uid, routineId);
-            console.log(`DEBUG: Deleted routine '${routineName}'`);
-
-            const value = await AsyncStorage.getItem('acceptedRoutine');
-            console.log(`DEBUG: Acceptance Status in Routine.js: ${value}`);
-            
-            // Remove acceptance status from AsyncStorage
-            await AsyncStorage.removeItem('acceptedRoutine');
-            
-            // Call the refresh function passed from HomeScreen to refresh the Swiper component
-            refreshSwiper();
-            navigation.navigate('HomeScreen');
-        } catch (error) {
-            setLoading(false);
-
-            console.error('Error deleting routine:', error);
+            console.error('Error accepting routine:', error);
+            // Handle error (e.g., show error message)
         } finally {
             setLoading(false);
         }
     };
 
+    const renderAcceptButton = () => {
+        console.log("DEBUG: Accepted: ", accepted);
+        if (!accepted || accepted === false) {
+            return (
+                <View style={styles.bottomPanel}>
+                    <TouchableOpacity onPress={handleAccept}>
+                        <View style={styles.button}>
+                            <Text style={styles.buttonText}>Accept Routine</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            );
+        }
+    };
+
+    // Update daily routines
+    const updateDailyRoutines = (newRoutine) => {
+        setDailyRoutines([...dailyRoutines, newRoutine]);
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -187,7 +153,10 @@ const Routine = ({ route }) => {
                     <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
                         <Image source={require('../../../assets/icons/close.png')} style={styles.closeButtonImage} />
                     </TouchableOpacity>
-                    <Text style={styles.title}>{routineName}</Text>
+                    
+                    <Text style={styles.title}>Suggested Routine</Text>
+
+                    <Text style={styles.routineTitle}>{routineName}</Text>
 
                     <Text style={styles.todayText}>Today is {currentDate.toLocaleString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</Text>
 
@@ -210,22 +179,8 @@ const Routine = ({ route }) => {
                     {/* Render the checklist */}
                     {renderChecklist()}
 
-                    <Text style={styles.statusBarText}>{calculateCompletion().toFixed(0)}% Complete</Text>
-
-                    <View style={styles.statusBar}>
-                        <View style={[styles.statusBarFill, { width: `${calculateCompletion()}%` }]} />
-                    </View>
-
-
-                    {/* Panel for pencil and trashcan icons */}
-                    <View style={styles.bottomPanel}>
-                        <TouchableOpacity onPress={() => handleEditRoutine()}>
-                            <Image source={require('../../../assets/icons/edit.png')} style={styles.icon} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => handleDeleteRoutine()}>
-                            <Image source={require('../../../assets/icons/delete.png')} style={styles.icon} />
-                        </TouchableOpacity>
-                    </View>
+                    {/* Accept and Decline buttons */}
+                    {renderAcceptButton()}
                 </View>
             )}
         </SafeAreaView>
@@ -292,8 +247,8 @@ const styles = StyleSheet.create({
         fontFamily: 'Sofia-Sans',
         color: '#64BBA1',
         textAlign: "center",
-        marginTop: 30,
-        marginBottom: 30,
+        marginTop: 20,
+        marginBottom: 20,
     }, // End of todayText
 
     daysContainer: {
@@ -321,6 +276,14 @@ const styles = StyleSheet.create({
         margin: 20,
         marginTop: 40,
     }, // End of mainText
+
+    routineTitle: {
+        fontSize: 24,
+        fontFamily: "Sofia-Sans",
+        textAlign: "left",
+        marginTop: 20,
+        marginLeft: 20,
+    }, // End of title
 
     dayWrapper: {
         alignItems: 'center',
@@ -384,20 +347,46 @@ const styles = StyleSheet.create({
         height: 20,
     }, // End of checkbox
 
-    bottomPanel: {
-        position: 'absolute',
-        bottom: 20,
-        right: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-    }, // End of bottomPanel
-
     icon: {
         width: 32,
         height: 32,
         marginLeft: 10,
         marginHorizontal:10,
     }, // End of icon
+
+    bottomPanel: {
+        bottom: -200,
+        width: "110%",
+        backgroundColor: "#FFFFFF",
+        
+        // Border
+        borderRadius: 75,
+        borderWidth: 2,
+        borderBottomColor: "rgba(0, 0, 0, 0)",
+        borderLeftColor: "rgba(0, 0, 0, 0)",
+        borderRightColor: "rgba(0, 0, 0, 0)",
+        borderTopColor: "rgba(0, 0, 0, 0.1)",
+        
+        // Alignment
+        alignSelf: "center",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingTop: 15,
+    }, // End of bottomPanel  
+    button: {
+        backgroundColor: '#64BBA1',
+        borderRadius: 5,
+        marginHorizontal: 10,
+        width: 200,
+    },
+    buttonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontFamily: 'Sofia-Sans',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        textAlign: 'center',
+    }
 });
 
-export default Routine;
+export default SuggestedRoutine;
