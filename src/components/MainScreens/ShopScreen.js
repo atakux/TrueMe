@@ -44,7 +44,6 @@ const ShopScreen = ({ setIsTyping }) => {
     }
   };
 
-
   // Remove TabBar when user is typing in search bar
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(

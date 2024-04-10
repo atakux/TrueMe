@@ -158,6 +158,11 @@ const DiscoverScreen = () => {
     fetchData();
   }, []);
 
+  if (!user) {
+    // User not logged in
+    return null;
+  };
+
   // Render the header (Username + Greeting + Tabs)  
   const Header = ({ user }) => (
     <View>
