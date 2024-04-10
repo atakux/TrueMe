@@ -85,7 +85,7 @@ const ProfileScreen = () => {
       await AsyncStorage.removeItem('user');
       console.log("DEBUG:", user.displayName, 'signed out');
 
-      navigation.navigate('LaunchScreen')
+      navigation.navigate('LaunchScreenLoggedOut')
     } catch (error) {
       setLoading(false);
       console.error('Error signing out: ', error);

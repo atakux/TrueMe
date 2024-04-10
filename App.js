@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AuthProvider, useAuth } from './src/utils/AuthContext';
+import { DataProvider } from './src/utils/DataContext';
 
 import LaunchScreen from './src/authentication/LaunchScreen';
 import LoginScreen from './src/authentication/LoginScreen';
@@ -42,40 +43,43 @@ export default function App() {
   }, []);
 
   return (
-    <AuthProvider user = {user}>
-      <NavigationContainer style={styles.container}>
-        <Stack.Navigator>
-          {/* If the user is already logged in, navigate to the HomeScreen directly */}
-          {user ? (
-            <Stack.Screen
-              name="HomeScreenLoggedIn"
-              component={TabBar}
-              options={{ headerShown: false }}
-            />
-          ) : (
-            <Stack.Screen
-              name="LaunchScreen"
-              component={LaunchScreen}
-              options={{ headerShown: false }}
-            />
-          )}
-          <Stack.Screen name="HomeScreen" component={TabBar} options={{ headerShown: false }} />
-          <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="SignupScreen" component={SignupScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="AddRoutine" component={AddRoutine} options={{ headerShown: false }} />
-          <Stack.Screen name="Routine" component={Routine} options={{ headerShown: false }} />
-          <Stack.Screen name="EditRoutine" component={EditRoutine} options={{ headerShown: false }} />
-          <Stack.Screen name="SuggestedRoutine" component={SuggestedRoutine} options={{ headerShown: false }} />
-          <Stack.Screen name="EditAccount" component={EditAccount} options={{ headerShown: false }} />
-          <Stack.Screen name="GetStarted" component={GetStarted} options={{ headerShown: false }} />
-          <Stack.Screen name="LoadingAnalysis" component={LoadingAnalysis} options={{ headerShown: false }} />
-          <Stack.Screen name="DiagnosticScreen" component={DiagnosticScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="ResultScreen" component={ResultScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="AppLoading" component={AppLoading} options={{ headerShown: false }} />
-        </Stack.Navigator>
-      </NavigationContainer>
-      <StatusBar style="auto" />
-    </AuthProvider>
+    <DataProvider>
+      <AuthProvider user = {user}>
+        <NavigationContainer style={styles.container}>
+          <Stack.Navigator>
+            {/* If the user is already logged in, navigate to the HomeScreen directly */}
+            {user ? (
+              <Stack.Screen
+                name="HomeScreenLoggedIn"
+                component={TabBar}
+                options={{ headerShown: false }}
+              />
+            ) : (
+              <Stack.Screen
+                name="LaunchScreen"
+                component={LaunchScreen}
+                options={{ headerShown: false }}
+              />
+            )}
+            <Stack.Screen name="LaunchScreenLoggedOut" component={LaunchScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="HomeScreen" component={TabBar} options={{ headerShown: false }} />
+            <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="SignupScreen" component={SignupScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="AddRoutine" component={AddRoutine} options={{ headerShown: false }} />
+            <Stack.Screen name="Routine" component={Routine} options={{ headerShown: false }} />
+            <Stack.Screen name="EditRoutine" component={EditRoutine} options={{ headerShown: false }} />
+            <Stack.Screen name="SuggestedRoutine" component={SuggestedRoutine} options={{ headerShown: false }} />
+            <Stack.Screen name="EditAccount" component={EditAccount} options={{ headerShown: false }} />
+            <Stack.Screen name="GetStarted" component={GetStarted} options={{ headerShown: false }} />
+            <Stack.Screen name="LoadingAnalysis" component={LoadingAnalysis} options={{ headerShown: false }} />
+            <Stack.Screen name="DiagnosticScreen" component={DiagnosticScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="ResultScreen" component={ResultScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="AppLoading" component={AppLoading} options={{ headerShown: false }} />
+          </Stack.Navigator>
+        </NavigationContainer>
+        <StatusBar style="auto" />
+      </AuthProvider>
+    </DataProvider>
   );
 }
 
