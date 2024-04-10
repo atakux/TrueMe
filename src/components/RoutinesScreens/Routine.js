@@ -5,6 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import { deleteRoutine, updateRoutine } from '../../utils/FirestoreDataService';
 import { useAuth } from '../../utils/AuthContext';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const Routine = ({ route }) => {
     const navigation = useNavigation();
     const user = useAuth();
@@ -156,6 +158,12 @@ const Routine = ({ route }) => {
             console.log(`DEBUG: Deleting routine '${routineName}'`);
             await deleteRoutine(user.uid, routineId);
             console.log(`DEBUG: Deleted routine '${routineName}'`);
+
+            const value = await AsyncStorage.getItem('acceptedRoutine');
+            console.log(`DEBUG: Acceptance Status in Routine.js: ${value}`);
+            
+            // Remove acceptance status from AsyncStorage
+            await AsyncStorage.removeItem('acceptedRoutine');
             
             // Call the refresh function passed from HomeScreen to refresh the Swiper component
             refreshSwiper();

@@ -16,8 +16,6 @@ const HomeScreen = () => {
   const user = useAuth();
   const currentDay = new Date().getDay();
 
-  console.log("DEBUG: User", user);
-
   const [fontLoaded, setFontLoaded] = useState(false);
   const [dailyRoutines, setDailyRoutines] = useState([]);
   const [skinResults, setSkinResults] = useState([]);

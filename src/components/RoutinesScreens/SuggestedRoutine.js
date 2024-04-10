@@ -5,13 +5,14 @@ import { useNavigation } from '@react-navigation/native';
 import { addRoutine, fetchDailyRoutines } from '../../utils/FirestoreDataService';
 import { useAuth } from '../../utils/AuthContext';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const SuggestedRoutine = ({ route }) => {
     const navigation = useNavigation();
     const user = useAuth();
     const [fontLoaded, setFontLoaded] = useState(false);
     const [dailyRoutines, setDailyRoutines] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [routineId, setRoutineId] = useState(null); // State to store routine ID
     const [accepted, setAccepted] = useState(false);
 
     const { routine } = route.params;
@@ -49,7 +50,24 @@ const SuggestedRoutine = ({ route }) => {
         // Cleanup function
         return () => clearInterval(intervalId);
 
-    }, [user, navigation, setFontLoaded, setDailyRoutines, fetchDailyRoutines]);
+    }, [user, navigation, setFontLoaded, setDailyRoutines, fetchDailyRoutines, setAccepted, accepted]);
+
+    useEffect(() => {
+        const fetchAcceptanceStatus = async () => {
+            try {
+                
+                const value = await AsyncStorage.getItem(`acceptedRoutine`);
+
+                setAccepted(value);
+                console.log("DEBUG: Acceptance Status: ", value);
+                    
+            } catch (error) {
+                console.error('Error fetching acceptance status:', error);
+            }
+        };
+    
+        fetchAcceptanceStatus();
+    }, [accepted, setAccepted]);
 
     // Function to render each day
     const renderDay = (dayIndex, dayNum, date) => {
@@ -84,19 +102,40 @@ const SuggestedRoutine = ({ route }) => {
         );
     };
 
-    // Function to handle accepting the routine
+    useEffect(() => {
+        console.log("DEBUG: Accepted changed:", accepted);
+    }, [accepted]); // This useEffect will run whenever 'accepted' state changes
+    
     const handleAccept = async () => {
         setLoading(true);
         try {
-            const newRoutineId = await addRoutine(user.uid, routineData, updateDailyRoutines); // Assuming addRoutine takes user id and routine data as arguments
-            setRoutineId(newRoutineId); // Store the routine ID
+            await addRoutine(user.uid, routineData, updateDailyRoutines);
+
+            // Store acceptance status in AsyncStorage using the updated routineId
+            await AsyncStorage.setItem('acceptedRoutine', 'true');
             setAccepted(true);
-            navigation.navigate('Home'); // Navigate to home screen
+
+            navigation.navigate('Home');
         } catch (error) {
             console.error('Error accepting routine:', error);
             // Handle error (e.g., show error message)
         } finally {
             setLoading(false);
+        }
+    };
+
+    const renderAcceptButton = () => {
+        console.log("DEBUG: Accepted: ", accepted);
+        if (!accepted || accepted === false) {
+            return (
+                <View style={styles.bottomPanel}>
+                    <TouchableOpacity onPress={handleAccept}>
+                        <View style={styles.button}>
+                            <Text style={styles.buttonText}>Accept Routine</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            );
         }
     };
 
@@ -141,13 +180,7 @@ const SuggestedRoutine = ({ route }) => {
                     {renderChecklist()}
 
                     {/* Accept and Decline buttons */}
-                    <View style={styles.bottomPanel}>
-                        <TouchableOpacity onPress={handleAccept}>
-                            <View style={styles.button}>
-                                <Text style={styles.buttonText}>Accept</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
+                    {renderAcceptButton()}
                 </View>
             )}
         </SafeAreaView>

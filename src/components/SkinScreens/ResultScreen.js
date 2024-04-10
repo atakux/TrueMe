@@ -114,7 +114,7 @@ const ResultScreen = () => {
                     <View style={styles.modalBackground}>
                         <View style={styles.centeredView}>
                             <View style={styles.modalView}>
-                                
+                                <Text style={styles.modalText}>You have <Text style={{color: "#64BBA1"}}>{skinType.toLowerCase()} skin</Text>, review your suggested products and skin care routines below:</Text>
                                 <View style={styles.buttonContainer}>
                                     <TouchableOpacity
                                         style={{ ...styles.button, backgroundColor: "#9464BB", marginBottom: 10 }}
@@ -135,7 +135,7 @@ const ResultScreen = () => {
                                             navigation.navigate('SuggestedRoutine', { routine: suggestedRoutine }); // Pass the suggested routine to SuggestedRoutine component
                                         }}
                                     >
-                                        <Text style={styles.buttonText}>View Suggested Daily Routine</Text>
+                                        <Text style={styles.buttonText}>View Skin Care Routine</Text>
                                     </TouchableOpacity>
 
                                     <TouchableOpacity>
@@ -377,6 +377,14 @@ const styles = StyleSheet.create({
     modalText: {
         marginBottom: 15,
         textAlign: "center",
+        fontSize: 18,
+        fontFamily: 'Sofia-Sans',
+        color: '#000000',
+        textAlign: 'left',
+        alignSelf: 'flex-start',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginHorizontal: 20,
     },
     buttonContainer: {
         flexDirection: "column",
