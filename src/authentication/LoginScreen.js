@@ -161,10 +161,17 @@ const LoginScreen = () => {
               <Text style={styles.buttonText}>{"Log in"}</Text>
               </TouchableOpacity>
           </>}
+
+          {/* Forgot password button */}
+          <TouchableOpacity
+            style={{alignItems: "center", alignSelf: "center", marginTop: 20}}
+            onPress={() => navigation.navigate('ForgotPasswordScreen')}>
+            <Text style={styles.textButton}>Forgot Password?</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Don't have an account? */}
-        <View style={{ alignItems: "center", marginTop: 50 }}>
+        <View style={{ alignItems: "center", marginTop: 30 }}>
           <Text style={styles.textButtonInfo}>Don't have an account yet?</Text>
 
           {/* Navigate to sign up page for user to sign up */}
@@ -199,7 +206,7 @@ const styles = StyleSheet.create({
   loginContainer: {
     backgroundColor: "#EDEEF3",
     width: 328,
-    height: 415,
+    height: 430,
     borderRadius: 25,
     borderWidth: 2,
     borderColor: "rgba(0, 0, 0, 0.19)",

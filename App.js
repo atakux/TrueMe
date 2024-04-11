@@ -21,6 +21,7 @@ import ResultScreen from './src/components/SkinScreens/ResultScreen';
 import TabBar from './src/utils/TabBar';
 import LoadingAnalysis from './src/components/SkinScreens/LoadingAnalysis';
 import AppLoading from './src/components/MainScreens/AppLoading';
+import ForgotPasswordScreen from './src/components/AccountSettings/ForgotPassword';
 
 const Stack = createStackNavigator();
 
@@ -61,6 +62,7 @@ export default function App() {
                 options={{ headerShown: false }}
               />
             )}
+            <Stack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen} options={{ headerShown: false }} />
             <Stack.Screen name="LaunchScreenLoggedOut" component={LaunchScreen} options={{ headerShown: false }} />
             <Stack.Screen name="HomeScreen" component={TabBar} options={{ headerShown: false }} />
             <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
