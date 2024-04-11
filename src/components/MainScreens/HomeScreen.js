@@ -27,8 +27,9 @@ const HomeScreen = () => {
     // Fetch daily routines function
     const fetchRoutines = async () => {
       try {
+        setLoading(true);
         const routines = await fetchDailyRoutines(user.uid);
-        setDailyRoutines(routines.filter(routine => routine.days === undefined || routine.days.includes(currentDay) || routine.id === undefined));
+        setDailyRoutines(routines.filter(routine => routine.days === undefined || routine.days.includes(currentDay) || routine.id !== undefined));
         setLoading(false);
         console.log("DEBUG: Fetched daily routines:", routines);
       } catch (error) {
@@ -226,69 +227,70 @@ const HomeScreen = () => {
               <Swiper
                 cards={dailyRoutines}
                 renderCard={(item) => (
-                  <View key={item.id} style={styles.dailyRoutinesCards}>
-                    
+                  <View key={item?.id} style={styles.dailyRoutinesCards}>
+                    {item ? ( // Check if item is defined
                       <View>
-                        {/* Status bar */}
-                        {item.title !== 'Add Routine' ? (
-                          <View style={{justifyContent: 'space-between'}}>
-
-                            <View style={{flexDirection: 'row', flexWrap: 'wrap', }}>
-                              
-                              <View style={styles.leafIconContainer}>
-                                <Image source={require('../../../assets/icons/leaf-heart.png')}/>
+                        {/* Your card content here */}
+                        <View>
+                          {/* Status bar */}
+                          {item.title !== 'Add Routine' ? (
+                            <View style={{ justifyContent: 'space-between' }}>
+                              <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                                <View style={styles.leafIconContainer}>
+                                  <Image source={require('../../../assets/icons/leaf-heart.png')} />
+                                </View>
+                                <TouchableOpacity onPress={() => handleRoutineClick(item)}>
+                                  <Text style={styles.dailyRoutineText}>{item.title}</Text>
+                                </TouchableOpacity>
                               </View>
-
-                              <TouchableOpacity onPress={() => handleRoutineClick(item)}>
-                                <Text style={styles.dailyRoutineText}>{item.title}</Text>
-                              </TouchableOpacity> 
-                            </View>
-
-                            <View style={styles.statusBarContainer}>
+                              <View style={styles.statusBarContainer}>
                                 <Text style={styles.statusBarText}>{calculateCompletion(item).toFixed(0)}% </Text>
-
                                 <View style={styles.statusBar}>
                                   <View style={[styles.statusBarFill, { width: `${calculateCompletion(item)}%` }]} />
                                 </View>
+                              </View>
                             </View>
-                          </View>
-                        ) : (
-                          <TouchableOpacity onPress={() => handleRoutineClick(item)}>
-                            <View style={{ flexDirection: 'row', alignSelf: 'center', alignItems: 'center', justifyContent: 'space-between'}}>
-                              <Image source={require('../../../assets/icons/add.png')} style={styles.addRoutineIcon}/>
-                              <Text style={styles.addRoutineText}>{item.title}</Text>
-                            </View>
-                          </TouchableOpacity>
-
-                        ) }
+                          ) : (
+                            <TouchableOpacity onPress={() => handleRoutineClick(item)}>
+                              <View style={{ flexDirection: 'row', alignSelf: 'center', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Image source={require('../../../assets/icons/add.png')} style={styles.addRoutineIcon} />
+                                <Text style={styles.addRoutineText}>{item.title}</Text>
+                              </View>
+                            </TouchableOpacity>
+                          )}
+                        </View>
                       </View>
+                    ) : (
+                      <View style={styles.loadingCard}>
+                        <ActivityIndicator size="large" color="#64BBA1" />
+                      </View>
+                    )}
                   </View>
                 )}
-                keyExtractor={(item) => `${item.id}`}
-
-                stackSize={2} 
-                stackSeparation={0} 
+                keyExtractor={(item) => `${item?.id}`}
+                stackSize={2}
+                stackSeparation={0}
                 stackScale={3}
                 infinite={dailyRoutines.length === 1 ? false : true}
-                
-                // Whether to allow infinite scrolling
-                animateOverlayLabelsOpacity 
+                animateOverlayLabelsOpacity
                 animateCardOpacity
-
-                cardHorizontalMargin={0} 
+                cardHorizontalMargin={0}
                 cardVerticalMargin={0}
-                
-                // If there is only 1 card disable swiping
-                disableTopSwipe={dailyRoutines.length === 1 ? true : false} 
+                disableTopSwipe={dailyRoutines.length === 1 ? true : false}
                 disableLeftSwipe={dailyRoutines.length === 1 ? true : false}
                 disableRightSwipe={dailyRoutines.length === 1 ? true : false}
                 disableBottomSwipe={true}
-
-                useViewOverflow={Platform.OS === 'ios' ? true : false} 
-
-                // DEBUG
-                onSwiped={(cardIndex) => console.log("DEBUG: Swiped", dailyRoutines[cardIndex].title, "card")}
+                useViewOverflow={Platform.OS === 'ios' ? true : false}
+                onSwiped={(cardIndex) =>
+                  console.log(
+                    "DEBUG: Swiped",
+                    dailyRoutines[cardIndex].title,
+                    "card"
+                  )
+                }
               />
+
+
             </View>
 
         </ScrollView>
@@ -318,6 +320,12 @@ const styles = StyleSheet.create({
         }
       })
     }, // End of container
+
+    loadingCard: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
 
     scrollView: {
       flex: 1,
