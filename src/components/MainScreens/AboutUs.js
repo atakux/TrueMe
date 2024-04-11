@@ -1,9 +1,24 @@
 import React from 'react';
 import { View, Text, ScrollView,TouchableOpacity, Image, StyleSheet, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Carousel from 'react-native-snap-carousel';
 
 const AboutUsScreen = () => {
     const navigation = useNavigation();
+
+    const data = [
+        { title: 'Developer 1: Angela Deleo' },
+        { title: ' Developer 2: Roman Saddi' },
+    ];
+
+    const renderItem = ({ item }) => (
+        <View style={styles.slide}>
+            <Text style={styles.title}>{item.title}</Text>
+            {/* Add your summary content here */}
+        </View>
+    );
+    
+
     return (
         <SafeAreaView style={[styles.container, { flex: 1 }]}>
 
@@ -17,6 +32,7 @@ const AboutUsScreen = () => {
                 <Text style={[styles.heading, { bottom: 55 }]}>About Us</Text>
             </View>
 
+
         <ScrollView
             contentContainerStyle={styles.scrollViewContainer}
             showsVerticalScrollIndicator={false}
@@ -29,22 +45,24 @@ const AboutUsScreen = () => {
                     We were developed by two undergraduate students at California State University, Fullerton. {"\n\n"}
                     The goal of this project is to help users keep their skin looking healthy using the power of AI.
                 </Text>
-
                 
-                <Text style={[styles.description , { marginTop: 50 }]}>
-                    Developer 1: Angela Deleo {"\n\n"}
-                    Hello! My name is Angela and I am a graduating undergraduate student of CS and minor in Mathematics at California State University, Fullerton. {"\n\n"}
-                    
-                    
-                    
-                    {"\n\n\n\n\n"}
-                </Text>
 
-                <Text style={styles.description}>
-                    Developer 2: Roman Saddi {"\n\n"}
-                    Hello! My name is Roman and I am a graduating senior at California State University, Fullerton. {"\n\n"}
-                </Text>
+                <View style={[styles.container, { marginTop: 50, alignItems: 'center' }]}>
+                    <Carousel
+                        data={data}
+                        renderItem={renderItem}
+                        sliderWidth={400}
+                        itemWidth={350}
+                        loop={false} // Make the carousel infinite
+                        autoplay={true}
+                        autoplayDelay={500}
+                        autoplayInterval={2000}
+                    />
+                </View>
+
             </View>
+
+            
         </ScrollView>
 
         </SafeAreaView>
@@ -95,6 +113,26 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontFamily: 'Sofia-Sans',
     },
+    slide: {
+        backgroundColor: '#f0f0f0',
+        borderRadius: 1,
+        borderColor: 'black',
+        padding: 20,
+        borderWidth: 1, 
+        borderRadius: 10, 
+        width: '100%',
+
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
     });
 
     export default AboutUsScreen;
+
+
+
+
+
