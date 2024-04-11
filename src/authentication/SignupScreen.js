@@ -14,7 +14,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from "firebase/auth";
 import { doc, setDoc, collection, addDoc } from "firebase/firestore";
 
 import { loadFonts } from '../utils/FontLoader'; 
@@ -120,6 +120,8 @@ const SignupScreen = () => {
         steps: [],
       });
 
+      await sendVerification(user);
+
       // Debug
       console.log("DEBUG: Registered with:", user.displayName);
       await AsyncStorage.setItem('user', JSON.stringify(user));
@@ -149,6 +151,15 @@ const SignupScreen = () => {
       }
     }
   };
+
+  const sendVerification = async (user) => {
+    try {
+      await sendEmailVerification(user);
+    } catch (error) {
+      console.error("Error sending email verification:", error);
+    }
+  };
+  
 
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
