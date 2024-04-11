@@ -122,7 +122,6 @@ const HomeScreen = () => {
     return (
       <View style={styles.loadingIndicator}>
             <ActivityIndicator size="large" color="#64BBA1"/>
-            <Text style={styles.loadingText}>{affirmation}</Text>
       </View>
     );
   };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, Dimensions, Image, Animated, Easing, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, Alert, Image, Animated, Easing, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Camera } from 'expo-camera';
@@ -114,7 +114,6 @@ const DiagnosticScreen = () => {
         // Pass the filename to your analysis function
         analyzePhoto(capturedPhotoUri);
         setShowModal(false); // Hide modal
-        navigation.navigate('LoadingAnalysis'); // Navigate to the loading screen
     };
 
     const analyzePhoto = async (filename) => {
@@ -129,6 +128,8 @@ const DiagnosticScreen = () => {
             });
     
             console.log('Form data:', formData);
+
+            navigation.navigate('LoadingAnalysis'); // Navigate to the loading screen
     
             const response = await fetch('https://trueme-python-server.onrender.com/predict', {
                 method: 'POST',
@@ -153,6 +154,18 @@ const DiagnosticScreen = () => {
         } catch (error) {
             console.error('Error analyzing photo:', error);
             // Handle error, show error message to the user
+
+            Alert.alert(
+                'Error',
+                'An error occurred during analysis. Please try again.',
+                [
+                    {
+                        text: 'Ok',
+                        onPress: () => navigation.navigate('GetStarted'), // Navigate to the GetStarted screen
+                    },
+                ],
+                { cancelable: false }
+            );
         }
     };
     

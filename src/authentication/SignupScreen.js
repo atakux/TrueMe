@@ -124,6 +124,12 @@ const SignupScreen = () => {
       console.log("DEBUG: Registered with:", user.displayName);
       await AsyncStorage.setItem('user', JSON.stringify(user));
 
+      // Reset input fields
+      setUsername("");
+      setEmail("");
+      setPassword("");
+      setConfPassword("");
+
       // Navigate to HomeScreen
       navigation.navigate("HomeScreen");
 
