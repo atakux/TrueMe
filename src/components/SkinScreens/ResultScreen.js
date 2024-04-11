@@ -9,8 +9,6 @@ import { getSkinAnalysisResults } from '../../utils/FirestoreDataService';
 
 import generateSuggestedSkincareRoutine from '../../utils/GenerateRoutine';
 
-import SuggestedRoutine from '../RoutinesScreens/SuggestedRoutine'; // Import SuggestedRoutine component
-
 const screenWidth = Dimensions.get('window').width;
 
 const ResultScreen = () => {
@@ -59,7 +57,11 @@ const ResultScreen = () => {
     }, [ user, getSkinAnalysisResults, skinType, setSuggestedRoutine, setSkinType ]);
 
     if (!fontLoaded || !results || !suggestedRoutine) {
-        return <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator}/>;
+        return (
+            <View style={styles.loadingIndicator}>
+                  <ActivityIndicator size="large" color="#64BBA1"/>
+            </View>
+          );
     };
 
     return (
@@ -157,6 +159,16 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
+
+    loadingText: {
+        marginTop: 20,
+        fontSize: 16,
+        color: '#000', // You can customize the text color
+        fontFamily: 'Sofia-Sans',
+        width: "90%",
+        textAlign: 'center',
+        alignSelf: "center",
+      },
 
     loadingIndicator: {
         marginTop: 300,

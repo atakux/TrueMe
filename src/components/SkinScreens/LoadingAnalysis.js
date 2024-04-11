@@ -24,6 +24,8 @@ const FacialAnalysisLoadingScreen = () => {
                 navigation.navigate('ResultScreen');
             } catch (error) {
                 console.error('Error performing facial analysis:', error);
+
+                navigation.navigate('GetStarted');
             }
         };
 

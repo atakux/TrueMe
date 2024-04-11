@@ -85,6 +85,10 @@ const LoginScreen = () => {
 
       setLoading(false);
 
+      // Reset user input
+      setEmail("");
+      setPassword("");
+
       navigation.navigate("AppLoading");
 
     } catch (error) {

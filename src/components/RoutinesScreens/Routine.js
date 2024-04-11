@@ -163,7 +163,7 @@ const Routine = ({ route }) => {
             console.log(`DEBUG: Acceptance Status in Routine.js: ${value}`);
             
             // Remove acceptance status from AsyncStorage
-            await AsyncStorage.removeItem('acceptedRoutine');
+            await AsyncStorage.removeItem(`acceptedRoutine_${user.uid}`);
             
             // Call the refresh function passed from HomeScreen to refresh the Swiper component
             refreshSwiper();
@@ -361,6 +361,8 @@ const styles = StyleSheet.create({
         fontFamily: 'Sofia-Sans',
         color: '#000000',
         marginHorizontal: 5,
+        flex: 1,
+        marginBottom: 5,
     }, // End of checklistText
 
     completed: {

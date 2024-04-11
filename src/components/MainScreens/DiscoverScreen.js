@@ -241,45 +241,47 @@ const DiscoverScreen = () => {
           visible={filterModalVisible}
           onRequestClose={() => setFilterModalVisible(false)}
         >
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <View style={styles.filterModalContainer}>
+          <TouchableWithoutFeedback onPress={() => setFilterModalVisible(false)}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <View style={styles.filterModalContainer}>
 
 
-              <TouchableOpacity
-                onPress={() => handleFilterChange("Trending")}
-                style={[styles.filterButton, activeTab === 'Trending' && styles.activeTab]}
-              >
-                <Text style={[styles.filterButtonText, activeTab === 'Trending' && styles.filterButtonText]}>Trending</Text>
-              </TouchableOpacity>
-
-
-              <TouchableOpacity
-                onPress={() => handleFilterChange("Price")}
-                style={[styles.filterButton, activeTab === 'Price' && styles.activeTab]}
-              >
-                <Text style={[styles.filterButtonText, activeTab === 'Price' && styles.filterButtonText]}>Price</Text>
-              </TouchableOpacity>
-
-
-              <TouchableOpacity
-                onPress={() => handleFilterChange("Rating")}
-                style={[styles.filterButton, activeTab === 'Rating' && styles.activeTab]}
-              >
-                <Text style={[styles.filterButtonText, activeTab === 'Rating' && styles.filterButtonText]}>Rating</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={{ 
-                  borderRadius: 10, // Set border radius for rounded corners
-                  paddingHorizontal: 20, // Add horizontal padding
-                  paddingVertical: 10, // Add vertical padding
-                }}
-                onPress={() => setFilterModalVisible(false)}
+                <TouchableOpacity
+                  onPress={() => handleFilterChange("Trending")}
+                  style={[styles.filterButton, activeTab === 'Trending' && styles.activeTab]}
                 >
-                  <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Close</Text>
+                  <Text style={[styles.filterButtonText, activeTab === 'Trending' && styles.filterButtonText]}>Trending</Text>
                 </TouchableOpacity>
+
+
+                <TouchableOpacity
+                  onPress={() => handleFilterChange("Price")}
+                  style={[styles.filterButton, activeTab === 'Price' && styles.activeTab]}
+                >
+                  <Text style={[styles.filterButtonText, activeTab === 'Price' && styles.filterButtonText]}>Price</Text>
+                </TouchableOpacity>
+
+
+                <TouchableOpacity
+                  onPress={() => handleFilterChange("Rating")}
+                  style={[styles.filterButton, activeTab === 'Rating' && styles.activeTab]}
+                >
+                  <Text style={[styles.filterButtonText, activeTab === 'Rating' && styles.filterButtonText]}>Rating</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={{ 
+                    borderRadius: 10, // Set border radius for rounded corners
+                    paddingHorizontal: 20, // Add horizontal padding
+                    paddingVertical: 10, // Add vertical padding
+                  }}
+                  onPress={() => setFilterModalVisible(false)}
+                  >
+                    <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Close</Text>
+                  </TouchableOpacity>
+              </View>
             </View>
-          </View>
+          </TouchableWithoutFeedback>
         </Modal>
 
       </View>

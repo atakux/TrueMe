@@ -56,7 +56,7 @@ const SuggestedRoutine = ({ route }) => {
         const fetchAcceptanceStatus = async () => {
             try {
                 
-                const value = await AsyncStorage.getItem(`acceptedRoutine`);
+                const value = await AsyncStorage.getItem(`acceptedRoutine_${user.uid}`);
 
                 setAccepted(value);
                 console.log("DEBUG: Acceptance Status: ", value);
@@ -112,7 +112,7 @@ const SuggestedRoutine = ({ route }) => {
             await addRoutine(user.uid, routineData, updateDailyRoutines);
 
             // Store acceptance status in AsyncStorage using the updated routineId
-            await AsyncStorage.setItem('acceptedRoutine', 'true');
+            await AsyncStorage.setItem(`acceptedRoutine_${user.uid}`, 'true');
             setAccepted(true);
 
             navigation.navigate('Home');
@@ -324,6 +324,8 @@ const styles = StyleSheet.create({
         fontFamily: 'Sofia-Sans',
         color: '#000000',
         marginHorizontal: 5,
+        flex: 1,
+        marginBottom: 5,
     }, // End of checklistText
 
     completed: {

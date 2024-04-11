@@ -66,7 +66,7 @@ const ProfileScreen = () => {
     if (user) {
       fetchData(); // Fetch data when user is available
     }
-  }, [user, fetchData, isFocused]); // Include isFocused in dependency array
+  }, [user, fetchData]); // Include isFocused in dependency array
 
   if (!fontLoaded || !user) {
     // Font is still loading or user not logged in, you can return a loading indicator or null
@@ -85,7 +85,7 @@ const ProfileScreen = () => {
       await AsyncStorage.removeItem('user');
       console.log("DEBUG:", user.displayName, 'signed out');
 
-      navigation.navigate('LaunchScreen')
+      navigation.navigate('LaunchScreenLoggedOut')
     } catch (error) {
       setLoading(false);
       console.error('Error signing out: ', error);

@@ -9,7 +9,6 @@ import { loadFonts } from '../../utils/FontLoader';
 import { useAuth } from '../../utils/AuthContext';
 import { fetchDailyRoutines, getSkinAnalysisResults } from '../../utils/FirestoreDataService'; 
 import { RoutineProvider } from '../../utils/RoutineContext';
-import { AuthProvider } from '../../utils/AuthContext';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -27,8 +26,9 @@ const HomeScreen = () => {
     // Fetch daily routines function
     const fetchRoutines = async () => {
       try {
+        setLoading(true);
         const routines = await fetchDailyRoutines(user.uid);
-        setDailyRoutines(routines.filter(routine => routine.days === undefined || routine.days.includes(currentDay) || routine.id === undefined));
+        setDailyRoutines(routines.filter(routine => routine.days === undefined || routine.days.includes(currentDay) || routine.id !== undefined));
         setLoading(false);
         console.log("DEBUG: Fetched daily routines:", routines);
       } catch (error) {
@@ -105,7 +105,11 @@ const HomeScreen = () => {
 
   if (!fontLoaded || loading) {
     // Font is still loading or routines are being fetched, you can return a loading indicator or null
-    return <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator}/>;
+    return (
+      <View style={styles.loadingIndicator}>
+            <ActivityIndicator size="large" color="#64BBA1"/>
+      </View>
+    );
   };
 
   const handleCameraClick = () => {
@@ -165,59 +169,67 @@ const HomeScreen = () => {
 
             {/* Skin Diagnostic Container */}
             <View style={styles.skinResultContainer}>
-              {/* Display skin analysis results */}
-              {skinResults.length === 0 ? (
-                // If there are no skin results, show camera icon
-                <>
-                  {/* Container Title */}
-                  <View style={styles.textContainer}>
-                    <Text style={styles.mainText}>Skin Diagnostic Results</Text>
-                    <Text style={styles.textStyle}>Start your journey to healthy skin here!</Text>
-                  </View>
-                  
-                  <TouchableOpacity onPress={handleCameraClick}>
-                    <Image source={require('../../../assets/icons/large_camera.png')} style={styles.cameraButton}/>
-                    <Text style={styles.cameraButtonText}>Click to scan your face</Text>
-                  </TouchableOpacity>
-                </>
+              {/* Display loading indicator if fetching skin data */}
+              {loading ? (
+                <View style={{alignSelf: "center"}}>
+                  <ActivityIndicator size="large" color="#64BBA1" />
+                </View>
               ) : (
-                // If there are skin results, display top 3 greatest results
+                // Display skin analysis results or camera icon based on availability
                 <>
-                  <TouchableOpacity onPress={handleSkinResultContainerClick}>
-                    {/* Container Title */}
-                    <View style={styles.textContainer}>
-                      <Text style={styles.mainText}>Your Skin Type:</Text>
-                      <Text style={styles.skinType}> {skinType} Skin</Text>
-                    </View>
-                  
-                    <Text style={styles.skinDiagnostics}>Skin Diagnostic Results:</Text>
-                    {Object.entries(skinResults)
-                      .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
-                      .sort(([, a], [, b]) => b - a) // Sorting based on prediction values
-                      .map(([key], index) => {
-                        const prediction = skinResults[key];
-                        if (prediction > 0.05) {
-                          // If the prediction is above 0.05, render the prediction text
-                          return (
-                            <View key={index}>
-                              <Text style={styles.resultsText}> • {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</Text>
-                            </View>
-                          );
-                        } else {
-                          // If the prediction is below or equal to 0.05, do not render
-                          return null;
-                        }
-                    })}
-                    {Object.entries(skinResults)
-                      .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
-                      .every(([, prediction]) => prediction <= 0.05) && (
-                      // If all predictions are below 0.05, display "Healthy Skin"
-                      <Text style={styles.resultsText}>Healthy Skin!!</Text>
-                    )}
-                  </TouchableOpacity>
+                  {skinResults.length === 0 ? (
+                    // If there are no skin results, show camera icon
+                    <>
+                      {/* Container Title */}
+                      <View style={styles.textContainer}>
+                        <Text style={styles.mainText}>Skin Diagnostic Results</Text>
+                        <Text style={styles.textStyle}>Start your journey to healthy skin here!</Text>
+                      </View>
+                      
+                      <TouchableOpacity onPress={handleCameraClick}>
+                        <Image source={require('../../../assets/icons/large_camera.png')} style={styles.cameraButton}/>
+                        <Text style={styles.cameraButtonText}>Click to scan your face</Text>
+                      </TouchableOpacity>
+                    </>
+                  ) : (
+                    // If there are skin results, display them
+                    <>
+                      <TouchableOpacity onPress={handleSkinResultContainerClick}>
+                        {/* Container Title */}
+                        <View style={styles.textContainer}>
+                          <Text style={styles.mainText}>Your Skin Type:</Text>
+                          <Text style={styles.skinType}> {skinType} Skin</Text>
+                        </View>
+                        
+                        <Text style={styles.skinDiagnostics}>Skin Diagnostic Results:</Text>
+                        {Object.entries(skinResults)
+                          .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
+                          .sort(([, a], [, b]) => b - a) // Sorting based on prediction values
+                          .map(([key], index) => {
+                            const prediction = skinResults[key];
+                            if (prediction > 0.05) {
+                              // If the prediction is above 0.05, render the prediction text
+                              return (
+                                <View key={index}>
+                                  <Text style={styles.resultsText}> • {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</Text>
+                                </View>
+                              );
+                            } else {
+                              // If the prediction is below or equal to 0.05, do not render
+                              return null;
+                            }
+                        })}
+                        {Object.entries(skinResults)
+                          .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
+                          .every(([, prediction]) => prediction <= 0.05) && (
+                          // If all predictions are below 0.05, display "Healthy Skin"
+                          <Text style={styles.resultsText}>Healthy Skin!!</Text>
+                        )}
+                      </TouchableOpacity>
+                    </>
+                  )}
                 </>
               )}
-
             </View>
 
             {/* Daily Routines Container */}
@@ -226,69 +238,70 @@ const HomeScreen = () => {
               <Swiper
                 cards={dailyRoutines}
                 renderCard={(item) => (
-                  <View key={item.id} style={styles.dailyRoutinesCards}>
-                    
+                  <View key={item?.id} style={styles.dailyRoutinesCards}>
+                    {item ? ( // Check if item is defined
                       <View>
-                        {/* Status bar */}
-                        {item.title !== 'Add Routine' ? (
-                          <View style={{justifyContent: 'space-between'}}>
-
-                            <View style={{flexDirection: 'row', flexWrap: 'wrap', }}>
-                              
-                              <View style={styles.leafIconContainer}>
-                                <Image source={require('../../../assets/icons/leaf-heart.png')}/>
+                        {/* Your card content here */}
+                        <View>
+                          {/* Status bar */}
+                          {item.title !== 'Add Routine' ? (
+                            <View style={{ justifyContent: 'space-between' }}>
+                              <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                                <View style={styles.leafIconContainer}>
+                                  <Image source={require('../../../assets/icons/leaf-heart.png')} />
+                                </View>
+                                <TouchableOpacity onPress={() => handleRoutineClick(item)}>
+                                  <Text style={styles.dailyRoutineText}>{item.title}</Text>
+                                </TouchableOpacity>
                               </View>
-
-                              <TouchableOpacity onPress={() => handleRoutineClick(item)}>
-                                <Text style={styles.dailyRoutineText}>{item.title}</Text>
-                              </TouchableOpacity> 
-                            </View>
-
-                            <View style={styles.statusBarContainer}>
+                              <View style={styles.statusBarContainer}>
                                 <Text style={styles.statusBarText}>{calculateCompletion(item).toFixed(0)}% </Text>
-
                                 <View style={styles.statusBar}>
                                   <View style={[styles.statusBarFill, { width: `${calculateCompletion(item)}%` }]} />
                                 </View>
+                              </View>
                             </View>
-                          </View>
-                        ) : (
-                          <TouchableOpacity onPress={() => handleRoutineClick(item)}>
-                            <View style={{ flexDirection: 'row', alignSelf: 'center', alignItems: 'center', justifyContent: 'space-between'}}>
-                              <Image source={require('../../../assets/icons/add.png')} style={styles.addRoutineIcon}/>
-                              <Text style={styles.addRoutineText}>{item.title}</Text>
-                            </View>
-                          </TouchableOpacity>
-
-                        ) }
+                          ) : (
+                            <TouchableOpacity onPress={() => handleRoutineClick(item)}>
+                              <View style={{ flexDirection: 'row', alignSelf: 'center', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Image source={require('../../../assets/icons/add.png')} style={styles.addRoutineIcon} />
+                                <Text style={styles.addRoutineText}>{item.title}</Text>
+                              </View>
+                            </TouchableOpacity>
+                          )}
+                        </View>
                       </View>
+                    ) : (
+                      <View style={styles.loadingCard}>
+                        <ActivityIndicator size="large" color="#64BBA1" />
+                      </View>
+                    )}
                   </View>
                 )}
-                keyExtractor={(item) => `${item.id}`}
-
-                stackSize={2} 
-                stackSeparation={0} 
+                keyExtractor={(item) => `${item?.id}`}
+                stackSize={2}
+                stackSeparation={0}
                 stackScale={3}
                 infinite={dailyRoutines.length === 1 ? false : true}
-                
-                // Whether to allow infinite scrolling
-                animateOverlayLabelsOpacity 
+                animateOverlayLabelsOpacity
                 animateCardOpacity
-
-                cardHorizontalMargin={0} 
+                cardHorizontalMargin={0}
                 cardVerticalMargin={0}
-                
-                // If there is only 1 card disable swiping
-                disableTopSwipe={dailyRoutines.length === 1 ? true : false} 
+                disableTopSwipe={dailyRoutines.length === 1 ? true : false}
                 disableLeftSwipe={dailyRoutines.length === 1 ? true : false}
                 disableRightSwipe={dailyRoutines.length === 1 ? true : false}
                 disableBottomSwipe={true}
-
-                useViewOverflow={Platform.OS === 'ios' ? true : false} 
-
-                // DEBUG
-                onSwiped={(cardIndex) => console.log("DEBUG: Swiped", dailyRoutines[cardIndex].title, "card")}
+                useViewOverflow={Platform.OS === 'ios' ? true : false}
+                onSwiped={(cardIndex) =>
+                  console.log(
+                    "DEBUG: Swiped",
+                    dailyRoutines[cardIndex].title,
+                    "card"
+                  )
+                }
               />
+
+
             </View>
 
         </ScrollView>
@@ -318,6 +331,22 @@ const styles = StyleSheet.create({
         }
       })
     }, // End of container
+
+    loadingText: {
+      marginTop: 20,
+      fontSize: 16,
+      color: '#000', // You can customize the text color
+      fontFamily: 'Sofia-Sans',
+      width: "90%",
+      textAlign: 'center',
+      alignSelf: "center",
+    },
+
+    loadingCard: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
 
     scrollView: {
       flex: 1,

@@ -5,7 +5,7 @@ import * as Font from 'expo-font';
 import { loadFonts } from '../utils/FontLoader'; // If needed
 
 // Importing JSON data
-import affirmations from './affirmations.json'; // Adjust the file path as needed
+import affirmations from '../utils/affirmations.json'; // Adjust the file path as needed
 
 const LaunchScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);

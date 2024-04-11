@@ -127,7 +127,6 @@ const fetchBannerImage = async (userId) => {
 
     // Check if the banner document exists
     if (!bannerDocSnapshot.exists()) {
-      console.log("DEBUG: Banner image not found");
       return null; // Banner image not found
     }
 
@@ -193,7 +192,6 @@ const fetchProfileImage = async (userId) => {
 
     // Check if the banner document exists
     if (!profileDocSnapshot.exists()) {
-      console.log("DEBUG: Profile image not found");
       return null; // Profile image not found
     }
 
