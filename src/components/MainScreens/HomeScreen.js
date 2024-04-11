@@ -114,7 +114,7 @@ const HomeScreen = () => {
 
   if (!user) {
     // User not logged in
-    navigation.navigate('LoginScreen');
+    return null;
   };
 
   if (!fontLoaded || loading) {
