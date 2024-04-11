@@ -66,7 +66,7 @@ const ProfileScreen = () => {
     if (user) {
       fetchData(); // Fetch data when user is available
     }
-  }, [user, fetchData, isFocused]); // Include isFocused in dependency array
+  }, [user, fetchData]); // Include isFocused in dependency array
 
   if (!fontLoaded || !user) {
     // Font is still loading or user not logged in, you can return a loading indicator or null
