@@ -1,6 +1,7 @@
-import { FIRESTORE_DB, FIREBASE_STORAGE } from "../../firebase";
+import { FIRESTORE_DB, FIREBASE_STORAGE, FIREBASE_AUTH } from "../../firebase";
 import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc, getDoc, setDoc, query, where } from "firebase/firestore";
 import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
+import { deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth"; // Add this import for deleting auth account
 import "firebase/compat/storage";
 
 const fetchDailyRoutines = async (uid) => {
@@ -222,6 +223,62 @@ const updateUsernameInFirestore = async (userId, newUsername) => {
   }
 };
 
+const deleteAuthAccount = async (email, password) => {
+  try {
+    // Reauthenticate user to delete account
+    const user = FIREBASE_AUTH.currentUser;
+    const credential = EmailAuthProvider.credential(email, password);
+
+    await reauthenticateWithCredential(user, credential);
+    
+    // Delete the user account
+    await deleteUser(user);
+    
+    console.log(`DEBUG: User ${user.uid} deleted successfully`);
+  } catch (error) {
+    console.error('DEBUG: Error deleting user account:', error);
+    throw error;
+  }
+};
+
+const deleteFirestoreUser = async (userId) => {
+  try {
+    const userDocRef = doc(FIRESTORE_DB, 'users', userId);
+    const userRoutinesCollectionRef = collection(FIRESTORE_DB, "users", userId, "routines");
+    const userSkinAnalysisCollectionRef = collection(FIRESTORE_DB, "users", userId, "skinAnalysisResults");
+    const imagesCollectionRef = collection(FIRESTORE_DB, "users", userId, "images");
+
+    // Delete user routines
+    const userRoutinesSnapshot = await getDocs(userRoutinesCollectionRef);
+    userRoutinesSnapshot.forEach(async (routineDoc) => {
+      const routineDocRef = doc(userRoutinesCollectionRef, routineDoc.id);
+      await deleteDoc(routineDocRef);
+    });
+
+    // Delete user skin analysis results
+    const userSkinAnalysisSnapshot = await getDocs(userSkinAnalysisCollectionRef);
+    userSkinAnalysisSnapshot.forEach(async (skinAnalysisDoc) => {
+      const skinAnalysisDocRef = doc(userSkinAnalysisCollectionRef, skinAnalysisDoc.id);
+      await deleteDoc(skinAnalysisDocRef);
+    });
+
+    // Delete user images from Firebase Storage
+    const imagesSnapshot = await getDocs(imagesCollectionRef);
+    imagesSnapshot.forEach(async (imageDoc) => {
+      const imageDocRef = doc(imagesCollectionRef, imageDoc.id);
+      await deleteDoc(imageDocRef);
+    });
+
+    // Delete user document from Firestore
+    await deleteDoc(userDocRef);
+    
+    console.log('DEBUG: Firestore user document deleted successfully');
+  } catch (error) {
+    console.error('DEBUG: Error deleting Firestore user document:', error);
+    throw error;
+  }
+};
+
 const saveSkinAnalysisResult = async (userId, result) => {
   try {
     // Reference to the user's document in Firestore
@@ -280,6 +337,8 @@ export {
   uploadProfileImage, 
   fetchProfileImage,
   updateUsernameInFirestore,
+  deleteAuthAccount,
+  deleteFirestoreUser,
   saveSkinAnalysisResult,
   getSkinAnalysisResults
 };

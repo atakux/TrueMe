@@ -8,7 +8,10 @@ import { updateProfile, reauthenticateWithCredential, updatePassword } from 'fir
 import { loadFonts } from '../../utils/FontLoader'; 
 import { EditPasswordInput } from '../../utils/PasswordInput';
 import { useAuth } from '../../utils/AuthContext';
-import { uploadBannerImage, fetchBannerImage, uploadProfileImage, fetchProfileImage, updateUsernameInFirestore } from '../../utils/FirestoreDataService'; // Import fetchLatestBannerImage function
+import { uploadBannerImage, fetchBannerImage, 
+         uploadProfileImage, fetchProfileImage, 
+         updateUsernameInFirestore, 
+         deleteAuthAccount, deleteFirestoreUser } from '../../utils/FirestoreDataService'; // Import fetchLatestBannerImage function
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 
@@ -38,12 +41,23 @@ const EditAccount = () => {
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [PWLoading, setPWLoading] = useState(false);
 
+  const [deleteAccountModalVisible, setDeleteAccountModalVisible] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
 
   // Function to toggle modal visibility
   const toggleEditPasswordModal = () => {
     setIsEditPasswordModalVisible(!isEditPasswordModalVisible);
     setPasswordErrors([]);
+  };
+
+  // Function to handle opening/closing the delete account modal
+  const toggleDeleteAccountModal = () => {
+    setDeleteAccountModalVisible(!deleteAccountModalVisible);
+    setDeletePassword(''); // Reset password input
+    setDeleteError(''); // Reset any previous error messages
   };
 
   const fetchData = useCallback(async () => {
@@ -287,6 +301,32 @@ const EditAccount = () => {
     }
   };
 
+  // Function to handle account deletion
+const handleDeleteAccount = async () => {
+  try {
+    setLoading(true); // Set loading to true while processing
+
+    // Re-authenticate user before deleting account
+    const credential = EmailAuthProvider.credential(user.email, deletePassword);
+    await reauthenticateWithCredential(user, credential);
+
+    // Delete user data from Firestore
+    await deleteFirestoreUser(user.uid);
+
+    // Delete user from Firebase Authentication
+    await deleteAuthAccount(user.email, deletePassword);
+
+    // Navigate to login screen or any other appropriate action
+    navigation.navigate('LaunchScreen');
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    setDeleteError(error.message || 'An error occurred while deleting your account.');
+  } finally {
+    setLoading(false); // Set loading back to false after deletion attempt
+    toggleDeleteAccountModal(); // Close the delete account modal
+  }
+};
+
   if (!fontLoaded || !user) {
     // Font is still loading or user not logged in, you can return a loading indicator or null
     return null;
@@ -420,6 +460,10 @@ const EditAccount = () => {
           <View style={styles.inputContainer}>
           <TouchableOpacity style={styles.editButton} onPress={toggleEditPasswordModal}>
             <Text style={styles.editButtonText}>Edit Password</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.deleteButton} onPress={toggleDeleteAccountModal}>
+            <Text style={styles.deleteButtonText}>Delete Account</Text>
           </TouchableOpacity>            
           </View>
         </View>
@@ -474,6 +518,33 @@ const EditAccount = () => {
           </TouchableWithoutFeedback>
         </Modal>
 
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={deleteAccountModalVisible}
+          onRequestClose={toggleDeleteAccountModal}>
+          <TouchableWithoutFeedback onPress={toggleDeleteAccountModal}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Delete Account</Text>
+                <Text style={styles.modalText}>Confirm to delete your account by entering your password:</Text>
+                <EditPasswordInput
+                  value={deletePassword} onChangeText={setDeletePassword}
+                  placeholder={"Enter password"}
+                />
+                {deleteError ? <Text style={styles.errorMessage}>{deleteError}</Text> : null}
+                <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccount}>
+                  <Text style={styles.deleteButtonText}>Confirm Delete</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.cancelButton} onPress={toggleDeleteAccountModal}>
+                  <Text style={styles.cancelDelAccButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+
+
         <View style={styles.bottomPanel}>
             {loading ? (
                 <ActivityIndicator size="large" color="#64BBA1" />
@@ -504,7 +575,7 @@ const styles = StyleSheet.create({
   }, // End of inputContainer
 
   bottomPanel: {
-    bottom: -100,
+    bottom: -40,
     width: "110%",
     backgroundColor: "#FFFFFF",
     
@@ -849,6 +920,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   }, // End of editButtonText
 
+  deleteButton: {
+    backgroundColor: 'red',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginTop: 20,
+  }, // End of editButton
+
+  deleteButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'Sofia-Sans',
+    textAlign: 'center',
+  }, // End of editButtonText
+
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -865,11 +953,19 @@ const styles = StyleSheet.create({
 
   modalTitle: {
     fontSize: 20,
-    fontFamily: 'Sofia-Sans-Bold',
+    fontFamily: 'Sofia-Sans',
     color: '#333333',
     marginBottom: 20,
     textAlign: 'center',
   }, // End of modalTitle
+
+  modalText: {
+    fontSize: 16,
+    fontFamily: 'Sofia-Sans',
+    color: '#333333',
+    marginBottom: 20,
+    textAlign: 'left',
+  }, // End of modalText
 
   savePasswordButton: {
     backgroundColor: '#804396',
@@ -896,6 +992,13 @@ const styles = StyleSheet.create({
 
   cancelButtonText: {
     color: '#804396',
+    fontSize: 17,
+    fontFamily: 'Sofia-Sans',
+    textAlign: 'center',
+  }, // End of cancelButton
+
+  cancelDelAccButtonText: {
+    color: '#007AFF',
     fontSize: 17,
     fontFamily: 'Sofia-Sans',
     textAlign: 'center',
