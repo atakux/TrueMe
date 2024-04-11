@@ -45,3 +45,7 @@
 - Project Advisor: Professor Bruce McKenzie
 
 
+# Licensing
+Flaticon: [https://www.flaticon.com/](https://www.flaticon.com/)
+- All icons are licensed by [Flaticon](https://www.flaticon.com/) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) License
+
