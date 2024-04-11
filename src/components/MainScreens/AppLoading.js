@@ -8,7 +8,7 @@ import { fetchDailyRoutines,
          fetchBannerImage, 
          fetchProfileImage } from '../../utils/FirestoreDataService';
 
-import affirmations from '../../authentication/affirmations.json'; // Adjust the file path as needed
+import affirmations from '../../utils/affirmations.json'; // Adjust the file path as needed
 
 import { useData } from '../../utils/DataContext';
 
