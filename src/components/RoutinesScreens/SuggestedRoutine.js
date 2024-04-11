@@ -38,20 +38,7 @@ const SuggestedRoutine = ({ route }) => {
 
     // Calculate the offset to align the current day to the left
     const offset = currentDayIndex > 0 ? currentDayIndex - 0 : 6;
-
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            const currentDate = new Date();
-            if (currentDate.getHours() === 0 && currentDate.getMinutes() === 0) {
-                resetCompletionStatus();
-            }
-        }, 60000); // Check every minute for midnight
-
-        // Cleanup function
-        return () => clearInterval(intervalId);
-
-    }, [user, navigation, setFontLoaded, setDailyRoutines, fetchDailyRoutines, setAccepted, accepted]);
-
+    
     useEffect(() => {
         const fetchAcceptanceStatus = async () => {
             try {
