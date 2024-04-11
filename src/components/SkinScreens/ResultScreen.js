@@ -11,8 +11,6 @@ import generateSuggestedSkincareRoutine from '../../utils/GenerateRoutine';
 
 const screenWidth = Dimensions.get('window').width;
 
-import affirmations from '../../authentication/affirmations.json';
-
 const ResultScreen = () => {
     const navigation = useNavigation();
     const [loading, setLoading] = useState(false);
@@ -22,17 +20,6 @@ const ResultScreen = () => {
     const [showModal, setShowModal] = useState(false); // State variable for modal visibility
     const [suggestedRoutine, setSuggestedRoutine] = useState(null); // State variable to store the suggested routine
     const user = useAuth();
-
-    const [affirmation, setAffirmation] = useState('');
-
-    const getRandomAffirmation = () => {
-        const randomIndex = Math.floor(Math.random() * affirmations.length);
-        return affirmations[randomIndex];
-    };
-
-    useEffect(() => {
-        setAffirmation(getRandomAffirmation());
-    }, []);
 
     useEffect(() => {
         const loadAsyncData = async () => {
@@ -73,7 +60,6 @@ const ResultScreen = () => {
         return (
             <View style={styles.loadingIndicator}>
                   <ActivityIndicator size="large" color="#64BBA1"/>
-                  <Text style={styles.loadingText}>{affirmation}</Text>
             </View>
           );
     };

@@ -9,9 +9,6 @@ import { loadFonts } from '../../utils/FontLoader';
 import { useAuth } from '../../utils/AuthContext';
 import { fetchDailyRoutines, getSkinAnalysisResults } from '../../utils/FirestoreDataService'; 
 import { RoutineProvider } from '../../utils/RoutineContext';
-import { AuthProvider } from '../../utils/AuthContext';
-
-import affirmations from '../../authentication/affirmations.json'; 
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -24,17 +21,6 @@ const HomeScreen = () => {
   const [skinType, setSkinType] = useState(null);
   const [loading, setLoading] = useState(true);
   const [healthySkinDisplayed, setHealthySkinDisplayed] = useState(false);
-
-  const [affirmation, setAffirmation] = useState('');
-
-  const getRandomAffirmation = () => {
-    const randomIndex = Math.floor(Math.random() * affirmations.length);
-    return affirmations[randomIndex];
-  };
-
-  useEffect(() => {
-    setAffirmation(getRandomAffirmation());
-  }, []);
 
   useEffect(() => {
     // Fetch daily routines function
