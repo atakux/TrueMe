@@ -40,6 +40,10 @@ const ShopScreen = ({ setIsTyping }) => {
 
   const [dataFetched, setDataFetched] = useState(false);
 
+  if (!user) {
+    return null;
+  };
+
   // Function to scroll to top of screen
   const scrollToTop = () => {
     if (scrollViewRef.current) {
@@ -79,94 +83,111 @@ const ShopScreen = ({ setIsTyping }) => {
         const results = await getSkinAnalysisResults(user.uid);
         setSkinResults(results[0].prediction);
   
-        if (skinResults.length === 0) {
+        if (results.length === 0 || results[0].prediction === null || results[0].prediction === undefined) {
           setLoadingSkincare(false);
           setLoadingMakeup(false);
           return;
         }
-
-        if (results) {
-          // Determine skin type
-          const normal = results[0].prediction.normal;
-          const dry = results[0].prediction.dry;
-          const oily = results[0].prediction.oily;
-          if (dry > normal && dry > oily) {
-              setSkinType('Dry');
-          } else if (oily > normal && oily > dry) {
-              setSkinType('Oily');
-          } else if (normal > dry && normal > oily) {
-              setSkinType('Normal');
-          } else {
-              setSkinType('Combination');
-          } 
-
-          // Once skin analysis results are available, fetch skincare data
-          fetchAmazonData(skinResults);
-
+  
+        // Determine skin type
+        const normal = results[0].prediction.normal;
+        const dry = results[0].prediction.dry;
+        const oily = results[0].prediction.oily;
+        if (dry > normal && dry > oily) {
+          setSkinType('Dry');
+        } else if (oily > normal && oily > dry) {
+          setSkinType('Oily');
+        } else if (normal > dry && normal > oily) {
+          setSkinType('Normal');
         } else {
-            console.error("Error fetching skin analysis results.");
+          setSkinType('Combination');
         }
   
-        
+        // Once skin analysis results are available, fetch skincare data only if not already fetched
+        if (!dataFetched) {
+          const highProbabilityConditions = getHighProbabilityConditions(results[0].prediction, skinType);
+  
+          console.log("DEBUG: High Probability Conditions:", highProbabilityConditions);
+  
+          // Fetch amzon product data
+          fetchAmazonData(results[0].prediction, skinType);
+
+          setLoadingSkincare(false);
+          setLoadingMakeup(false);
+          setDataFetched(true);
+        }
+  
       } catch (error) {
         console.error(error);
         setLoadingSkincare(false);
         setLoadingMakeup(false);
-        return;
       }
     };
   
     // Function to fetch data from Amazon based on skin analysis results
-    const fetchAmazonData = (skinResults) => {
-      const highProbabilityConditions = getHighProbabilityConditions(skinResults);
+    const fetchAmazonData = (skinResults, skinType) => {
+      const highProbabilityConditions = getHighProbabilityConditions(skinResults, skinType);
+
+      console.log("DEBUG: High Probability Conditions:", highProbabilityConditions);
   
       // Fetch skincare products
       fetchAmazonProductData(highProbabilityConditions + ' Skincare Products')
-        .then(skincareData => {
-          setSkincareProducts(skincareData.data);
-          setLoadingSkincare(false);
-        })
-        .catch(error => {
-          console.error("Error fetching skincare data:", error);
-          setLoadingSkincare(false);
-        });
-  
-      // Fetch makeup products
-      fetchAmazonProductData("Makeup")
-        .then(makeupData => {
-          setMakeupProducts(makeupData.data);
-          setLoadingMakeup(false);
-        })
-        .catch(error => {
-          console.error("Error fetching makeup data:", error);
-          setLoadingMakeup(false);
-        });
+      .then(skincareData => {
+        setSkincareProducts(skincareData.data);
+      })
+      .catch(error => {
+        console.error("Error fetching skincare data:", error);
+      })
+      .finally(() => {
+        setLoadingSkincare(false); // Set loading state to false after fetching data
+      });
 
+    // Fetch makeup products
+    fetchAmazonProductData("Makeup")
+      .then(makeupData => {
+        setMakeupProducts(makeupData.data);
+      })
+      .catch(error => {
+        console.error("Error fetching makeup data:", error);
+      })
+      .finally(() => {
+        setLoadingMakeup(false); // Set loading state to false after fetching data
+      });
 
-        setDataFetched(true);
+    setDataFetched(true);
     };
   
-    if (isFocused && !dataFetched) {
+    if (isFocused || !dataFetched) {
+      console.log("DEBUG: Data fetched:", dataFetched);
+      console.log("DEBUG: Is focused:", isFocused);
+      console.log("DEBUG: loadingSkincare:", loadingSkincare);
+      console.log("DEBUG: loadingMakeup:", loadingMakeup);
       fetchData();
     }
   }, [isFocused, dataFetched]);
+
+  // Reset dataFetched state when component is focused
+  useEffect(() => {
+    setDataFetched(false);
+  }, [isFocused]);
+
   
 
 
-const getHighProbabilityConditions = (skinResults) => {
-  let highProbabilityConditions = '';
+  const getHighProbabilityConditions = (skinResults, skinType) => {
+    let highProbabilityConditions = [];
+  
+    highProbabilityConditions.push(skinType);
 
-  for (const condition in skinResults) {
-    if (skinResults.hasOwnProperty(condition) && skinResults[condition] > 0.05) {
-      if (highProbabilityConditions !== '') {
-        highProbabilityConditions += ' '; // Add space if it's not the first condition
+    for (const condition in skinResults) {
+      if (skinResults.hasOwnProperty(condition) && skinResults[condition] > 0.05 && !["oily", "dry", "normal"].includes(condition.toLowerCase())) {
+        highProbabilityConditions.push(condition);
       }
-      highProbabilityConditions += condition;
     }
-  }
-
-  return highProbabilityConditions;
-};
+    
+    return highProbabilityConditions.join(' ');
+  };
+  
 
     
 
@@ -380,72 +401,72 @@ const getHighProbabilityConditions = (skinResults) => {
           ref={scrollViewRef}
         >
 
-          {/* Tab 1: Skincare Products */}
+          {/* Skincare Products */}
           {activeTab === 'Button 1' && (
             <View style={styles.tabContentContainer}>
-              {loadingSkincare && (
+              {loadingSkincare ? (
                 <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
-              )}
-              {skinResults.length === 0 && (
+              ) : skinResults.length === 0 ? (
                 <View>
                   <Text style={styles.noResults}>Take the skin analysis test to see recommended products!</Text>
                   <TouchableOpacity style={styles.getStartedButton} onPress={() => navigation.navigate('GetStarted')}>
                     <Text style={styles.buttonText}>Get Started</Text>
                   </TouchableOpacity>
                 </View>
-              )}
-              {filterProducts(skincareProducts, searchQuery).slice(0, visibleProducts).map(product => (
-                <View key={product.asin} style={styles.productContainer}>
-                  <ProductImage imageUrl={product.image} />
-                  <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
-                    <View style={styles.productTextContainer}>
-                      <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}</Text>
-                      <View style={{ flexDirection: 'row', marginVertical: 8}}>
-                        <Text style={{ color: '#008080' }}>{product.stars} </Text>
-                        <Text style={{ color: '#FFA500' }}>{generateStars(product.stars)}</Text>
-                        <Text style={{ color: "#808080" }}>{"("}{product.rating_count}{")"}</Text>
+              ) : (
+                filterProducts(skincareProducts, searchQuery).slice(0, visibleProducts).map(product => (
+                  <View key={product.asin} style={styles.productContainer}>
+                    <ProductImage imageUrl={product.image} />
+                    <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
+                      <View style={styles.productTextContainer}>
+                        <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}</Text>
+                        <View style={{ flexDirection: 'row', marginVertical: 8}}>
+                          <Text style={{ color: '#008080' }}>{product.stars} </Text>
+                          <Text style={{ color: '#FFA500' }}>{generateStars(product.stars)}</Text>
+                          <Text style={{ color: "#808080" }}>{"("}{product.rating_count}{")"}</Text>
+                        </View>
+                        <Text style={{fontSize: 18}}>{product.price}</Text>
                       </View>
-                      <Text style={{fontSize: 18}}>{product.price}</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              ))}
+                    </TouchableOpacity>
+                  </View>
+                ))
+              )}
             </View>
           )}
-
 
           {/* Tab 2: Makeup Products */}
           {activeTab === 'Button 2' && (
             <View style={styles.tabContentContainer}>
-              {loadingMakeup && (
+              {loadingMakeup ? (
                 <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
-              )}
-              {skinResults.length === 0 && (
+              ) : skinResults.length === 0 ? (
                 <View>
                   <Text style={styles.noResults}>Take the skin analysis test to see recommended products!</Text>
                   <TouchableOpacity style={styles.getStartedButton} onPress={() => navigation.navigate('GetStarted')}>
                     <Text style={styles.buttonText}>Get Started</Text>
                   </TouchableOpacity>
                 </View>
-              )}
-              {filterProducts(makeupProducts, searchQuery).slice(0, visibleProducts).map(product => (
-                <View key={product.asin} style={styles.productContainer}>
-                  <ProductImage imageUrl={product.image} />
-                  <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
-                    <View style={styles.productTextContainer}>
-                      <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}</Text>
-                      <View style={{ flexDirection: 'row', marginVertical: 8}}>
-                        <Text style={{ color: '#008080' }}>{product.stars} </Text>
-                        <Text style={{ color: '#FFA500' }}>{generateStars(product.stars)}</Text>
-                        <Text style={{ color: "#808080" }}>{"("}{product.rating_count}{")"}</Text>
+              ) : (
+                filterProducts(makeupProducts, searchQuery).slice(0, visibleProducts).map(product => (
+                  <View key={product.asin} style={styles.productContainer}>
+                    <ProductImage imageUrl={product.image} />
+                    <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
+                      <View style={styles.productTextContainer}>
+                        <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}</Text>
+                        <View style={{ flexDirection: 'row', marginVertical: 8}}>
+                          <Text style={{ color: '#008080' }}>{product.stars} </Text>
+                          <Text style={{ color: '#FFA500' }}>{generateStars(product.stars)}</Text>
+                          <Text style={{ color: "#808080" }}>{"("}{product.rating_count}{")"}</Text>
+                        </View>
+                        <Text style={{fontSize: 18}}>{product.price}</Text>
                       </View>
-                      <Text style={{fontSize: 18}}>{product.price}</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              ))}
+                    </TouchableOpacity>
+                  </View>
+                ))
+              )}
             </View>
           )}
+
         </ScrollView>
       </View>
 

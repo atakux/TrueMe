@@ -166,7 +166,7 @@ const DiscoverScreen = () => {
   // Render the header (Username + Greeting + Tabs)  
   const Header = ({ user }) => (
     <View>
-      <View style={{ marginTop: 15, marginLeft: 15 }}>
+      <View style={{ marginTop: 20, marginLeft: 15 }}>
         <Text style={styles.greetingText}>Hello {user.displayName}!</Text>
       </View>
 
