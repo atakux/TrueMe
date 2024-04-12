@@ -100,12 +100,14 @@ const ShopScreen = ({ setIsTyping }) => {
               setSkinType('Combination');
           } 
 
+          // Once skin analysis results are available, fetch skincare data
+          fetchAmazonData(skinResults);
+
         } else {
             console.error("Error fetching skin analysis results.");
         }
   
-        // Once skin analysis results are available, fetch skincare data
-        fetchAmazonData(skinResults);
+        
       } catch (error) {
         console.error(error);
         setLoadingSkincare(false);
