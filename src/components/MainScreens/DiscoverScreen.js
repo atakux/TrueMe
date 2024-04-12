@@ -13,7 +13,8 @@ import {
   ActivityIndicator,
   Button,
   Linking,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Platform
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
@@ -166,7 +167,7 @@ const DiscoverScreen = () => {
   // Render the header (Username + Greeting + Tabs)  
   const Header = ({ user }) => (
     <View>
-      <View style={{ marginTop: 20, marginLeft: 15 }}>
+      <View style={{ ...Platform.select({ ios: { marginTop: 10 }, android: { marginTop: 30 } }), marginLeft: 15 }}>
         <Text style={styles.greetingText}>Hello {user.displayName}!</Text>
       </View>
 
