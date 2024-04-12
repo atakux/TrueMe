@@ -63,3 +63,16 @@
 - All datasets are licensed by [RoboFlow](https://roboflow.com/) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) License
 
 
+# Privacy Policy
+[Privacy Policy](https://www.privacypolicies.com/live/6d440a87-3b8a-4886-84ad-6ed56cfead07)
+
+# Contact
+## Angela DeLeo
+- [Email](mailto:rockyangela5@gmail.com)
+- [LinkedIn](https://www.linkedin.com/in/xatakux/)
+- [GitHub](https://github.com/atakux)
+
+## Roman Saddi
+- [Email](mailto:romansaddi@gmailcom)
+- [LinkedIn](https://www.linkedin.com/in/roman-saddi/)
+- [GitHub](https://github.com/RomanSaddiJr)
