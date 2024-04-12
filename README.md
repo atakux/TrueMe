@@ -28,16 +28,23 @@
 - [GitHub Repository](https://github.com/atakux/TrueMe-Python-Server)
 
 # Tools Used
-- [Expo](https://expo.dev/)
 - [Node.js](https://nodejs.org/en/)
-- [npm](https://www.npmjs.com/)
+- [Firebase](https://firebase.google.com/)
+- [Render](https://render.com/)
+
+
+### Testing Tools
+- [Postman](https://www.postman.com/)
+- [Expo Go](https://expo.dev/)
+
+### Languages/Frameworks
+- [React Native](https://reactnative.dev/)
 - [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 - [Python](https://www.python.org/)
 - [Flask](https://flask.palletsprojects.com/)
-- [React Native](https://reactnative.dev/)
-- [Firebase](https://firebase.google.com/)
-- [Google Cloud Platform](https://cloud.google.com/)
-- [Render](https://render.com/)
+
+# API
+- [Amazon API](https://rapidapi.com/opus-serve-opus-serve-default/api/amazon-product-data6/details)
 
 # Contributors
 - [Angela DeLeo](https://github.com/atakux) 
@@ -46,6 +53,13 @@
 
 
 # Licensing
-Flaticon: [https://www.flaticon.com/](https://www.flaticon.com/)
+**Flaticon: [https://www.flaticon.com/](https://www.flaticon.com/)**
 - All icons are licensed by [Flaticon](https://www.flaticon.com/) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) License
+
+**Kaggle: [https://www.kaggle.com/](https://www.kaggle.com/)** 
+- All datasets are licensed by [Kaggle](https://www.kaggle.com/) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) License, [Open Data Commons](https://opendatacommons.org/licenses/dbcl/1-0/), and [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+
+**Roboflow: [https://roboflow.com/](https://roboflow.com/)**
+- All datasets are licensed by [RoboFlow](https://roboflow.com/) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) License
+
 
