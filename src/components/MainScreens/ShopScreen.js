@@ -73,26 +73,17 @@ const ShopScreen = ({ setIsTyping }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoadingSkincare(true);
+        setLoadingMakeup(true);
+  
         const results = await getSkinAnalysisResults(user.uid);
         setSkinResults(results[0].prediction);
-    
-        // Once skin analysis results are available, fetch skincare data
-        fetchAmazonProductData(getHighProbabilityConditions(skinResults) + ' Skincare Products')
-          .then(skincareData => {
-            setSkincareProducts(skincareData.data); // Update state with fetched skincare products data
-            setLoadingSkincare(false);
-          })
-          .catch(error => {
-            console.error("Error fetching skincare data:", error);
-          });
-    
-        // Once skin analysis results are available, fetch makeup data
-        fetchAmazonProductData("Makeup")
-          .then(makeupData => {
-            setMakeupProducts(makeupData.data); // Update state with fetched makeup products data
-            setLoadingMakeup(false);
-          })
-
+  
+        if (skinResults.length === 0) {
+          setLoadingSkincare(false);
+          setLoadingMakeup(false);
+          return;
+        }
 
         if (results) {
           // Determine skin type
@@ -112,18 +103,52 @@ const ShopScreen = ({ setIsTyping }) => {
         } else {
             console.error("Error fetching skin analysis results.");
         }
-
-        setDataFetched(true);
-
+  
+        // Once skin analysis results are available, fetch skincare data
+        fetchAmazonData(skinResults);
       } catch (error) {
         console.error(error);
+        setLoadingSkincare(false);
+        setLoadingMakeup(false);
+        return;
       }
     };
+  
+    // Function to fetch data from Amazon based on skin analysis results
+    const fetchAmazonData = (skinResults) => {
+      const highProbabilityConditions = getHighProbabilityConditions(skinResults);
+  
+      // Fetch skincare products
+      fetchAmazonProductData(highProbabilityConditions + ' Skincare Products')
+        .then(skincareData => {
+          setSkincareProducts(skincareData.data);
+          setLoadingSkincare(false);
+        })
+        .catch(error => {
+          console.error("Error fetching skincare data:", error);
+          setLoadingSkincare(false);
+        });
+  
+      // Fetch makeup products
+      fetchAmazonProductData("Makeup")
+        .then(makeupData => {
+          setMakeupProducts(makeupData.data);
+          setLoadingMakeup(false);
+        })
+        .catch(error => {
+          console.error("Error fetching makeup data:", error);
+          setLoadingMakeup(false);
+        });
 
-    if (isFocused && !dataFetched) { // Fetch data only when the screen is focused
+
+        setDataFetched(true);
+    };
+  
+    if (isFocused && !dataFetched) {
       fetchData();
     }
-  }, [ isFocused, dataFetched ]);
+  }, [isFocused, dataFetched]);
+  
 
 
 const getHighProbabilityConditions = (skinResults) => {
@@ -243,13 +268,17 @@ const getHighProbabilityConditions = (skinResults) => {
 
             {/* Skin Diagnostic Container */}
             <View style={styles.skinResultContainer}>
+              {/* If there are no skin results, display message */}
+              {Object.keys(skinResults).length === 0 && <Text style={{...styles.mainText, margin: 20}}>Take the skin analysis test to get your skin profile!</Text>}
+              
               {/* If there are skin results, display top 3 greatest results */}
               <>
+              {Object.keys(skinResults).length > 0 &&
                 <TouchableOpacity onPress={handleSkinResultContainerClick}>
                 <Text style={styles.mainText}>Your Skin Profile:</Text>
                   {/* Container Title */}
                   <View style={styles.resultsWrapper}>
-
+                    
                     <Text style={styles.resultsText}> • {skinType} Skin</Text>
 
                     {Object.entries(skinResults)
@@ -273,6 +302,7 @@ const getHighProbabilityConditions = (skinResults) => {
 
                 </View>
                 </TouchableOpacity>
+              }
               </>
             </View>
 
@@ -354,6 +384,14 @@ const getHighProbabilityConditions = (skinResults) => {
               {loadingSkincare && (
                 <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
               )}
+              {skinResults.length === 0 && (
+                <View>
+                  <Text style={styles.noResults}>Take the skin analysis test to see recommended products!</Text>
+                  <TouchableOpacity style={styles.getStartedButton} onPress={() => navigation.navigate('GetStarted')}>
+                    <Text style={styles.buttonText}>Get Started</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
               {filterProducts(skincareProducts, searchQuery).slice(0, visibleProducts).map(product => (
                 <View key={product.asin} style={styles.productContainer}>
                   <ProductImage imageUrl={product.image} />
@@ -379,6 +417,14 @@ const getHighProbabilityConditions = (skinResults) => {
             <View style={styles.tabContentContainer}>
               {loadingMakeup && (
                 <ActivityIndicator size="large" color="#64BBA1" style={styles.loadingIndicator} />
+              )}
+              {skinResults.length === 0 && (
+                <View>
+                  <Text style={styles.noResults}>Take the skin analysis test to see recommended products!</Text>
+                  <TouchableOpacity style={styles.getStartedButton} onPress={() => navigation.navigate('GetStarted')}>
+                    <Text style={styles.buttonText}>Get Started</Text>
+                  </TouchableOpacity>
+                </View>
               )}
               {filterProducts(makeupProducts, searchQuery).slice(0, visibleProducts).map(product => (
                 <View key={product.asin} style={styles.productContainer}>
@@ -452,6 +498,25 @@ const styles = StyleSheet.create({
     marginTop: 10,
   }, 
 
+  getStartedButton: {
+    marginTop: 30,
+    width: 200,
+    height: 60,
+    backgroundColor: "#D0F2DA",
+    borderRadius: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    marginBottom: 10,
+  }, // End of getStartedbutton
+    
+  buttonText: {
+      fontSize: 28,
+      fontFamily: "Sofia-Sans",
+      color: "#64BBA1",
+      textAlign: "center",
+  }, // End of buttonText
+
   closeButton: {
     ...this.text,
     fontSize: 18,
@@ -465,6 +530,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: "center",
     fontFamily: 'Sofia-Sans',
+  },
+
+  noResults: {
+    ...this.text,
+    fontSize: 18,
+    textAlign: "center",
+    fontFamily: 'Sofia-Sans',
+
   },
 
   textContainer: {
