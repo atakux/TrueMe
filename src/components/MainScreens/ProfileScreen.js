@@ -102,7 +102,7 @@ const ProfileScreen = () => {
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
         aspect: [10, 10],
-        quality: 0.5,
+        quality: 0.25,
         canceled: false
       });
     
@@ -131,7 +131,7 @@ const ProfileScreen = () => {
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
         aspect: [10, 10],
-        quality: 0.5,
+        quality: 0.25,
         canceled: false
       });
     

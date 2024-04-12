@@ -137,7 +137,7 @@ const EditAccount = () => {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [10, 10],
-        quality: 0.5,
+        quality: 0.25,
         canceled: false
       });
     
@@ -166,7 +166,7 @@ const EditAccount = () => {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [10, 10],
-        quality: 0.5,
+        quality: 0.25,
         canceled: false
       });
     

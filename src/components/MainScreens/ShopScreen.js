@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Platform, Keyboard, StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Animated, Modal, ActivityIndicator, Button, Linking,TouchableWithoutFeedback } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { debounce } from 'lodash';
 import { getSkinAnalysisResults } from '../../utils/FirestoreDataService'; 
 
@@ -18,6 +18,7 @@ const ShopScreen = ({ setIsTyping }) => {
   const user = useAuth();
   const [activeTab, setActiveTab] = useState('Button 1'); // Initial active tab
   const [loading, setLoading] = useState(true);
+  const isFocused = useIsFocused();
 
   const [skincareProducts, setSkincareProducts] = useState([]); // State to store fetched skincare products
   const [makeupProducts, setMakeupProducts] = useState([]); // State to store fetched makeup products
@@ -36,6 +37,8 @@ const ShopScreen = ({ setIsTyping }) => {
 
   const [skinResults, setSkinResults] = useState([]);
   const [skinType, setSkinType] = useState(null);
+
+  const [dataFetched, setDataFetched] = useState(false);
 
   // Function to scroll to top of screen
   const scrollToTop = () => {
@@ -61,7 +64,10 @@ const ShopScreen = ({ setIsTyping }) => {
     };
   }, [debouncedSetIsTyping]);
 
-  
+  // Scroll to top of screen when active tab changes
+  useEffect(() => {
+    scrollToTop();
+  }, [activeTab]);
 
   // Fetch data from Amazon API + Get Skin analysis results
   useEffect(() => {
@@ -107,12 +113,17 @@ const ShopScreen = ({ setIsTyping }) => {
             console.error("Error fetching skin analysis results.");
         }
 
+        setDataFetched(true);
+
       } catch (error) {
         console.error(error);
       }
     };
-    fetchData();
-  }, []);
+
+    if (isFocused && !dataFetched) { // Fetch data only when the screen is focused
+      fetchData();
+    }
+  }, [ isFocused, dataFetched ]);
 
 
 const getHighProbabilityConditions = (skinResults) => {
