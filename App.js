@@ -122,7 +122,8 @@ console.warn = (...args) => {
 console.error = (...args) => {
   const [firstArg] = args;
   if (typeof firstArg === 'string' && firstArg.startsWith('AxiosError') || 
-             firstArg.startsWith('There was a problem sending log messages')) {
+             firstArg.startsWith('There was a problem sending log messages') ||
+             firstArg.startsWith('Max retry limit reached. Unable to fetch data.')) {
     // Suppress the warning
     return;
   }
@@ -150,4 +151,6 @@ LogBox.ignoreLogs([
   "Sending `onAnimatedValueUpdate` with no listeners registered.",
   "There was a problem sending log messages to your development environment [PrettyFormatPluginError: value.hasOwnProperty is not a function (it is undefined)]",
   "PrettyFormatPluginError: value.hasOwnProperty is not a function (it is undefined)",
+  'Max retry limit reached. Unable to fetch data.',
+  'AxiosError: There was a problem sending log messages',
 ]);

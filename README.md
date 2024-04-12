@@ -1,3 +1,9 @@
+<style>
+    .app-store-button {
+        margin-left: 19px; /* Adjust the value as needed */
+    }
+</style>
+
 # *TrueMe*
 
 [![CodeQL](https://github.com/atakux/TrueMe/actions/workflows/github-code-scanning/codeql/badge.svg?branch=main)](https://github.com/atakux/TrueMe/actions/workflows/github-code-scanning/codeql)
@@ -8,9 +14,9 @@
 *TrueMe* aims to assist users in their skincare and beauty journey. Users will be able to easily discover new products that are recommended to them based on their skin condition. *TrueMe* will utilize facial recognition to achieve this. In addition, the user will have control over their automated suggestions with filters in order to further provide personalization. *TrueMe* will also allow users to create their own daily routines as well as receive recommended routines.
 
 # Installation
-<a href="https://play.google.com/store/apps/details?id=com.trueme"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" width="250"/></a>
+<a href="https://play.google.com/store/apps/details?id=com.trueme"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" width="280"/></a>
 
-[*insert apple app store link here when its available*]
+<a href="https://testflight.apple.com/join/HZ7GFHxq"><img alt="Download on the App Store" src="assets/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" class="app-store-button" width="245"></a>
 
 # Local Installation
 - *TrueMe* App:
