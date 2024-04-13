@@ -40,10 +40,6 @@ const ShopScreen = ({ setIsTyping }) => {
 
   const [dataFetched, setDataFetched] = useState(false);
 
-  if (!user) {
-    return null;
-  };
-
   // Function to scroll to top of screen
   const scrollToTop = () => {
     if (scrollViewRef.current) {
@@ -269,6 +265,10 @@ const ShopScreen = ({ setIsTyping }) => {
     }
     return stars;
   }
+
+  if (!user) {
+    return null;
+  };
   
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // Rendered Components
