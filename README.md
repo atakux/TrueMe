@@ -64,7 +64,7 @@
 
 
 # Privacy Policy
-[Privacy Policy](https://www.privacypolicies.com/live/6d440a87-3b8a-4886-84ad-6ed56cfead07)
+[Privacy Policy](https://docs.google.com/document/d/1LfHameTRx8WpShWYf1qJ3skthdz_ehh9XezQOwEeiXI/edit?usp=sharing)
 
 # Contact
 ## Angela DeLeo
