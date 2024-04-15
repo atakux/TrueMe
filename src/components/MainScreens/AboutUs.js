@@ -6,18 +6,26 @@ import Carousel from 'react-native-snap-carousel';
 const AboutUsScreen = () => {
     const navigation = useNavigation();
 
-    const data = [
-        { title: 'Developer 1: Angela Deleo' },
-        { title: ' Developer 2: Roman Saddi' },
-    ];
 
+    const data = [
+        { title: 'Angela Deleo',
+         image: require('../../../assets/images/angela.jpg'),
+        description: 'Software Engineer | CSUF \n\nEmail: \nrockyangela5@gmail.com \n\nPhone: \n(310) 896-6733'},
+
+        { title: 'Roman Saddi',
+        image: require('../../../assets/images/roman.jpg'),
+        description: 'Software Engineer | CSUF \n\nEmail: \nRomansaddi@gmail.com \n\nPhone: \n(310) 971-0491' },
+    ];
+    
     const renderItem = ({ item }) => (
         <View style={styles.slide}>
+        <View style={styles.content}>
+                <Image source={item.image} style={styles.image} />
+                <Text style={styles.cardDescription}>{item.description}</Text>
+            </View>
             <Text style={styles.title}>{item.title}</Text>
-            {/* Add your summary content here */}
         </View>
     );
-    
 
     return (
         <SafeAreaView style={[styles.container, { flex: 1 }]}>
@@ -38,7 +46,7 @@ const AboutUsScreen = () => {
             showsVerticalScrollIndicator={false}
         >
 
-            <View style={[styles.container, { paddingBottom: 300 }]}>
+            <View style={[styles.container, { paddingBottom: 100 }]}>
                 <Text style={[styles.description, {borderWidth: 1, borderColor:'#64BBA1', padding: 10, borderRadius: 10, justifyContent: 'center', backgroundColor: '#D0F2DA', color: '#64BBA1',}]}>
                     Hello username, nice to meet you! {"\n\n"}
                     I am TrueMe, an AI skincare companion created to help users keep their skin looking healthy. {"\n\n"}
@@ -46,17 +54,20 @@ const AboutUsScreen = () => {
                     The goal of this project is to help users keep their skin looking healthy using the power of AI.
                 </Text>
                 
+                <View style={[styles.container, { marginTop: 15, alignItems: 'center' }]}>
+                    <Text style={styles.title}>Meet The Developers</Text>
+                </View>
 
-                <View style={[styles.container, { marginTop: 50, alignItems: 'center' }]}>
+                <View style={[styles.container, { marginTop: 10, alignItems: 'center' }]}>
                     <Carousel
                         data={data}
                         renderItem={renderItem}
                         sliderWidth={400}
                         itemWidth={350}
-                        loop={false} // Make the carousel infinite
-                        autoplay={true}
-                        autoplayDelay={500}
-                        autoplayInterval={2000}
+                        // loop={false} // Make the carousel infinite
+                        // autoplay={true}
+                        // autoplayDelay={500}
+                        // autoplayInterval={2000}
                     />
                 </View>
 
@@ -127,6 +138,20 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 10,
+    },
+    image: {
+        width: 150,
+        height: 150,
+        resizeMode: 'cover',
+    },
+    content: {
+        flexDirection: 'row',
+        marginBottom: 20,
+    },
+    cardDescription: {
+        fontSize: 14,
+        marginLeft: 10,
+        fontFamily: 'Sofia-Sans',
     },
     });
 
