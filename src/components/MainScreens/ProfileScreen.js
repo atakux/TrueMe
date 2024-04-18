@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Image, ActivityIndicator, Platform } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, TouchableOpacity, Modal, Image, ActivityIndicator, Platform } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { useNavigation, useIsFocused } from '@react-navigation/native';
@@ -30,6 +30,10 @@ const ProfileScreen = () => {
   const [skinAnalysisData, setSkinAnalysisData] = useState(null); 
 
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
+
+  const [showTermsModal, setShowTermsModal] = useState(false); 
+
+  const terms = require('../../utils/json/terms.json');
 
   const fetchData = useCallback(async () => {
     try {
@@ -161,6 +165,43 @@ const ProfileScreen = () => {
     }
   };
 
+  const renderFullTerms = () => {
+    return (
+      <ScrollView style={styles.fullTermsContainer}>
+        {terms ? (
+          <>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <Text style={styles.headerText}>Terms of Use</Text>
+
+              <TouchableOpacity style={styles.closeButton} onPress={() => setShowTermsModal(false)}>
+                  <Image source={require('../../../assets/icons/close.png')} style={styles.closeIcon} />
+              </TouchableOpacity>
+            </View>            
+
+            {terms.welcomeMessage && <Text style={styles.welcomeMessage}>{terms.welcomeMessage}</Text>}
+            {terms.termsOfUse && terms.termsOfUse.sections.map(section => (
+              <View key={section.title} style={styles.sectionContainer}>
+                <Text style={styles.sectionTitle}>{section.title}</Text>
+                {section.subsections.map(subsection => (
+                  <View key={subsection.title} style={styles.subsectionContainer}>
+                    <Text style={styles.subsectionTitle}>{subsection.title}</Text>
+                    <Text style={styles.subsectionContent}>{subsection.content}</Text>
+                  </View>
+                ))}
+              </View>
+            ))}
+
+            {/* Spacer */}
+            <View style={{ marginTop: 20 }}></View>
+
+          </>
+        ) : (
+          <Text style={styles.loadingText}>Loading terms...</Text>
+        )}
+      </ScrollView>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.imagesContainer}>
@@ -242,7 +283,24 @@ const ProfileScreen = () => {
             <TouchableOpacity onPress={() => console.log('DEBUG: about us clicked')} style={styles.buttons}>
               <Text style={styles.buttonText}>About Us</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => setShowTermsModal(true)} style={styles.buttons}>
+              <Text style={styles.buttonText}>Terms of Use</Text>
+            </TouchableOpacity>
           </View>
+
+          {/* Terms of Use Modal */}
+
+          <Modal
+            visible={showTermsModal}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => setShowTermsModal(false)}
+          >
+            <View style={styles.modalContainer}>
+              {renderFullTerms()}
+            </View>
+          </Modal>
+          
 
         </View>
       </ScrollView>
@@ -257,6 +315,82 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAFAFA",
     width: "100%",
   }, // End of container
+
+  closeButtonContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 999,
+  },
+
+  closeButton: {
+    marginBottom: 5,
+  },
+
+  headerText: {
+    fontSize: 30,
+    fontFamily: 'Sofia-Sans',
+    letterSpacing: 1,
+  },
+
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#FFF',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    margin: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  fullTermsContainer: {
+    backgroundColor: '#FFF',
+    padding: 20,
+    borderRadius: 10,
+    maxHeight: '80%',
+    margin: 20,
+  },
+  fullTermsText: {
+    fontSize: 16,
+  },
+  welcomeMessage: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  sectionContainer: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  subsectionContainer: {
+    marginLeft: 20,
+    marginBottom: 10,
+  },
+  subsectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  subsectionContent: {
+    fontSize: 14,
+    marginBottom: 5,
+  },
 
   scrollView: {
     flex: 1,
