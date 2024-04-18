@@ -9,15 +9,15 @@ const AboutUsScreen = () => {
     const user = useAuth();
 
     const data = [
-        { title: 'Angela Deleo', image: require('../../../assets/images/angela.jpg'), description: 'Software Engineer | CSUF' },
+        { title: 'Angela DeLeo', image: require('../../../assets/images/angela.jpg'), description: 'Software Engineer | CSUF' },
         { title: 'Roman Saddi', image: require('../../../assets/images/roman.jpg'), description: 'Software Engineer | CSUF' },
     ];
 
     const [pressedItem, setPressedItem] = useState(null);
 
     const handleEmailPress = (item) => {
-        if (item.title === 'Angela Deleo') {
-            // Handle email press for Angela Deleo
+        if (item.title === 'Angela DeLeo') {
+            // Handle email press for Angela DeLeo
             const email = 'rockyangela5@gmail.com';
             Linking.openURL(`mailto:${email}`);
         } else if (item.title === 'Roman Saddi') {
@@ -28,8 +28,8 @@ const AboutUsScreen = () => {
     };
     
     const handleLinkedinPress = (item) => {
-        if (item.title === 'Angela Deleo') {
-            // Handle LinkedIn press for Angela Deleo
+        if (item.title === 'Angela DeLeo') {
+            // Handle LinkedIn press for Angela DeLeo
             const linkedinUsername = 'xatakux';
             Linking.openURL(`https://www.linkedin.com/in/${linkedinUsername}`);
         } else if (item.title === 'Roman Saddi') {
@@ -40,8 +40,8 @@ const AboutUsScreen = () => {
     };
     
     const handlePortfolioPress = (item) => {
-        if (item.title === 'Angela Deleo') {
-            // Handle portfolio press for Angela Deleo
+        if (item.title === 'Angela DeLeo') {
+            // Handle portfolio press for Angela DeLeo
             const portfolioUrl = 'https://atakux.github.io/';
             Linking.openURL(portfolioUrl);
         } else if (item.title === 'Roman Saddi') {
@@ -186,14 +186,19 @@ const styles = StyleSheet.create({
         fontFamily: 'Sofia-Sans',
     },
     slide: {
-        backgroundColor: '#cf83eb',
-        borderRadius: 1,
-        borderColor: 'black',
+        backgroundColor: 'white',
         padding: 20,
-        borderWidth: 1,
-        borderRadius: 10,
+        marginBottom: 20,
         width: '100%',
         flexDirection: 'column',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     title: {
         fontSize: 20,
