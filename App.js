@@ -113,7 +113,8 @@ console.warn = (...args) => {
   if (typeof firstArg === 'string' && firstArg.startsWith('Non-serializable values') || 
              firstArg.startsWith('Key "cancelled" in the image picker') || 
              firstArg.startsWith('Encountered two children with the same key') || 
-             firstArg.startsWith('Sending `onAnimatedValueUpdate` with no listeners registered.')) {
+             firstArg.startsWith('Sending `onAnimatedValueUpdate` with no listeners registered.') || 
+             firstArg.startsWith('ViewPropTypes')) {
     // Suppress the warning
     return;
   }
@@ -125,7 +126,8 @@ console.error = (...args) => {
   const [firstArg] = args;
   if (typeof firstArg === 'string' && firstArg.startsWith('AxiosError') || 
              firstArg.startsWith('There was a problem sending log messages') ||
-             firstArg.startsWith('Max retry limit reached. Unable to fetch data.')) {
+             firstArg.startsWith('Max retry limit reached. Unable to fetch data.') || 
+             firstArg.startsWith('ViewPropTypes')) {
     // Suppress the warning
     return;
   }
@@ -137,6 +139,26 @@ console.error = (...args) => {
   const [firstArg] = args;
   if (typeof firstArg === 'string' && firstArg.startsWith('There was a problem sending log messages')) {
     // Suppress the error
+    return;
+  }
+  // For other errors, call the original console.error()
+  originalError.apply(console, args);
+};
+
+console.warn = (...args) => {
+  const [firstArg] = args;
+  if (typeof firstArg === 'string' && firstArg.startsWith('ViewPropTypes')) {
+    // Suppress the warning related to ViewPropTypes
+    return;
+  }
+  // For other warnings, call the original console.warn()
+  originalWarn.apply(console, args);
+};
+
+console.error = (...args) => {
+  const [firstArg] = args;
+  if (typeof firstArg === 'string' && firstArg.startsWith('ViewPropTypes')) {
+    // Suppress the error related to ViewPropTypes
     return;
   }
   // For other errors, call the original console.error()
@@ -155,4 +177,6 @@ LogBox.ignoreLogs([
   "PrettyFormatPluginError: value.hasOwnProperty is not a function (it is undefined)",
   'Max retry limit reached. Unable to fetch data.',
   'AxiosError: There was a problem sending log messages',
+  "ViewPropTypes will be removed from React Native, along with all other PropTypes. We recommend that you migrate away from PropTypes and switch to a type system like TypeScript. If you need to continue using ViewPropTypes, migrate to the 'deprecated-react-native-prop-types' package.",
+  'ViewPropTypes will be removed from React Native, along with all other PropTypes.',
 ]);
