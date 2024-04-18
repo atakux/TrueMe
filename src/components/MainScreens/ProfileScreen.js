@@ -280,7 +280,7 @@ const ProfileScreen = () => {
         
           {/* About us buttos */}
           <View style={{flexDirection: "row", justifyContent: "space-evenly", marginTop: 20, marginBottom: 30}}>
-            <TouchableOpacity onPress={() => console.log('DEBUG: about us clicked')} style={styles.buttons}>
+            <TouchableOpacity onPress={() => navigation.navigate('AboutUs')} style={styles.buttons}>
               <Text style={styles.buttonText}>About Us</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setShowTermsModal(true)} style={styles.buttons}>

@@ -22,6 +22,7 @@ import TabBar from './src/utils/TabBar';
 import LoadingAnalysis from './src/components/SkinScreens/LoadingAnalysis';
 import AppLoading from './src/components/MainScreens/AppLoading';
 import ForgotPasswordScreen from './src/components/AccountSettings/ForgotPassword';
+import AboutUs from './src/components/MainScreens/AboutUs';
 
 const Stack = createStackNavigator();
 
@@ -77,6 +78,7 @@ export default function App() {
             <Stack.Screen name="DiagnosticScreen" component={DiagnosticScreen} options={{ headerShown: false }} />
             <Stack.Screen name="ResultScreen" component={ResultScreen} options={{ headerShown: false }} />
             <Stack.Screen name="AppLoading" component={AppLoading} options={{ headerShown: false }} />
+            <Stack.Screen name="AboutUs" component={AboutUs} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
         <StatusBar style="auto" />
