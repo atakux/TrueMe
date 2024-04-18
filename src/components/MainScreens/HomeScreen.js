@@ -34,7 +34,12 @@ const HomeScreen = () => {
     // Check if terms have been accepted
     const checkTermsAcceptance = async () => {
       try {
-        const accepted = await AsyncStorage.getItem(`acceptedTerms_${user.uid}`);
+        if (!user) {
+          // User is not logged in, no need to check terms acceptance
+          return;
+        }
+        
+        const accepted = await AsyncStorage.getItem('acceptedTerms');
         if (accepted !== null) {
           setAcceptedTerms(true);
         } else {
