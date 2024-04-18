@@ -1,0 +1,97 @@
+{
+    "welcomeMessage": "Welcome to TrueMe!",
+    "termsOfUse": {
+      "intro": "These Terms of Use govern your use of TrueMe mobile application and website (collectively referred to as the 'Service') operated by TrueMe Developers ('we', 'us', or 'our').",
+      "agreement": "By accessing or using the Service, you agree to be bound by these Terms of Use. If you disagree with any part of the terms, then you may not access the Service.",
+      "sections": [
+        {
+          "title": "1. Use of Service",
+          "subsections": [
+            {
+              "title": "1.1. Use License",
+              "content": "We grant you a limited, non-exclusive, non-transferable, and revocable license to use the Service for personal and non-commercial purposes only."
+            },
+            {
+              "title": "1.2. Data Privacy",
+              "content": "Your privacy is important to us. Please refer to our Privacy Policy for information on how we collect, use, and disclose your personal data."
+            },
+            {
+              "title": "1.3. User Consent",
+              "content": "By using the Service, you agree to the collection, use, and disclosure of your personal data as described in our Privacy Policy."
+            }
+          ]
+        },
+        {
+          "title": "2. Skin Analysis and Recommendations",
+          "subsections": [
+            {
+              "title": "2.1. Skin Analysis",
+              "content": "The Service may analyze user-provided pictures to determine potential skin conditions. However, this analysis is for informational purposes only and should not be considered a substitute for professional medical advice."
+            },
+            {
+              "title": "2.2. Recommendations",
+              "content": "The Service may suggest products and skincare routines based on the skin analysis. These recommendations are not a substitute for professional dermatological advice. We recommend consulting with a dermatologist before making any significant changes to your skincare routine."
+            }
+          ]
+        },
+        {
+          "title": "3. User Responsibilities",
+          "subsections": [
+            {
+              "title": "3.1. Consultation with Dermatologist",
+              "content": "We strongly advise users to consult with a licensed dermatologist or healthcare professional regarding any skin concerns or conditions identified through the Service."
+            },
+            {
+              "title": "3.2. Informed Decision-Making",
+              "content": "Users should use their discretion and judgment when following any recommendations or advice provided by the Service. We do not guarantee the effectiveness or suitability of any products or routines suggested."
+            }
+          ]
+        },
+        {
+          "title": "4. Intellectual Property",
+          "subsections": [
+            {
+              "title": "4.1. Ownership",
+              "content": "All content, features, and functionality provided by the Service are owned by TrueMe Developers and are protected by copyright, trademark, and other intellectual property laws."
+            },
+            {
+              "title": "4.2. License Limitations",
+              "content": "You may not reproduce, modify, distribute, display, or create derivative works of any content from the Service without our prior written consent."
+            }
+          ]
+        },
+        {
+          "title": "5. Limitation of Liability",
+          "subsections": [
+            {
+              "title": "5.1. Disclaimer",
+              "content": "The Service is provided on an 'as is' and 'as available' basis without any warranties, express or implied. We do not warrant the accuracy, completeness, or reliability of any content or information provided by the Service."
+            },
+            {
+              "title": "5.2. Indemnification",
+              "content": "You agree to indemnify, defend, and hold harmless TrueMe Developers and its affiliates, directors, officers, employees, and agents from any claims, liabilities, damages, losses, or expenses arising out of your use of the Service."
+            }
+          ]
+        },
+        {
+          "title": "6. Changes to Terms",
+          "subsections": [
+            {
+              "title": "6.1. Modification",
+              "content": "We reserve the right to modify or replace these Terms of Use at any time. Any changes will be effective immediately upon posting the updated Terms of Use on the Service. Your continued use of the Service after any such changes constitutes acceptance of the new Terms of Use."
+            }
+          ]
+        },
+        {
+          "title": "7. Contact Us",
+          "subsections": [
+            {
+              "title": "",
+              "content": "If you have any questions about these Terms of Use, please contact us at our emails: rockyangela5@gmail.com or romansaddi@gmail.com."
+            }
+          ]
+        }
+      ]
+    }
+  }
+  

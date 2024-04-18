@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, Image, Platform, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, Image, Platform, TouchableOpacity, ActivityIndicator, Modal } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import { ScrollView } from 'react-native-gesture-handler';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useNavigation } from '@react-navigation/native';
 
@@ -22,7 +24,29 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(true);
   const [healthySkinDisplayed, setHealthySkinDisplayed] = useState(false);
 
+  const [showTermsModal, setShowTermsModal] = useState(false); 
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showFullTerms, setShowFullTerms] = useState(false);
+
+  const terms = require('../../utils/json/terms.json');
+
   useEffect(() => {
+    // Check if terms have been accepted
+    const checkTermsAcceptance = async () => {
+      try {
+        const accepted = await AsyncStorage.getItem(`acceptedTerms_${user.uid}`);
+        if (accepted !== null) {
+          setAcceptedTerms(true);
+        } else {
+          setShowTermsModal(true);
+        }
+      } catch (error) {
+        console.error('Error retrieving terms acceptance state:', error);
+      }
+    };
+
+    checkTermsAcceptance();
+
     // Fetch daily routines function
     const fetchRoutines = async () => {
       try {
@@ -156,153 +180,231 @@ const HomeScreen = () => {
     return (completedSteps / totalSteps) * 100;
   };
 
+  const handleAcceptTerms = async () => {
+    try {
+      await AsyncStorage.setItem(`acceptedTerms_${user.uid}`, 'true');
+      setAcceptedTerms(true);
+      setShowTermsModal(false);
+    } catch (error) {
+      console.error('Error storing terms acceptance state:', error);
+    }
+  };
+
+  const renderTermsSummary = () => {
+    return (
+      <View style={styles.modalContent}>
+        <Text style={styles.modalTitle}>Terms of Use</Text>
+        <Text style={{...styles.modalTitle, fontSize: 18, fontWeight: 'normal'}}>Welcome to TrueMe!</Text>
+        <Text style={styles.modalText}>
+          By using our service, you agree to our terms, ensuring your privacy and data protection. 
+          We provide skin analysis and recommendations for informational purposes only, urging users to consult dermatologists for professional advice.
+          We do not guarantee results and users are liable for their actions. We may update our terms, and for any questions, contact us.
+        </Text>
+        <TouchableOpacity style={{ marginTop: 0, marginBottom: 20, marginHorizontal: 10, alignSelf: 'center' }} onPress={() => setShowFullTerms(true)}>
+          <Text style={styles.readMoreButtonText}>Read More</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.acceptButton} onPress={handleAcceptTerms}>
+          <Text style={styles.acceptButtonText}>Accept</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const renderFullTerms = () => {
+    return (
+      <ScrollView style={styles.fullTermsContainer}>
+        {terms ? (
+          <>
+            {terms.welcomeMessage && <Text style={styles.welcomeMessage}>{terms.welcomeMessage}</Text>}
+            {terms.termsOfUse && terms.termsOfUse.sections.map(section => (
+              <View key={section.title} style={styles.sectionContainer}>
+                <Text style={styles.sectionTitle}>{section.title}</Text>
+                {section.subsections.map(subsection => (
+                  <View key={subsection.title} style={styles.subsectionContainer}>
+                    <Text style={styles.subsectionTitle}>{subsection.title}</Text>
+                    <Text style={styles.subsectionContent}>{subsection.content}</Text>
+                  </View>
+                ))}
+              </View>
+            ))}
+            <TouchableOpacity style={{ marginTop: 0, marginBottom: 20, marginHorizontal: 10, alignSelf: 'center' }} onPress={() => setShowFullTerms(false)}>
+              <Text style={styles.readLessButtonText}>Read Less</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.acceptButtonFull} onPress={handleAcceptTerms}>
+              <Text style={styles.acceptButtonText}>Accept</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <Text style={styles.loadingText}>Loading terms...</Text>
+        )}
+      </ScrollView>
+    );
+  };
+  
 
   return (
     <RoutineProvider updateDailyRoutines={updateDailyRoutines}>
       <SafeAreaView style={styles.container}>
         <ScrollView style={styles.scrollView}>
-            {/* Top Container */}
-            <View style={styles.topContainer}>
-              <Text style={styles.topContainerText}>Hello {user.displayName}!</Text>
-            <Image source={require('../../../assets/images/home_top_image.png')} style={{alignSelf: "center"}}/>
-            </View>
 
-            {/* Skin Diagnostic Container */}
-            <View style={styles.skinResultContainer}>
-              {/* Display loading indicator if fetching skin data */}
-              {loading ? (
-                <View style={{alignSelf: "center"}}>
-                  <ActivityIndicator size="large" color="#64BBA1" />
-                </View>
-              ) : (
-                // Display skin analysis results or camera icon based on availability
-                <>
-                  {skinResults.length === 0 ? (
-                    // If there are no skin results, show camera icon
-                    <>
+
+
+          {/* Terms of Use Modal */}
+
+          <Modal
+            visible={showTermsModal}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => setShowTermsModal(false)}
+          >
+            <View style={styles.modalContainer}>
+              {showFullTerms ? renderFullTerms() : renderTermsSummary()}
+            </View>
+          </Modal>
+
+          {/* Top Container */}
+          <View style={styles.topContainer}>
+            <Text style={styles.topContainerText}>Hello {user.displayName}!</Text>
+          <Image source={require('../../../assets/images/home_top_image.png')} style={{alignSelf: "center"}}/>
+          </View>
+
+          {/* Skin Diagnostic Container */}
+          <View style={styles.skinResultContainer}>
+            {/* Display loading indicator if fetching skin data */}
+            {loading ? (
+              <View style={{alignSelf: "center"}}>
+                <ActivityIndicator size="large" color="#64BBA1" />
+              </View>
+            ) : (
+              // Display skin analysis results or camera icon based on availability
+              <>
+                {skinResults.length === 0 ? (
+                  // If there are no skin results, show camera icon
+                  <>
+                    {/* Container Title */}
+                    <View style={styles.textContainer}>
+                      <Text style={styles.mainText}>Skin Diagnostic Results</Text>
+                      <Text style={styles.textStyle}>Start your journey to healthy skin here!</Text>
+                    </View>
+                    
+                    <TouchableOpacity onPress={handleCameraClick}>
+                      <Image source={require('../../../assets/icons/large_camera.png')} style={styles.cameraButton}/>
+                      <Text style={styles.cameraButtonText}>Click to scan your face</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  // If there are skin results, display them
+                  <>
+                    <TouchableOpacity onPress={handleSkinResultContainerClick}>
                       {/* Container Title */}
                       <View style={styles.textContainer}>
-                        <Text style={styles.mainText}>Skin Diagnostic Results</Text>
-                        <Text style={styles.textStyle}>Start your journey to healthy skin here!</Text>
+                        <Text style={styles.mainText}>Your Skin Type:</Text>
+                        <Text style={styles.skinType}> {skinType} Skin</Text>
                       </View>
                       
-                      <TouchableOpacity onPress={handleCameraClick}>
-                        <Image source={require('../../../assets/icons/large_camera.png')} style={styles.cameraButton}/>
-                        <Text style={styles.cameraButtonText}>Click to scan your face</Text>
-                      </TouchableOpacity>
-                    </>
-                  ) : (
-                    // If there are skin results, display them
-                    <>
-                      <TouchableOpacity onPress={handleSkinResultContainerClick}>
-                        {/* Container Title */}
-                        <View style={styles.textContainer}>
-                          <Text style={styles.mainText}>Your Skin Type:</Text>
-                          <Text style={styles.skinType}> {skinType} Skin</Text>
-                        </View>
-                        
-                        <Text style={styles.skinDiagnostics}>Skin Diagnostic Results:</Text>
-                        {Object.entries(skinResults)
-                          .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
-                          .sort(([, a], [, b]) => b - a) // Sorting based on prediction values
-                          .map(([key], index) => {
-                            const prediction = skinResults[key];
-                            if (prediction > 0.05) {
-                              // If the prediction is above 0.05, render the prediction text
-                              return (
-                                <View key={index}>
-                                  <Text style={styles.resultsText}> • {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</Text>
-                                </View>
-                              );
-                            } else {
-                              // If the prediction is below or equal to 0.05, do not render
-                              return null;
-                            }
-                        })}
-                        {Object.entries(skinResults)
-                          .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
-                          .every(([, prediction]) => prediction <= 0.05) && (
-                          // If all predictions are below 0.05, display "Healthy Skin"
-                          <Text style={styles.resultsText}>Healthy Skin!!</Text>
-                        )}
-                      </TouchableOpacity>
-                    </>
-                  )}
-                </>
-              )}
-            </View>
-
-            {/* Daily Routines Container */}
-            <View style={styles.dailyRoutinesContainer}>
-              {/* Daily Routines Cards */}
-              <Swiper
-                cards={dailyRoutines}
-                renderCard={(item) => (
-                  <View key={item?.id} style={styles.dailyRoutinesCards}>
-                    {item ? ( // Check if item is defined
-                      <View>
-                        {/* Your card content here */}
-                        <View>
-                          {/* Status bar */}
-                          {item.title !== 'Add Routine' ? (
-                            <View style={{ justifyContent: 'space-between' }}>
-                              <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                                <View style={styles.leafIconContainer}>
-                                  <Image source={require('../../../assets/icons/leaf-heart.png')} />
-                                </View>
-                                <TouchableOpacity onPress={() => handleRoutineClick(item)}>
-                                  <Text style={styles.dailyRoutineText}>{item.title}</Text>
-                                </TouchableOpacity>
+                      <Text style={styles.skinDiagnostics}>Skin Diagnostic Results:</Text>
+                      {Object.entries(skinResults)
+                        .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
+                        .sort(([, a], [, b]) => b - a) // Sorting based on prediction values
+                        .map(([key], index) => {
+                          const prediction = skinResults[key];
+                          if (prediction > 0.05) {
+                            // If the prediction is above 0.05, render the prediction text
+                            return (
+                              <View key={index}>
+                                <Text style={styles.resultsText}> • {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</Text>
                               </View>
-                              <View style={styles.statusBarContainer}>
-                                <Text style={styles.statusBarText}>{calculateCompletion(item).toFixed(0)}% </Text>
-                                <View style={styles.statusBar}>
-                                  <View style={[styles.statusBarFill, { width: `${calculateCompletion(item)}%` }]} />
-                                </View>
+                            );
+                          } else {
+                            // If the prediction is below or equal to 0.05, do not render
+                            return null;
+                          }
+                      })}
+                      {Object.entries(skinResults)
+                        .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
+                        .every(([, prediction]) => prediction <= 0.05) && (
+                        // If all predictions are below 0.05, display "Healthy Skin"
+                        <Text style={styles.resultsText}>Healthy Skin!!</Text>
+                      )}
+                    </TouchableOpacity>
+                  </>
+                )}
+              </>
+            )}
+          </View>
+
+          {/* Daily Routines Container */}
+          <View style={styles.dailyRoutinesContainer}>
+            {/* Daily Routines Cards */}
+            <Swiper
+              cards={dailyRoutines}
+              renderCard={(item) => (
+                <View key={item?.id} style={styles.dailyRoutinesCards}>
+                  {item ? ( // Check if item is defined
+                    <View>
+                      {/* Your card content here */}
+                      <View>
+                        {/* Status bar */}
+                        {item.title !== 'Add Routine' ? (
+                          <View style={{ justifyContent: 'space-between' }}>
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                              <View style={styles.leafIconContainer}>
+                                <Image source={require('../../../assets/icons/leaf-heart.png')} />
+                              </View>
+                              <TouchableOpacity onPress={() => handleRoutineClick(item)}>
+                                <Text style={styles.dailyRoutineText}>{item.title}</Text>
+                              </TouchableOpacity>
+                            </View>
+                            <View style={styles.statusBarContainer}>
+                              <Text style={styles.statusBarText}>{calculateCompletion(item).toFixed(0)}% </Text>
+                              <View style={styles.statusBar}>
+                                <View style={[styles.statusBarFill, { width: `${calculateCompletion(item)}%` }]} />
                               </View>
                             </View>
-                          ) : (
-                            <TouchableOpacity onPress={() => handleRoutineClick(item)}>
-                              <View style={{ flexDirection: 'row', alignSelf: 'center', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Image source={require('../../../assets/icons/add.png')} style={styles.addRoutineIcon} />
-                                <Text style={styles.addRoutineText}>{item.title}</Text>
-                              </View>
-                            </TouchableOpacity>
-                          )}
-                        </View>
+                          </View>
+                        ) : (
+                          <TouchableOpacity onPress={() => handleRoutineClick(item)}>
+                            <View style={{ flexDirection: 'row', alignSelf: 'center', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <Image source={require('../../../assets/icons/add.png')} style={styles.addRoutineIcon} />
+                              <Text style={styles.addRoutineText}>{item.title}</Text>
+                            </View>
+                          </TouchableOpacity>
+                        )}
                       </View>
-                    ) : (
-                      <View style={styles.loadingCard}>
-                        <ActivityIndicator size="large" color="#64BBA1" />
-                      </View>
-                    )}
-                  </View>
-                )}
-                keyExtractor={(item) => `${item?.id}`}
-                stackSize={2}
-                stackSeparation={0}
-                stackScale={3}
-                infinite={dailyRoutines.length === 1 ? false : true}
-                animateOverlayLabelsOpacity
-                animateCardOpacity
-                cardHorizontalMargin={0}
-                cardVerticalMargin={0}
-                disableTopSwipe={dailyRoutines.length === 1 ? true : false}
-                disableLeftSwipe={dailyRoutines.length === 1 ? true : false}
-                disableRightSwipe={dailyRoutines.length === 1 ? true : false}
-                disableBottomSwipe={true}
-                useViewOverflow={Platform.OS === 'ios' ? true : false}
-                onSwiped={(cardIndex) =>
-                  console.log(
-                    "DEBUG: Swiped",
-                    dailyRoutines[cardIndex].title,
-                    "card"
-                  )
-                }
-              />
+                    </View>
+                  ) : (
+                    <View style={styles.loadingCard}>
+                      <ActivityIndicator size="large" color="#64BBA1" />
+                    </View>
+                  )}
+                </View>
+              )}
+              keyExtractor={(item) => `${item?.id}`}
+              stackSize={2}
+              stackSeparation={0}
+              stackScale={3}
+              infinite={dailyRoutines.length === 1 ? false : true}
+              animateOverlayLabelsOpacity
+              animateCardOpacity
+              cardHorizontalMargin={0}
+              cardVerticalMargin={0}
+              disableTopSwipe={dailyRoutines.length === 1 ? true : false}
+              disableLeftSwipe={dailyRoutines.length === 1 ? true : false}
+              disableRightSwipe={dailyRoutines.length === 1 ? true : false}
+              disableBottomSwipe={true}
+              useViewOverflow={Platform.OS === 'ios' ? true : false}
+              onSwiped={(cardIndex) =>
+                console.log(
+                  "DEBUG: Swiped",
+                  dailyRoutines[cardIndex].title,
+                  "card"
+                )
+              }
+            />
 
 
-            </View>
+          </View>
 
         </ScrollView>
 
@@ -331,6 +433,95 @@ const styles = StyleSheet.create({
         }
       })
     }, // End of container
+
+    modalContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+      backgroundColor: '#FFF',
+      padding: 20,
+      borderRadius: 10,
+      alignItems: 'center',
+      margin: 20,
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginBottom: 10,
+    },
+    modalText: {
+      fontSize: 16,
+      marginBottom: 20,
+    },
+    acceptButtonFull: {
+      backgroundColor: '#64BBA1',
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 5,
+      marginBottom: 40,
+    },
+    acceptButton: {
+      backgroundColor: '#64BBA1',
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 5,
+      marginBottom: 10, 
+    },
+    acceptButtonText: {
+      color: '#FFF',
+      fontSize: 16,
+      fontWeight: 'bold',
+      alignSelf: 'center',
+    },
+    readMoreButtonText: {
+      color: '#64BBA1',
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    fullTermsContainer: {
+      backgroundColor: '#FFF',
+      padding: 20,
+      borderRadius: 10,
+      maxHeight: '80%',
+      margin: 20,
+    },
+    fullTermsText: {
+      fontSize: 16,
+    },
+    readLessButtonText: {
+      color: '#64BBA1',
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    welcomeMessage: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginBottom: 10,
+    },
+    sectionContainer: {
+      marginBottom: 20,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginBottom: 10,
+    },
+    subsectionContainer: {
+      marginLeft: 20,
+      marginBottom: 10,
+    },
+    subsectionTitle: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      marginBottom: 5,
+    },
+    subsectionContent: {
+      fontSize: 14,
+      marginBottom: 5,
+    },
 
     loadingText: {
       marginTop: 20,
