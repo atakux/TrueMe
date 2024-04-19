@@ -17,7 +17,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.trueme",
-      "buildNumber": "7"
+      "buildNumber": "8",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Allow TrueMe to access your photos.",
+        "NSPhotoLibraryAddUsageDescription": "Allow TrueMe to save photos."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -27,9 +31,12 @@
       "package": "com.trueme",
       "permissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_MEDIA_LOCATION"
       ],
-      "versionCode": 12
+      "versionCode": 13
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -55,6 +62,10 @@
         "projectId": "5edc955a-03aa-429a-9a61-a1766c65b239"
       }
     },
-    "owner": "trueme_dev_team"
+    "owner": "trueme_dev_team",
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/5edc955a-03aa-429a-9a61-a1766c65b239"
+    }
   }
 }
