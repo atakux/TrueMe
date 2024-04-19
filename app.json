@@ -17,7 +17,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.trueme",
-      "buildNumber": "8",
+      "buildNumber": "9",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Allow TrueMe to access your photos.",
         "NSPhotoLibraryAddUsageDescription": "Allow TrueMe to save photos."
@@ -36,7 +36,7 @@
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.ACCESS_MEDIA_LOCATION"
       ],
-      "versionCode": 13
+      "versionCode": 14
     },
     "web": {
       "favicon": "./assets/favicon.png"

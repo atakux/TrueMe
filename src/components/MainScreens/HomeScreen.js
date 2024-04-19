@@ -37,13 +37,13 @@ const HomeScreen = () => {
         if (!user) {
           // User is not logged in, no need to check terms acceptance
           return;
-        }
-        
-        const accepted = await AsyncStorage.getItem('acceptedTerms');
-        if (accepted !== null) {
-          setAcceptedTerms(true);
         } else {
-          setShowTermsModal(true);
+          const accepted = await AsyncStorage.getItem(`acceptedTerms_${user.uid}`);
+          if (accepted !== null) {
+            setAcceptedTerms(true);
+          } else {
+            setShowTermsModal(true);
+          }
         }
       } catch (error) {
         console.error('Error retrieving terms acceptance state:', error);
