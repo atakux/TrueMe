@@ -159,6 +159,7 @@ const styles = StyleSheet.create({
     container: {
         width: "100%",
         alignSelf: 'center',
+        margin: 15,
     },
     backButton: {
         alignSelf: 'flex-start',
@@ -214,6 +215,7 @@ const styles = StyleSheet.create({
     content: {
         flexDirection: 'column',
         marginBottom: 10,
+        alignSelf: 'center',
     },
     cardDescription: {
         fontSize: 14,
