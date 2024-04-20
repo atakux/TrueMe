@@ -10,7 +10,9 @@
 # Installation
 <a href="https://play.google.com/store/apps/details?id=com.trueme"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" width="280"/></a>
 
-<a href="https://testflight.apple.com/join/HZ7GFHxq"><img alt="Download on the App Store" src="assets/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" width="250"></a>
+<a href="https://testflight.apple.com/join/HZ7GFHxq"><img alt="Download on the App Store" src="assets/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" width="250" style="margin-left: 15px; margin-bottom: 15px;"></a>
+
+<a href="https://expo.dev/preview/update?&updateRuntimeVersion=1.0.0&createdAt=2024-04-19T17%3A21%3A25.402Z&slug=exp&projectId=5edc955a-03aa-429a-9a61-a1766c65b239&group=752ae50a-5467-40ba-8a7d-b4cdb22d177a"><img alt="Open in Expo Go" src="assets/expo.png" width="230" height="90" style="border-radius: 10px; margin-left: 25px;"/></a>
 
 # Local Installation
 - *TrueMe* App:
