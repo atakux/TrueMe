@@ -1,9 +1,13 @@
-import os
-import numpy as np
-from tensorflow import keras
+import os # import the operating system module
+import numpy as np # import the numerical computing library NumPy
+from tensorflow import keras # import the TensorFlow machine learning library
+
+# import the module for generating image data from directories
 from tensorflow.keras.preprocessing.image import ImageDataGenerator # type: ignore
-from keras.models import Sequential
-from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+
+# The following imports are used to define the model architecture
+from keras.models import Sequential # import the class for defining a sequential model
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense # import the classes for defining layers in the model
 
 # Path to your dataset
 dataset_path = "dataset/files"
@@ -13,6 +17,8 @@ img_width, img_height = 150, 150
 input_shape = (img_width, img_height, 3)
 
 # Parameters
+# Epochs is the number of times the entire training dataset is passed through the model
+# The model will update its weights based on the data it has seen after each epoch
 epochs = 10
 batch_size = 32
 num_classes = 10

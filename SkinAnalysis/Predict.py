@@ -1,8 +1,17 @@
+# Import the main TensorFlow library
 from tensorflow import keras
+
+# keras models to load a saved Keras model from a file
 from keras.models import load_model
+
+# keras preprocessing to load images from filepaths, convert them to numpy arrays
 from keras.preprocessing import image
+
+# PIL (Python Imaging Library) for loading and manipulating images
 import PIL
 from PIL import Image
+
+# NumPy for numerical computations on arrays
 import numpy as np
 
 def predict(image_path):
@@ -46,4 +55,3 @@ def predict(image_path):
     print("Predicted class:", predicted_class)
 
     return predicted_class_dict
-

@@ -1,7 +1,19 @@
+# Import the predict function from the Predict module
 from Predict import predict
-from flask import Flask, request, jsonify
+
+# Import Flask, the web framework, to create the app
+from flask import Flask
+
+# Import request and jsonify from Flask to handle HTTP requests and responses
+from flask import request, jsonify
+
+# Import PIL (Python Imaging Library) to handle image files
 from PIL import Image
+
+# Import io to convert image data to a BytesIO object
 import io
+
+# Import numpy to handle numerical computations on arrays
 import numpy as np
 
 app = Flask(__name__)
