@@ -8,6 +8,9 @@ app = Flask(__name__)
 
 @app.route('/predict', methods=['POST'])
 def predict_endpoint():
+    """
+    This function is the endpoint for the Flask app. When the app receives a POST request at /predict, it extracts the image data from the request, passes it to the predict function in the Predict module, and returns a JSON response with the prediction.
+    """
     try: 
         print("Received request")
         image_data = request.files['image'].read()
