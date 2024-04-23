@@ -45,7 +45,7 @@ const ResultScreen = () => {
                 }
 
                 // Generate suggested skincare routine
-                const generatedRoutine = await generateSuggestedSkincareRoutine(skinType.toLowerCase());
+                const generatedRoutine = await generateSuggestedSkincareRoutine(skinType.toLowerCase(), skinAnalysisResults[0].prediction);
                 console.log("DEBUG: Generated routine:", generatedRoutine);
                 setSuggestedRoutine(generatedRoutine);
             } else {

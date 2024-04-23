@@ -344,10 +344,14 @@ const styles = StyleSheet.create({
     }, // End of icon
 
     bottomPanel: {
-        bottom: -200,
-        width: "110%",
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        width: "100%",
+        marginTop: 10,
         backgroundColor: "#FFFFFF",
-        
+
         // Border
         borderRadius: 75,
         borderWidth: 2,
@@ -360,8 +364,9 @@ const styles = StyleSheet.create({
         alignSelf: "center",
         alignItems: "center",
         justifyContent: "center",
+        alignSelf: "center",
         paddingTop: 15,
-    }, // End of bottomPanel  
+    }, // End of bottomPanel
     button: {
         backgroundColor: '#64BBA1',
         borderRadius: 5,
