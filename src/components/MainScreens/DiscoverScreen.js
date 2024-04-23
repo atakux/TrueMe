@@ -325,8 +325,8 @@ const DiscoverScreen = () => {
               activeFilter // Set sortBy parameter to 'price'
             ).slice(0, visibleProducts).map(product => (
               <View key={product.asin} style={styles.productContainer}>
-                <ProductImage imageUrl={product.image} />
                 <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
+                  <ProductImage imageUrl={product.image}/>
                   <View style={styles.productTextContainer}>
                     <Text style={styles.productTitle}>{product.title.length > 15 ? `${product.title.substring(0, 15)}...` : product.title}</Text>
                     <View style={{ flexDirection: 'row', marginVertical: 8}}>
@@ -429,10 +429,11 @@ const styles = StyleSheet.create({
   tabButton: {
     flex: 1, // Each tab button takes equal space
     paddingVertical: 8,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     backgroundColor: '#DDDDDD',
     borderRadius: 8,
     marginHorizontal: 5, // Add some horizontal margin for spacing
+    width: "100%",
   },
 
   tabText: {
@@ -459,7 +460,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     paddingHorizontal: 15,
     marginTop: 0,
-    width: 400,
+    width: '100%',
   },
 
   searchInput: {
@@ -472,7 +473,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-    clearButton: {
+  clearButton: {
     position: 'absolute',
     right: 25,
     top: '50%',
@@ -495,8 +496,11 @@ const styles = StyleSheet.create({
     width: 110,
     height: 110,
     resizeMode: 'contain',
-    marginLeft: 10,
-    marginTop: 10,
+    margin: 10,
+    padding: 10,
+    alignContent: 'center',
+    alignSelf: 'center',
+
   },
 
   modalContainer: {

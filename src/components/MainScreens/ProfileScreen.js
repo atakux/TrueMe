@@ -570,7 +570,7 @@ const styles = StyleSheet.create({
   }, // End of imageBanner
 
   buttons: {
-    width: 160,
+    width: "40%",
     height: 114,
     backgroundColor: '#FFFFFF',
     borderRadius: 12,

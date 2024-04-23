@@ -640,39 +640,27 @@ const styles = StyleSheet.create({
     }, // End of loadingIndicator
 
     topContainer: {
+      backgroundColor: "#D0F2DA",
+      width: "90%",
+      height: 219,
+      borderRadius: 35,
+      shadowColor: "black",
+      shadowOffset: {
+        width: 0,
+        height: 3,
+      },
+      shadowOpacity: 0.25,
+      elevation: 5,
+      alignSelf: "center",
+      padding: 20,
+
       ...Platform.select({
         ios: {
-          backgroundColor: "#D0F2DA",
-          width: 348,
-          height: 219,
-          borderRadius: 35,
-          shadowColor: "black",
-          shadowOffset: {
-            width: 0,
-            height: 3,
-          },
-          shadowOpacity: 0.25,
-          elevation: 5,
-          alignSelf: "center",
-          padding: 20,
+          marginTop: 0,
         },
-
         android: {
-          backgroundColor: "#D0F2DA",
-          width: 330,
-          height: 219,
-          borderRadius: 35,
-
-          elevation: 5,
           marginTop: 40,
-          alignSelf: "center",
-          padding: 20,
-
-          shadowColor: 'black',
-          shadowOffset: { width: 0, height: 3, },
-          shadowOpacity: 0.25,
         }
-
       })
 
     }, // End of topContainer
@@ -686,43 +674,22 @@ const styles = StyleSheet.create({
     }, // End of topContainerText
 
     skinResultContainer: {
-      ...Platform.select({
-        ios: {
-          backgroundColor: "#FFFFFF",
-          width: 348,
-          height: 320,
-          borderRadius: 35,
-          shadowColor: "black",
-          shadowOffset: {
-            width: 0,
-            height: 3,
-          },
-          shadowOpacity: 0.25,
-          elevation: 5,
-          alignSelf: "center",
-          padding: 20,
+      backgroundColor: "#FFFFFF",
+      width: "90%",
+      height: 320,
+      borderRadius: 35,
+      shadowColor: "black",
+      shadowOffset: {
+        width: 0,
+        height: 3,
+      },
+      shadowOpacity: 0.25,
+      elevation: 5,
+      alignSelf: "center",
+      padding: 20,
 
-          marginTop: 20,
-          marginBottom: 0
-        },
-
-        android: {
-          backgroundColor: "#FFFFFF",
-          width: 330,
-          height: 300,
-          borderRadius: 35,
-
-          elevation: 5,
-          marginTop: 30,
-          marginBottom: 5,
-          alignSelf: "center",
-          padding: 20,
-
-          shadowColor: 'black',
-          shadowOffset: { width: 0, height: 3, },
-          shadowOpacity: 0.25,
-        }
-      })
+      marginTop: 20,
+      marginBottom: 0
     }, // End of skinResultContainer
 
     dailyRoutinesContainer: {
@@ -745,48 +712,22 @@ const styles = StyleSheet.create({
     }, // End of dailyRoutinesContainer
 
     dailyRoutinesCards: {
-      ...Platform.select({
-        ios: {
-          backgroundColor: "#FFFFFF",
-          width: 348,
-          height: 90,
-          borderRadius: 35,
-          
-          elevation: 5,
-          marginTop: 10,
-          alignSelf: "center",
-          padding: 20,
-          
-          shadowColor: "black",
-          shadowOffset: {
-            width: 0,
-            height: 3,
-          },
-          shadowOpacity: 0.25,
-
-        },
-
-        android: {
-          backgroundColor: "#FFFFFF",
-          width: 330,
-          height: 100,
-          borderRadius: 35,
-
-          elevation: 5,
-          marginTop: 10,
-          alignSelf: "center",
-          padding: 20,
-
-          shadowColor: 'black',
-          shadowOffset: { 
-            width: 0, 
-            height: 3, 
-          },
-          shadowOpacity: 0.25,
-
-        }
-
-      })
+      backgroundColor: "#FFFFFF",
+      width: "90%",
+      height: 90,
+      borderRadius: 35,
+      
+      elevation: 5,
+      marginTop: 10,
+      alignSelf: "center",
+      padding: 20,
+      
+      shadowColor: "black",
+      shadowOffset: {
+        width: 0,
+        height: 3,
+      },
+      shadowOpacity: 0.25,
 
     }, // End of dailyRoutinesCards
 

@@ -68,7 +68,7 @@ const ResultScreen = () => {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.headerText}>Skin Diagnostic Results</Text>
-                <TouchableOpacity style={{alignSelf: "flex-end", paddingBottom: 5}} onPress={() => navigation.navigate('Home')}>
+                <TouchableOpacity style={{alignSelf: "flex-end", paddingBottom: 5, alignContent: "flex-end"}} onPress={() => navigation.navigate('Home')}>
                     <Image source={require('../../../assets/icons/home-fill.png')} />
                 </TouchableOpacity>
             </View>
@@ -81,7 +81,7 @@ const ResultScreen = () => {
                 </View>
             </View>
 
-            <View style={{flexDirection: 'row', marginBottom: 100, justifyContent: "space-between"}}>
+            <View style={{flexDirection: 'row', marginBottom: "15%", justifyContent: "space-between"}}>
                 <View style={styles.moreInfo}>
                     <Text style={styles.moreInfoText}>Review suggested skin care products and routines</Text>
                     <TouchableOpacity style={{alignSelf: "center"}} onPress={() => setShowModal(true)}>
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     },
 
     resultsContainer: {
-        height: screenWidth - 150,
+        height: 250,
         width: screenWidth - 50,
         backgroundColor: "#FFF",
         borderRadius: 20,
@@ -209,9 +209,9 @@ const styles = StyleSheet.create({
 
     scrollView: {
         flex: 1,
-        flexGrow: 1,
         marginRight: 20,
-        marginBottom: 300,
+        marginBottom: "90%",
+        overflow: 'scroll',
     },
 
     results: {
@@ -285,6 +285,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         marginRight: 20,
         paddingLeft: 12,
+        alignItems: 'stretch',
+        justifyContent: 'space-between',
     },
 
     statusBar: {
