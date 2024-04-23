@@ -17,6 +17,7 @@ const ShopScreen = ({ setIsTyping }) => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
   const user = useAuth();
+  const currentDay = new Date().getDay();
   const [activeTab, setActiveTab] = useState('Button 1'); // Initial active tab
   const [loading, setLoading] = useState(true);
   const isFocused = useIsFocused();
@@ -161,29 +162,58 @@ const ShopScreen = ({ setIsTyping }) => {
 
 
     // function should check if skin results on firebase have changed or current is null, if so, call fetchData
-    const checkSkinData = async () => {
+    const sortObjectKeys = (obj) => {
+      return Object.keys(obj).sort().reduce((acc, key) => {
+          acc[key] = obj[key];
+          return acc;
+      }, {});
+  };
   
-        // Get the current skin analysis results
-        const currentResults = await getSkinAnalysisResults(user.uid);
-
-        // Check if cachedResults is null
-        if (!cachedResults) {
+  const checkSkinData = async () => {
+      // Get the current skin analysis results
+      const currentResults = await getSkinAnalysisResults(user.uid);
+  
+      // Check if cachedResults is null
+      if (!cachedResults) {
           console.log("DEBUG: cachedResults is null");
-          fetchData();
-        }
-        // Check if cachedResults is not equal to currentResults
-        else if (cachedResults !== currentResults) {
-          console.log("DEBUG: cachedResults is not equal to currentResults");
-          fetchData();
-        }
-        // Check if cachedResults is equal to currentResults
-        else {
-          console.log("DEBUG: cachedResults is equal to currentResults");
-        }
-
-        // Update the cachedResults variable for the next time the function runs
-        setCachedResults(currentResults);
-    };
+          await fetchData();
+      } else {
+          // Extract prediction objects from cachedResults and currentResults
+          const cachedPrediction = cachedResults[0]?.prediction;
+          const currentPrediction = currentResults[0]?.prediction;
+  
+          // Check if cachedPrediction and currentPrediction are both truthy
+          if (cachedPrediction && currentPrediction) {
+              // Sort the keys of prediction objects alphabetically
+              const sortedCachedPrediction = sortObjectKeys(cachedPrediction);
+              const sortedCurrentPrediction = sortObjectKeys(currentPrediction);
+  
+              // Compare the sorted prediction objects
+              const cachedPredictionString = JSON.stringify(sortedCachedPrediction);
+              const currentPredictionString = JSON.stringify(sortedCurrentPrediction);
+  
+              if (cachedPredictionString === currentPredictionString) {
+                  console.log("DEBUG: cachedResults and currentResults have identical predictions");
+              } else {
+                  console.log("DEBUG: cachedResults and currentResults have different predictions");
+                  console.log("DEBUG: cachedResults prediction:", cachedPredictionString);
+                  console.log("DEBUG: currentResults prediction:", currentPredictionString);
+                  await fetchData();
+              }
+          } else {
+              console.log("DEBUG: cachedResults or currentResults is missing prediction data");
+              await fetchData();
+          }
+      }
+  
+      // Store updated cachedResults in AsyncStorage
+      await AsyncStorage.setItem(`cachedResults_${user.uid}_${currentDay}`, JSON.stringify(currentResults));
+  
+      // Update the cachedResults variable for the next time the function runs
+      setCachedResults(currentResults);
+  };
+  
+  
 
     
 
