@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Platform, Keyboard, StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Animated, Modal, ActivityIndicator, Button, Linking,TouchableWithoutFeedback } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { debounce } from 'lodash';
 import { getSkinAnalysisResults } from '../../utils/FirestoreDataService'; 
 
@@ -9,13 +11,13 @@ import { useAuth } from '../../utils/AuthContext';
 
 import fetchAmazonProductData from '../../utils/API/amazonAPI';
 
-// ready to fix
 
 const ShopScreen = ({ setIsTyping }) => {
   const axios = require('axios');
   const [fontLoaded, setFontLoaded] = useState(false);
   const navigation = useNavigation();
   const user = useAuth();
+  const currentDay = new Date().getDay();
   const [activeTab, setActiveTab] = useState('Button 1'); // Initial active tab
   const [loading, setLoading] = useState(true);
   const isFocused = useIsFocused();
@@ -39,6 +41,9 @@ const ShopScreen = ({ setIsTyping }) => {
   const [skinType, setSkinType] = useState(null);
 
   const [dataFetched, setDataFetched] = useState(false);
+
+  const [cachedResults, setCachedResults] = useState(null);
+
 
   // Function to scroll to top of screen
   const scrollToTop = () => {
@@ -102,8 +107,7 @@ const ShopScreen = ({ setIsTyping }) => {
         // Once skin analysis results are available, fetch skincare data only if not already fetched
         if (!dataFetched) {
           const highProbabilityConditions = getHighProbabilityConditions(results[0].prediction, skinType);
-  
-          console.log("DEBUG: High Probability Conditions:", highProbabilityConditions);
+
   
           // Fetch amzon product data
           fetchAmazonData(results[0].prediction, skinType);
@@ -123,8 +127,6 @@ const ShopScreen = ({ setIsTyping }) => {
     // Function to fetch data from Amazon based on skin analysis results
     const fetchAmazonData = (skinResults, skinType) => {
       const highProbabilityConditions = getHighProbabilityConditions(skinResults, skinType);
-
-      console.log("DEBUG: High Probability Conditions:", highProbabilityConditions);
   
       // Fetch skincare products
       fetchAmazonProductData(highProbabilityConditions + ' Skincare Products')
@@ -152,13 +154,78 @@ const ShopScreen = ({ setIsTyping }) => {
 
     setDataFetched(true);
     };
+
+
+
+
+    
+
+
+    // function should check if skin results on firebase have changed or current is null, if so, call fetchData
+    const sortObjectKeys = (obj) => {
+      return Object.keys(obj).sort().reduce((acc, key) => {
+          acc[key] = obj[key];
+          return acc;
+      }, {});
+  };
+  
+  const checkSkinData = async () => {
+      // Get the current skin analysis results
+      const currentResults = await getSkinAnalysisResults(user.uid);
+  
+      // Check if cachedResults is null
+      if (!cachedResults) {
+          console.log("DEBUG: cachedResults is null");
+          await fetchData();
+      } else {
+          // Extract prediction objects from cachedResults and currentResults
+          const cachedPrediction = cachedResults[0]?.prediction;
+          const currentPrediction = currentResults[0]?.prediction;
+  
+          // Check if cachedPrediction and currentPrediction are both truthy
+          if (cachedPrediction && currentPrediction) {
+              // Sort the keys of prediction objects alphabetically
+              const sortedCachedPrediction = sortObjectKeys(cachedPrediction);
+              const sortedCurrentPrediction = sortObjectKeys(currentPrediction);
+  
+              // Compare the sorted prediction objects
+              const cachedPredictionString = JSON.stringify(sortedCachedPrediction);
+              const currentPredictionString = JSON.stringify(sortedCurrentPrediction);
+  
+              if (cachedPredictionString === currentPredictionString) {
+                  console.log("DEBUG: cachedResults and currentResults have identical predictions");
+              } else {
+                  console.log("DEBUG: cachedResults and currentResults have different predictions");
+                  console.log("DEBUG: cachedResults prediction:", cachedPredictionString);
+                  console.log("DEBUG: currentResults prediction:", currentPredictionString);
+                  await fetchData();
+              }
+          } else {
+              console.log("DEBUG: cachedResults or currentResults is missing prediction data");
+              await fetchData();
+          }
+      }
+  
+      // Store updated cachedResults in AsyncStorage
+      await AsyncStorage.setItem(`cachedResults_${user.uid}_${currentDay}`, JSON.stringify(currentResults));
+  
+      // Update the cachedResults variable for the next time the function runs
+      setCachedResults(currentResults);
+  };
+  
+  
+
+    
+
+
+
+
+
   
     if (isFocused || !dataFetched) {
-      console.log("DEBUG: Data fetched:", dataFetched);
-      console.log("DEBUG: Is focused:", isFocused);
-      console.log("DEBUG: loadingSkincare:", loadingSkincare);
-      console.log("DEBUG: loadingMakeup:", loadingMakeup);
-      fetchData();
+      // Check skin data to see if data is different
+      checkSkinData();
+      // fetchData();
     }
   }, [isFocused, dataFetched]);
 
@@ -191,8 +258,6 @@ const ShopScreen = ({ setIsTyping }) => {
   const handleButtonClick = (buttonName) => {
     setActiveTab(buttonName);
     scrollToTop();
-    console.log("CODE HERE")
-    console.log(getHighProbabilityConditions(skinResults))
   };
 
   const handleSkinResultContainerClick = () => {
