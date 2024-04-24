@@ -78,16 +78,68 @@ const ResultScreen = () => {
                 <View style={styles.resultsContainer}>
                     <Text style={styles.resultText}>Your Skin Type:</Text>
                     <Text style={styles.skinType}>{skinType}</Text>
+                    <Text style={styles.modalText}>
+                        You have <Text style={{ color: "#64BBA1" }}>{skinType.toLowerCase()} skin type </Text> and the conditions that are likely are
+                        {   
+                            Object.entries(results)
+                                .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
+                                .sort(([, a], [, b]) => b - a) // Sorting based on prediction values
+                                .map(([key], index, array) => {
+                                    const prediction = results[key];
+                                    if (prediction > 0.05) {
+                                        // If the prediction is above 0.05, render the prediction text
+                                        return (
+                                            <View key={index}>
+                                                <Text style={{ paddingTop: 5, fontSize: 16, fontFamily: 'Sofia-Sans', color: "#964BBB" }}>
+                                                    {index === 0 ? '  ' : index == 2 ? ' and  ' : ''}
+                                                    {key.split('_').map(word => word.charAt(0).toLowerCase() + word.slice(1)).join(' ')}
+                                                    {index < 2 ? ', ' : ''}
+                                                </Text>
+                                            </View>
+                                        );
+                                    } else {
+                                        // If the prediction is below or equal to 0.05, do not render
+                                        return null;
+                                    }
+                                })}.
+                        {
+                            // Check if there are no conditions above 0.05
+                            !Object.entries(results)
+                                .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry")
+                                .some(([_, prediction]) => prediction > 0.05) &&
+                            <Text style={{ color: "#964BBB" }}>
+                                There are no conditions in particular to be wary about!
+                            </Text>
+                        }
+                    </Text>
+                    <Text style={styles.modalText}>
+                        Review your suggested <Text style={{ color: "#964BBB" }}>products</Text> and <Text style={{ color: "#64BBA1" }}>routines</Text> by clicking the buttons below and review your skin analysis results.
+                    </Text>
                 </View>
             </View>
 
+
+
             <View style={{flexDirection: 'row', marginBottom: "15%", justifyContent: "space-between"}}>
                 <View style={styles.moreInfo}>
-                    <Text style={styles.moreInfoText}>Review suggested skin care products and routines</Text>
-                    <TouchableOpacity style={{alignSelf: "center"}} onPress={() => setShowModal(true)}>
-                        <Image source={require('../../../assets/icons/info.png')} />
-                    </TouchableOpacity>
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                            style={{ ...styles.button, backgroundColor: "#9464BB", marginBottom: 10 }}
+                            onPress={() => {navigation.navigate('Shop'); }}>
+                            <Text style={styles.buttonText}>View Skin Care Products</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={{ ...styles.button, backgroundColor: "#64BBA1", marginTop: 10, marginBottom: 10 }}
+                            onPress={() => {
+                                navigation.navigate('SuggestedRoutine', { routine: suggestedRoutine }); // Pass the suggested routine to SuggestedRoutine component
+                            }}>
+                            <Text style={styles.buttonText}>View Skin Care Routine</Text>
+                        </TouchableOpacity>
+
+                    </View>
                 </View>
+
+                {/* Display the results in a scrollable list */}
                 <ScrollView style={styles.scrollView}>
                     {Object.keys(results).sort().map((key, index) => (  
                         <View key={index}>
@@ -103,52 +155,6 @@ const ResultScreen = () => {
                     ))}
                 </ScrollView>
             </View>
-
-
-            {/* Modal */}
-            <Modal
-                visible={showModal}
-                animationType="slide"
-                transparent={true}
-                onRequestClose={() => setShowModal(false)}
-            >
-                <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
-                    <View style={styles.modalBackground}>
-                        <View style={styles.centeredView}>
-                            <View style={styles.modalView}>
-                                <Text style={styles.modalText}>You have <Text style={{color: "#64BBA1"}}>{skinType.toLowerCase()} skin</Text>, review your suggested products and skin care routines below:</Text>
-                                <View style={styles.buttonContainer}>
-                                    <TouchableOpacity
-                                        style={{ ...styles.button, backgroundColor: "#9464BB", marginBottom: 10 }}
-                                        onPress={() => {
-                                            setShowModal(false);
-                                            navigation.navigate('Shop');
-                                        }}
-                                    >
-                                        <Text style={styles.buttonText}>View Skin Care Products</Text>
-                                    </TouchableOpacity>
-
-
-                                    <TouchableOpacity
-                                        style={{ ...styles.button, backgroundColor: "#64BBA1", marginTop: 10, marginBottom: 10 }}
-                                        onPress={() => {
-                                            setShowModal(false);
-
-                                            navigation.navigate('SuggestedRoutine', { routine: suggestedRoutine }); // Pass the suggested routine to SuggestedRoutine component
-                                        }}
-                                    >
-                                        <Text style={styles.buttonText}>View Skin Care Routine</Text>
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity>
-                                        <Text style={styles.closeButton} onPress={() => setShowModal(false)}>Close</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
-                </TouchableWithoutFeedback>
-            </Modal>
         </SafeAreaView>
 
     );
@@ -183,7 +189,7 @@ const styles = StyleSheet.create({
     },
 
     resultsContainer: {
-        height: 250,
+        height: "auto",
         width: screenWidth - 50,
         backgroundColor: "#FFF",
         borderRadius: 20,
@@ -209,9 +215,10 @@ const styles = StyleSheet.create({
 
     scrollView: {
         flex: 1,
-        marginRight: 20,
-        marginBottom: "90%",
+        marginRight: "5%",
+        marginBottom: 450,
         overflow: 'scroll',
+        height: "auto",
     },
 
     results: {
@@ -225,6 +232,7 @@ const styles = StyleSheet.create({
         letterSpacing: 5,
         marginTop: 20,
         marginLeft: 20,
+        marginBottom: 20,
     },
 
     buttonContainer: {
@@ -240,7 +248,6 @@ const styles = StyleSheet.create({
 
     moreInfo: {
         alignSelf: "flex-start",
-        backgroundColor: "#D4CCDD",
         borderRadius: 10,
 
         ...Platform.select({
@@ -362,43 +369,17 @@ const styles = StyleSheet.create({
     },
 
     // Modal styles
-    modalBackground: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    centeredView: {
-        width: '80%',
-        backgroundColor: 'transparent',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    modalView: {
-        backgroundColor: "white",
-        borderRadius: 5,
-        padding: 35,
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-    },
     modalText: {
         marginBottom: 15,
-        textAlign: "center",
+        textAlign: "left",
         fontSize: 18,
         fontFamily: 'Sofia-Sans',
         color: '#000000',
         textAlign: 'left',
         alignSelf: 'flex-start',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginHorizontal: 20,
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+        marginHorizontal: 5,
     },
     buttonContainer: {
         flexDirection: "column",

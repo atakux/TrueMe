@@ -480,9 +480,9 @@ const ShopScreen = ({ setIsTyping }) => {
                 </View>
               ) : (
                 filterProducts(skincareProducts, searchQuery).slice(0, visibleProducts).map(product => (
-                  <View key={product.asin} style={styles.productContainer}>
-                    <ProductImage imageUrl={product.image} />
-                    <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
+                  <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
+                    <View key={product.asin} style={styles.productContainer}>
+                      <ProductImage imageUrl={product.image} />
                       <View style={styles.productTextContainer}>
                         <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}</Text>
                         <View style={{ flexDirection: 'row', marginVertical: 8}}>
@@ -492,8 +492,9 @@ const ShopScreen = ({ setIsTyping }) => {
                         </View>
                         <Text style={{fontSize: 18}}>{product.price}</Text>
                       </View>
-                    </TouchableOpacity>
-                  </View>
+                    </View>
+                  </TouchableOpacity>
+
                 ))
               )}
             </View>
@@ -513,9 +514,9 @@ const ShopScreen = ({ setIsTyping }) => {
                 </View>
               ) : (
                 filterProducts(makeupProducts, searchQuery).slice(0, visibleProducts).map(product => (
-                  <View key={product.asin} style={styles.productContainer}>
-                    <ProductImage imageUrl={product.image} />
-                    <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
+                  <TouchableOpacity onPress={() => setModalVisible({ visible: true, product })}>
+                    <View key={product.asin} style={styles.productContainer}>
+                      <ProductImage imageUrl={product.image} />
                       <View style={styles.productTextContainer}>
                         <Text style={styles.productTitle}>{product.title.length > 80 ? `${product.title.substring(0, 80)}...` : product.title}</Text>
                         <View style={{ flexDirection: 'row', marginVertical: 8}}>
@@ -525,8 +526,8 @@ const ShopScreen = ({ setIsTyping }) => {
                         </View>
                         <Text style={{fontSize: 18}}>{product.price}</Text>
                       </View>
-                    </TouchableOpacity>
-                  </View>
+                    </View>
+                  </TouchableOpacity>
                 ))
               )}
             </View>
@@ -666,34 +667,24 @@ const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: 'row',
     marginBottom: 20,
-
-    ...Platform.select({
-      ios: {
-        marginHorizontal: 10,
-      },
-      android: {
-        marginHorizontal: 10,
-      }
-    })
+    marginHorizontal: 10,
+    width: '90%',
+    alignSelf: 'center',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
   },
 
   tabButton: {
     backgroundColor: "white",
     borderRadius: 5,
     borderColor: 'black',
-
-    ...Platform.select({
-      ios: {
-        paddingVertical: 6,
-        paddingHorizontal: 55,
-        marginHorizontal: 5,
-      },
-      android: {
-        paddingVertical: 6,
-        paddingHorizontal: 45,
-        marginHorizontal: 5,
-      }
-    })
+    width: "50%",
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginHorizontal: 15,
+    paddingHorizontal: 20,
+    paddingVertical: 5,
   },
 
   tabText: {
@@ -707,6 +698,7 @@ const styles = StyleSheet.create({
     paddingBottom: 75,
     marginTop: 10,
     overflow: 'scroll',
+    width: '100%',
   },
 
   productContainer: {
@@ -775,20 +767,10 @@ const styles = StyleSheet.create({
   },
 
   searchContainer: {
-    ...Platform.select({
-      ios: {
-        paddingHorizontal: 15,
-        marginTop: 0,
-        marginBottom: 10,
-        width: 400,
-      },
-      android: {
-        paddingHorizontal: 15,
-        marginTop: 0,
-        marginBottom: 10,
-        width: 375,
-      }
-    })
+    paddingHorizontal: 15,
+    marginTop: 0,
+    marginBottom: 10,
+    width: "100%",
   },
 
   searchInput: {
