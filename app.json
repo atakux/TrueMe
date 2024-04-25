@@ -17,10 +17,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.trueme",
-      "buildNumber": "10",
+      "buildNumber": "11",
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "Allow TrueMe to access your photos.",
-        "NSPhotoLibraryAddUsageDescription": "Allow TrueMe to save photos."
+        "NSPhotoLibraryUsageDescription": "Allow TrueMe to access your photos to let you customize your profile.",
+        "NSPhotoLibraryAddUsageDescription": "Allow TrueMe to save photos for facial recognition."
       }
     },
     "android": {
@@ -36,7 +36,7 @@
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.ACCESS_MEDIA_LOCATION"
       ],
-      "versionCode": 15
+      "versionCode": 16
     },
     "web": {
       "favicon": "./assets/favicon.png"

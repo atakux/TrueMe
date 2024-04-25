@@ -20,8 +20,20 @@ const ResultScreen = () => {
     const [showModal, setShowModal] = useState(false); // State variable for modal visibility
     const [suggestedRoutine, setSuggestedRoutine] = useState(null); // State variable to store the suggested routine
     const user = useAuth();
+    const [top3Conditions, setTop3Conditions] = useState([]);
 
     useEffect(() => {
+        const getTop3Conditions = (results) => {
+            const excludedConditions = ["dry", "normal", "oily"];
+            const filteredResults = Object.keys(results).filter(condition => 
+                !excludedConditions.includes(condition) && results[condition] > 0.05);
+            const top3 = filteredResults.sort((a, b) => results[b] - results[a]).slice(0, 3);
+            
+            if (top3.length !== 0) {
+                setTop3Conditions(top3);            
+            }
+        };      
+
         const loadAsyncData = async () => {
             await loadFonts();
             setFontLoaded(true);
@@ -48,6 +60,8 @@ const ResultScreen = () => {
                 const generatedRoutine = await generateSuggestedSkincareRoutine(skinType.toLowerCase(), skinAnalysisResults[0].prediction);
                 console.log("DEBUG: Generated routine:", generatedRoutine);
                 setSuggestedRoutine(generatedRoutine);
+                getTop3Conditions(skinAnalysisResults[0].prediction);
+                console.log("DEBUG: Top 3 conditions:", top3Conditions);
             } else {
                 console.error("Error fetching skin analysis results.");
             }
@@ -79,45 +93,28 @@ const ResultScreen = () => {
                     <Text style={styles.resultText}>Your Skin Type:</Text>
                     <Text style={styles.skinType}>{skinType}</Text>
                     <Text style={styles.modalText}>
-                        You have <Text style={{ color: "#64BBA1" }}>{skinType.toLowerCase()} skin type </Text> and the conditions that are likely are
-                        {   
-                            Object.entries(results)
-                                .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry") // Filter out "normal", "oily", and "dry"
-                                .sort(([, a], [, b]) => b - a) // Sorting based on prediction values
-                                .map(([key], index, array) => {
-                                    const prediction = results[key];
-                                    if (prediction > 0.05) {
-                                        // If the prediction is above 0.05, render the prediction text
-                                        return (
-                                            <View key={index}>
-                                                <Text style={{ paddingTop: 5, fontSize: 16, fontFamily: 'Sofia-Sans', color: "#964BBB" }}>
-                                                    {index === 0 ? '  ' : index == 2 ? ' and  ' : ''}
-                                                    {key.split('_').map(word => word.charAt(0).toLowerCase() + word.slice(1)).join(' ')}
-                                                    {index < 2 ? ', ' : ''}
-                                                </Text>
-                                            </View>
-                                        );
-                                    } else {
-                                        // If the prediction is below or equal to 0.05, do not render
-                                        return null;
-                                    }
-                                })}.
-                        {
-                            // Check if there are no conditions above 0.05
-                            !Object.entries(results)
-                                .filter(([key]) => key !== "normal" && key !== "oily" && key !== "dry")
-                                .some(([_, prediction]) => prediction > 0.05) &&
-                            <Text style={{ color: "#964BBB" }}>
-                                There are no conditions in particular to be wary about!
-                            </Text>
-                        }
+                        You have <Text style={{ color: "#64BBA1" }}>{skinType.toLowerCase()} skin type</Text> 
+                        {top3Conditions.length > 0 && (
+                            <>
+                                {" and the likely conditions are "}
+                                {top3Conditions.map((condition, index) => (
+                                    <React.Fragment key={index}>
+                                        <Text style={{ color: "#964BBB" }}>{condition}</Text>
+                                        {index === top3Conditions.length - 2 && top3Conditions.length === 2 && " and "}
+                                        {index < top3Conditions.length - 2 && ", "}
+                                        {top3Conditions.length > 2 && index === top3Conditions.length - 2 && ", and "}
+                                        {index === top3Conditions.length - 1 && "."}
+                                    </React.Fragment>
+                                ))}
+                            </>
+                        )}
+                        {top3Conditions.length === 0 && ". There are no conditions to be wary about!"}
                     </Text>
                     <Text style={styles.modalText}>
                         Review your suggested <Text style={{ color: "#964BBB" }}>products</Text> and <Text style={{ color: "#64BBA1" }}>routines</Text> by clicking the buttons below and review your skin analysis results.
                     </Text>
                 </View>
             </View>
-
 
 
             <View style={{flexDirection: 'row', marginBottom: "15%", justifyContent: "space-between"}}>
@@ -216,14 +213,21 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
         marginRight: "5%",
-        marginBottom: 450,
-        overflow: 'scroll',
+        marginBottom: "110%",
+        overflow: 'hidden',
         height: "auto",
     },
 
     results: {
         marginTop: 20,
         marginBottom: 10,
+    },
+
+    conditions: {
+        fontSize: 18, 
+        fontFamily: 'Sofia-Sans', 
+        color: "#964BBB",
+        marginBottom: 15,
     },
 
     skinType: {
