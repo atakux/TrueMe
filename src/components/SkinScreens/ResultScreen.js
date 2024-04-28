@@ -213,9 +213,17 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
         marginRight: "5%",
-        marginBottom: "110%",
         overflow: 'scroll',
         height: "auto",
+
+        ...Platform.select({
+            ios: {
+                marginBottom: "110%",
+            },
+            android: {
+                marginBottom: "130%",
+            },
+        })
     },
 
     results: {
