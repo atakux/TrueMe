@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
         flex: 1,
         marginRight: "5%",
         marginBottom: "110%",
-        overflow: 'hidden',
+        overflow: 'scroll',
         height: "auto",
     },
 
