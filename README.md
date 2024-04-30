@@ -12,7 +12,7 @@
 
 <a href="https://testflight.apple.com/join/HZ7GFHxq"><img alt="Download on the App Store" src="assets/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" width="250" style="margin-left: 15px; margin-bottom: 15px;"></a>
 
-<a href="https://expo.dev/preview/update?&updateRuntimeVersion=1.0.0&createdAt=2024-04-19T17%3A21%3A25.402Z&slug=exp&projectId=5edc955a-03aa-429a-9a61-a1766c65b239&group=752ae50a-5467-40ba-8a7d-b4cdb22d177a"><img alt="Open in Expo Go" src="assets/expo.png" width="230" height="90" style="border-radius: 10px; margin-left: 25px;"/></a>
+<a href="https://expo.dev/preview/update?message=fixed&updateRuntimeVersion=1.0.0&createdAt=2024-04-28T21%3A39%3A08.442Z&slug=exp&projectId=5edc955a-03aa-429a-9a61-a1766c65b239&group=ea516a7c-92f9-4ad0-bc2f-850557a8cd6c"><img alt="Open in Expo Go" src="assets/expo.png" width="230" height="90" style="border-radius: 10px; margin-left: 25px;"/></a>
 
 # Local Installation
 - *TrueMe* App:
