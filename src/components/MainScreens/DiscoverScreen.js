@@ -84,15 +84,16 @@ const DiscoverScreen = () => {
   };
 
   // Function to filter products based on search query and filter
+  // Function to filter products based on search query and filter
   const filterProducts = (products, query, sortBy) => {
     let filteredProducts = products.filter(product =>
       product.title.toLowerCase().includes(query.toLowerCase())
     );
     if (sortBy === 'Price') {
       filteredProducts.sort((a, b) => {
-        // Convert price strings to numbers for comparison
-        const priceA = parseFloat(a.price.replace('$', ''));
-        const priceB = parseFloat(b.price.replace('$', ''));
+        // Check if price exists and is not null or undefined
+        const priceA = a.price ? parseFloat(a.price.replace('$', '')) : 0;
+        const priceB = b.price ? parseFloat(b.price.replace('$', '')) : 0;
         // Sort products in ascending order based on price
         return priceA - priceB;
       });
@@ -104,6 +105,7 @@ const DiscoverScreen = () => {
     }
     return filteredProducts;
   };
+
   
   // Function to render product image
   const ProductImage = ({ imageUrl }) => {
